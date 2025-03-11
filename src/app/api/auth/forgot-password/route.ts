@@ -4,6 +4,7 @@ import { User } from "@/models/User";
 import { signJwtToken } from "@/utils/jwt";
 import { sendResetEmail } from "@/utils/email";
 import { NextRequest, NextResponse } from "next/server";
+import { connectToDatabase } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,11 +12,14 @@ export async function POST(req: NextRequest) {
 
     const { email } = await req.json();
     console.log("Received email:", email);
-
+    await connectToDatabase();
     const user = await User.findOne({ email });
     if (!user) {
       console.log("User not found for email:", email);
       return NextResponse.json({ message: "Email not found" }, { status: 404 });
+    } else {
+      console.log("User found for email:", email);
+      
     }
 
     console.log("User found:", user._id);
