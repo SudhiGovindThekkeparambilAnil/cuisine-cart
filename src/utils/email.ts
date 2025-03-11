@@ -1,6 +1,12 @@
 import nodemailer from "nodemailer";
 
 export const sendResetEmail = async (email: string, resetLink: string) => {
+  console.log("sendResetEmail called with:", email, resetLink);
+
+  console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
+  console.log("EMAIL_PORT:", process.env.EMAIL_PORT);
+  console.log("EMAIL_USER:", process.env.EMAIL_USER);
+
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: Number(process.env.EMAIL_PORT),
@@ -24,8 +30,9 @@ export const sendResetEmail = async (email: string, resetLink: string) => {
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log("Reset email sent to:", email);
+    console.log("Sending email with options:", mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully:", info.messageId);
   } catch (error) {
     console.error("Error sending reset email:", error);
     throw new Error("Email sending failed.");
