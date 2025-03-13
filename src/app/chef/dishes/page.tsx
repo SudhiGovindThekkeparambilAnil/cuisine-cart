@@ -49,11 +49,11 @@ export default function ChefDishesPage() {
   return (
     <div className="p-4">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Chef - Manage Dishes</h1>
+      <div className="mb-6 flex flex-col sm:flex-row items-center sm:justify-between gap-4 sm:gap-0">
+        <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left">Chef - Manage Dishes</h1>
         <Link
           href="/chef/dishes/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition">
+          className="inline-block bg-blue-600 text-white px-4 py-2 w-full sm:w-auto rounded shadow hover:bg-blue-700 transition text-center">
           Create New Dish
         </Link>
       </div>
@@ -68,6 +68,8 @@ export default function ChefDishesPage() {
             <Image
               src={dish.photoUrl || "https://placehold.co/600x400?text=No+Dish+Image"}
               alt={dish.name}
+              width={40}
+              height={50}
               className="h-48 w-full object-cover"
             />
 
