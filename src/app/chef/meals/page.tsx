@@ -44,13 +44,14 @@ export default function ChefMealsPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Chef - Manage Meals</h1>
-      <Link
-        href="/chef/meals/new"
-        className="inline-block bg-green-600 text-white px-4 py-2 rounded">
-        Create New Meal
-      </Link>
-
+      <div className="mb-6 flex flex-col sm:flex-row items-center sm:justify-between gap-4 sm:gap-0">
+        <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left mb-4">Chef - Manage Meals</h1>
+        <Link
+          href="/chef/meals/new"
+          className="inline-block bg-green-600 text-white px-4 py-2 w-full sm:w-auto rounded text-center">
+          Create New Meal
+        </Link>
+      </div>
       <ul className="mt-4 space-y-3">
         {meals.map((meal) => (
           <li key={meal._id} className="p-2 border rounded flex items-center justify-between">

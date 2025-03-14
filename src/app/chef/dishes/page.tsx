@@ -59,13 +59,12 @@ export default function ChefDishesPage() {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Chef - Manage Dishes</h1>
-        <Button asChild>
+      <div className="mb-6 flex flex-col sm:flex-row items-center sm:justify-between gap-4 sm:gap-0">
+        <h1 className="text-2xl sm:text-2xl font-bold text-center sm:text-left mb-4">Chef - Manage Dishes</h1>
+        <Button asChild className="px-4 py-2 w-full sm:w-auto rounded text-center">
           <Link href="/chef/dishes/new">Create New Dish</Link>
         </Button>
       </div>
-
       {/* Error Message */}
       {error && <p className="text-red-600">{error}</p>}
 

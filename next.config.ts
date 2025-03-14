@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "indianhealthyrecipes.com",
+        hostname: "www.indianhealthyrecipes.com",
         port: "",
         pathname: "/**",
       },

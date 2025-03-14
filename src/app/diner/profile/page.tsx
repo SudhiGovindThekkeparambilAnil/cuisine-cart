@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import Loader from "@/components/Loader";
 
 export default function DinerProfilePage() {
   const [userData, setUserData] = useState<any>(null); // To store user data
@@ -31,7 +33,7 @@ export default function DinerProfilePage() {
   }, [router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />; // Show the loader component while loading
   }
 
   if (!userData) {
@@ -45,7 +47,7 @@ export default function DinerProfilePage() {
       
      {/* Profile Icon */}
      <div className="absolute -top-12 sm:-top-16 left-4 sm:left-6 w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-200">
-          <Image src="/icons/user-icon.svg" alt="Profile Icon" className="w-12 h-12 sm:w-16 sm:h-16 p-2" />
+          <Image src="/icons/user-icon.svg" alt="Profile Icon" width={12} height={12} className="w-12 h-12 sm:w-16 sm:h-16 p-2" />
         </div>
   
       {/* Profile Name */}
@@ -103,7 +105,7 @@ export default function DinerProfilePage() {
   
         {/* Edit Profile Button */}
         <div className="flex justify-center mt-4">
-          <button className="bg-orange-500 text-white px-8 sm:px-14 py-2 rounded-md hover:bg-orange-600">EDIT</button>
+          <Button className=" mt-4 sm:px-14 py-2">EDIT</Button>
         </div>
       </div>
   
