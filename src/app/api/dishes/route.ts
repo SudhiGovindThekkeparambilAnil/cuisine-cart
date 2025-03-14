@@ -19,14 +19,13 @@ export async function POST(request: Request) {
   try {
     await connectToDatabase();
     const body = await request.json();
-    const { name, type, photoUrl } = body;
+    const { name, type, photoUrl, description, price, ingredients } = body;
 
-    if (!name || !type) {
-      return NextResponse.json({ error: "name and type are required" }, { status: 400 });
+    if (!name || !type || !description || !price || !ingredients?.length) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // create a new Dish doc
-    const newDish = await Dish.create({ name, type, photoUrl });
+    const newDish = await Dish.create({ name, type, photoUrl, description, price, ingredients });
     return NextResponse.json(newDish, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
