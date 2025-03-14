@@ -8,9 +8,7 @@ import { Dish } from "@/models/Dish";
 export async function GET(_req: Request, context: any) {
   try {
     await connectToDatabase();
-
-    // Must await context.params, then destructure 'id'
-    const { id } = await context.params;
+    const { id } = context.params; // ❌ No need for `await`
 
     const dish = await Dish.findById(id);
     if (!dish) {
@@ -26,7 +24,7 @@ export async function GET(_req: Request, context: any) {
 export async function PUT(req: Request, context: any) {
   try {
     await connectToDatabase();
-    const { id } = await context.params;
+    const { id } = context.params;
 
     const updates = await req.json(); // e.g. { name, type, photoUrl }
     const updatedDish = await Dish.findByIdAndUpdate(id, updates, {
@@ -52,7 +50,7 @@ export async function DELETE(_req: Request, context: any) {
     if (!deletedDish) {
       return NextResponse.json({ error: "Dish not found" }, { status: 404 });
     }
-    return NextResponse.json({ message: "Dish deleted" }, { status: 204 });
+    return NextResponse.json({ message: "Dish deleted" }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
