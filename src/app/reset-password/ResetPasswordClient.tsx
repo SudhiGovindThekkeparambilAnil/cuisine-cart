@@ -14,6 +14,7 @@ export default function ResetPasswordClient() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [showReTypePassword, setshowReTypePassword] = useState(false);
   const [form, setForm] = useState({
     password: "",
@@ -73,10 +74,11 @@ export default function ResetPasswordClient() {
       });
       if (res.status === 200) {
         setLoading(false);
+        setIsSuccess(true); 
         toast.success("Password reset successfully", {
           description: "You can now login with your new password",
         });
-        router.push("/auth/login");
+        // router.push("/auth/login");
       }
     } catch (error: any) {
       console.error(error);
@@ -88,7 +90,9 @@ export default function ResetPasswordClient() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[url('/images/login-bg.jpg')] bg-cover bg-no-repeat">
-      <div className="relative lg:w-[50%] md:w-[80%] sm:w-full flex flex-col items-center bg-white rounded-lg  p-5 py-10">
+      <div className="relative w-[80%] md:w-[70%] lg:w-[50%] flex flex-col items-center bg-white rounded-lg  p-6 py-10">
+      {!isSuccess ? (
+          <>
         {/* Form Section */}
         <form
           onSubmit={handleResetPassword}
@@ -211,6 +215,19 @@ export default function ResetPasswordClient() {
             </Button>
           </div>
         </form>
+        </>
+        ) : (
+              <div className="flex flex-col items-center text-center p-6">
+                    <h2 className="text-xl font-bold mt-4">Password Reset Successfully</h2>
+                    <Image src="/passwordReset.png" alt="Success" width={200} height={200} />
+                    <p className="text-sm text-center text-gray-600 mt-2">
+                      You can now log in with your new password.
+                    </p>
+                    <Button onClick={() => router.push("/auth/login")} className="mt-4 bg-orange-500 hover:bg-orange-600 text-white px-8 py-2 rounded">
+                       Proceed to Login
+                    </Button>
+              </div>
+             )}
       </div>
     </div>
   );

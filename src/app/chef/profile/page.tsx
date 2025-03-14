@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import Loader from "@/components/Loader";
 
 export default function ChefProfilePage() {
   const [userData, setUserData] = useState<any>(null); // To store user data
@@ -31,7 +33,7 @@ export default function ChefProfilePage() {
   }, [router]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loader />; // Show the loader component while loading
   }
 
   if (!userData) {
@@ -45,7 +47,7 @@ export default function ChefProfilePage() {
         
         {/* Profile Icon */}
         <div className="absolute -top-12 sm:-top-16 left-4 sm:left-6 w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-200">
-          <Image src="/icons/user-icon.svg" alt="Profile Icon" className="w-12 h-12 sm:w-16 sm:h-16 p-2" />
+          <Image src="/icons/user-icon.svg" alt="Profile Icon" width={12} height={12} className="w-12 h-12 sm:w-16 sm:h-16 p-2" />
         </div>
   
         {/* Profile Name */}
@@ -54,7 +56,7 @@ export default function ChefProfilePage() {
         </h2>
   
         {/* Rating & Cuisine Type */}
-        <div className="mt-10 flex absolute -top-4 sm:-top-6 left-32 sm:left-40 gap-2 text-sm sm:text-lg">
+        <div className="mt-10 flex absolute -top-4 sm:-top-6 left-32 sm:left-40 gap-2 text-xs md:text-lg">
           <span className="font-medium">Rating:</span>
           <div className="flex">
             <span className="text-yellow-400 text-lg sm:text-xl">★</span>
@@ -63,7 +65,7 @@ export default function ChefProfilePage() {
             <span className="text-gray-400 text-lg sm:text-xl">★</span>
             <span className="text-gray-400 text-lg sm:text-xl">★</span>
           </div>
-          <span className="ml-2 font-medium">| Cuisine Type</span>
+          <span className="font-medium">| Cuisine Type</span>
         </div>
   
         {/* Buttons Section */}
@@ -75,7 +77,7 @@ export default function ChefProfilePage() {
   
         {/* Profile Card Section */}
         <div className="bg-white p-6 rounded-lg shadow-lg w-full mt-6">
-          <h2 className="text-xl sm:text-2xl font-semibold text-center mb-4">Chef Profile</h2>
+          <h2 className="text-xl sm:text-xl font-semibold text-center mb-4">Chef Profile</h2>
   
           <div className="space-y-4">
             {/* Name Field */}
@@ -116,8 +118,9 @@ export default function ChefProfilePage() {
   
           {/* Edit Profile Button */}
           <div className="flex justify-center mt-4">
-            <button className="bg-orange-500 text-white px-8 sm:px-14 py-2 rounded-md hover:bg-orange-600">EDIT</button>
-          </div>
+          <Button className=" mt-4 sm:px-14 py-2">EDIT</Button>
+        </div>
+         
         </div>
   
         {/* Achievements Section */}

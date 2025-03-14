@@ -91,7 +91,7 @@ export default function Header() {
             alt="Company Logo"
             width={90}
             height={90}
-            className="w-50 h-50 me-3 rounded"
+            className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 lg:w-26 lg:h-26 me-3 rounded"
           />
         <p className="text-2xl font-bold text-gray-800">
           {" "}
@@ -150,7 +150,6 @@ export default function Header() {
           <DialogPanel className="w-full h-full p-6 flex flex-col justify-between">
             {/* Logo Section */}
             <div className="text-center mb-6">
-              <p className="text-3xl font-bold text-gray-800">Cuisine Cart</p>
               <p className="text-3xl font-bold text-gray-800">Cuisine Cart</p>
             </div>
 
