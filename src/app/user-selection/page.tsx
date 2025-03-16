@@ -10,7 +10,7 @@ export default function UserSelection() {
 
   const handleRoleSelection = (role: string) => {
     localStorage.setItem("role", role);
-    router.push(`/auth/signup?role=${role}`);
+    router.push(`/auth/login?role=${role}`);
   };
 
   return (
