@@ -1,9 +1,11 @@
 import { User } from "@/models/User";
 import { hashPassword } from "@/utils/bcrypt";
 import { NextResponse } from "next/server";
+import { connectToDatabase } from "@/lib/db";
 
 export async function POST(req: Request) {
   try {
+        await connectToDatabase();
     console.log("Signup API called"); // Debugging log
 
     const { name, email, password, role } = await req.json();
