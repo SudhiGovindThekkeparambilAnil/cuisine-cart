@@ -72,21 +72,21 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content - Two Column Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
         {/* Subscription Plan */}
         <div>
           <h2 className="text-xl font-bold mb-4">Subscription Plan</h2>
           <Card className="overflow-hidden">
-            <div className="flex flex-col md:flex-row">
+            <div className="flex flex-col lg:flex-row">
               {/* Image Container - Makes it Responsive */}
-              <div className="w-full md:w-2/5 relative">
+              <div className="w-full lg:w-2/5 relative">
                 <div className="w-full h-full">
                   <Image
                     src="/images/sub-plan.jpg"
                     alt="Indian Food"
                     width={200}
                     height={200}
-                    className="w-full h-full object-contain md:object-cover border rounded-xl"
+                    className=" w-full h-[200px] md:h-full object-cover border rounded-xl"
                   />
                 </div>
               </div>
@@ -111,12 +111,12 @@ export default function DashboardPage() {
                     <span className="font-semibold">Price:</span> 38$ (weekly)
                   </div>
                   <div className="pt-2 space-y-2">
-                    <Button className="w-full bg-[#F39C12] hover:bg-[#E67E22] text-white">
+                    <Button className="w-full text-xs sm:text-sm bg-[#F39C12] hover:bg-[#E67E22] text-white">
                       View Subscription
                     </Button>
                     <Button
                       variant="outline"
-                      className="w-full border-[#F39C12] text-[#F39C12] hover:bg-[#FFF8EF] hover:text-[#E67E22]"
+                      className="w-full text-xs sm:text-sm border-[#F39C12] text-[#F39C12] hover:bg-[#FFF8EF] hover:text-[#E67E22]"
                     >
                       Cancel Subscription
                     </Button>
@@ -135,7 +135,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h2 className="text-xl font-bold mb-4">Order History</h2>
-          <Card className="p-4 max-h-80 overflow-y-auto">
+          <Card className="p-4 max-h-72 sm:max-h-80 overflow-y-auto">
             {orderHistory.map((order, index) => (
               <HistoryCard key={index} {...order} />
             ))}
@@ -144,7 +144,7 @@ export default function DashboardPage() {
 
         <div>
           <h2 className="text-xl font-bold mb-4">Favourite Chefs</h2>
-          <Card className="p-4 max-h-80 overflow-y-auto">
+          <Card className="p-4 max-h-72 sm:max-h-80 overflow-y-auto">
             {favoriteChefs.map((chef, index) => (
               <ChefCard key={index} {...chef} />
             ))}

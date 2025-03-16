@@ -75,7 +75,7 @@ const Footer = () => {
               alt="Company Logo"
               width={120}
               height={120}
-              className="rounded-full"
+              className="rounded-full w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 lg:w-26 lg:h-26"
             />
             <div>
               <h1 className="font-bold text-xl">Cuisine Cart</h1>
