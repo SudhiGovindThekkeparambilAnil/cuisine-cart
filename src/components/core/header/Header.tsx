@@ -62,6 +62,7 @@ export default function Header() {
     try {
       await axios.post("/api/auth/logout");
       setUser(null);
+      localStorage.removeItem("role"); 
       toast.info("Logout Successful!", {
         description: "Session has been logged out.",
       });
