@@ -5,7 +5,7 @@ import Cropper from "react-easy-crop";
 import { uploadImage } from "./actions";
 
 // Function to crop image using canvas
-const getCroppedImage = async (imageSrc: string, croppedAreaPixels: any) => {
+const getCroppedImage = async (imageSrc: string, croppedAreaPixels: any): Promise<File | null> => {
   const image = new Image();
   image.src = imageSrc;
   await new Promise((resolve) => (image.onload = resolve));
@@ -30,9 +30,13 @@ const getCroppedImage = async (imageSrc: string, croppedAreaPixels: any) => {
     croppedAreaPixels.height
   );
 
-  return new Promise<File>((resolve) => {
+  return new Promise<File | null>((resolve) => {
     canvas.toBlob((blob) => {
-      if (!blob) return;
+      if (!blob) {
+        console.error("❌ Cropping failed: No blob generated.");
+        resolve(null);
+        return;
+      }
       const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
       resolve(file);
     }, "image/jpeg");
@@ -81,10 +85,19 @@ export default function UploadFile({
 
   // Crop and prepare the image for upload
   const cropImage = async () => {
-    if (!imagePreview || !selectedFile || !croppedAreaPixels) return;
+    if (!imagePreview || !selectedFile || !croppedAreaPixels) {
+      alert("Please select an image and crop area.");
+      return;
+    }
 
     const croppedFile = await getCroppedImage(imagePreview, croppedAreaPixels);
-    setCroppedImage(URL.createObjectURL(croppedFile));
+
+    if (!croppedFile) {
+      alert("Cropping failed. Please try again.");
+      return;
+    }
+
+    setCroppedImage(URL.createObjectURL(croppedFile)); // ✅ Only if it's valid
     setSelectedFile(croppedFile);
     setCropComplete(true);
     setCropMessage("Cropped image ready for upload.");
@@ -92,7 +105,10 @@ export default function UploadFile({
 
   // Upload function
   async function handleUpload() {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      alert("Please select an image first.");
+      return;
+    }
 
     setLoading(true);
     try {
