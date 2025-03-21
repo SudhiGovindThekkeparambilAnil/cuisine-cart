@@ -14,7 +14,10 @@ export function Tabs({ defaultValue, className, children }: TabsProps) {
     <div className={cn("w-full", className)}>
       {React.Children.map(children, (child) =>
         React.isValidElement(child) && child.type === TabsList
-          ? React.cloneElement(child as React.ReactElement<TabsListProps>, { activeTab, setActiveTab })
+          ? React.cloneElement(child as React.ReactElement<TabsListProps>, {
+              activeTab,
+              setActiveTab,
+            })
           : null
       )}
       {React.Children.map(children, (child) => {
@@ -39,7 +42,10 @@ export function TabsList({ children, activeTab, setActiveTab, className }: TabsL
     <div className={cn("flex space-x-2 bg-gray-100 p-1 rounded-lg", className)}>
       {React.Children.map(children, (child) =>
         React.isValidElement(child) && child.type === TabsTrigger
-          ? React.cloneElement(child as React.ReactElement<TabsTriggerProps>, { activeTab, setActiveTab })
+          ? React.cloneElement(child as React.ReactElement<TabsTriggerProps>, {
+              activeTab,
+              setActiveTab,
+            })
           : null
       )}
     </div>
@@ -58,10 +64,11 @@ export function TabsTrigger({ value, children, activeTab, setActiveTab }: TabsTr
     <button
       className={cn(
         "px-4 py-2 text-sm font-medium rounded-md transition-all",
-        activeTab === value ? "bg-orange-500 text-white" : "bg-transparent text-gray-700 hover:bg-gray-200"
+        activeTab === value
+          ? "bg-orange-500 text-white"
+          : "bg-transparent text-gray-700 hover:bg-gray-200"
       )}
-      onClick={() => setActiveTab?.(value)}
-    >
+      onClick={() => setActiveTab?.(value)}>
       {children}
     </button>
   );
@@ -72,7 +79,7 @@ interface TabsContentProps {
   children: React.ReactNode;
 }
 
-// ✅ FIX: Read the `value` prop to avoid the unused variable warning
+//  FIX: Read the `value` prop to avoid the unused variable warning
 export function TabsContent({ value, children }: TabsContentProps) {
   React.useEffect(() => {
     // This is a workaround to prevent TypeScript from flagging 'value' as unused
