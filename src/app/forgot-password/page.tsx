@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-
+  const [emailSent, setEmailSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleForgotPassword = async (e: React.FormEvent) => {
@@ -25,6 +25,7 @@ export default function ForgotPasswordPage() {
       if (response.status === 200) {
         console.log(response)
         setMessage("");
+        setEmailSent(true);
         toast.success("Reset Link Sent!",
         //    {
         //   description: `${response.response.}`
@@ -44,7 +45,9 @@ export default function ForgotPasswordPage() {
    
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full bg-[url('/images/login-bg.jpg')] bg-cover bg-no-repeat">
-      <div className="relative lg:w-[50%] md:w-[80%] sm:w-full rounded flex flex-col items-center bg-white  p-5 m-2 pt-20">
+      <div className="relative w-[80%] md:w-[70%] lg:w-[50%] rounded flex flex-col items-center bg-white  p-5 m-2 pt-20">
+      { !emailSent ? (
+          <>
         {/* Form Section */}
         <form
           onSubmit={handleForgotPassword}
@@ -97,6 +100,18 @@ export default function ForgotPasswordPage() {
             Login
           </span>
         </p>
+        </>
+        ) : (
+          // Confirmation Message Box
+          <div className="flex flex-col items-center p-6">
+            <Image src="/sendEmail.png" alt="Email Sent" width={200} height={200} />
+            <h2 className="text-xl font-bold mt-4">Reset Link Sent!</h2>
+            <p className="text-sm text-center text-gray-600 mt-2">
+              A reset link has been sent to your <span className="font-semibold text-black">{email}</span>.
+            </p>
+            <p className="text-sm text-center text-gray-600 mt-2" > Please check your inbox.</p>
+          </div>
+        )}
       </div>
     </div>
   );

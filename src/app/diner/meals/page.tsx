@@ -47,7 +47,7 @@ export default function DinerMealsPage() {
   
   return (
     <div className="p-4">
-      <h1 className="text-3xl font-bold mb-6">Meals For You</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-center sm:text-left mb-6">Meals For You</h1>
 
       {/* Example search filter */}
       <div className="mb-4">
@@ -56,7 +56,7 @@ export default function DinerMealsPage() {
           placeholder="Search by meal name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="border border-gray-300 rounded px-3 py-2"
+          className="w-full sm:w-3/4 md:w-2/3 lg:w-1/2 border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base"
         />
       </div>
 

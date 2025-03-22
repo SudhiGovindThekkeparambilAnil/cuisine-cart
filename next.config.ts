@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "indianhealthyrecipes.com",
+        hostname: "osbgaolfjprzlwkf.public.blob.vercel-storage.com",
         port: "",
         pathname: "/**",
       },

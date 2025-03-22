@@ -36,8 +36,15 @@ export default function SignupPage() {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
 
   useEffect(() => {
+    // const storedRole = localStorage.getItem("role") || "";
+    // setForm((prev) => ({ ...prev, role: storedRole }));
     const storedRole = localStorage.getItem("role") || "";
-    setForm((prev) => ({ ...prev, role: storedRole }));
+    if (storedRole) {
+      setForm((prev) => ({ ...prev, role: storedRole }));
+    } else {
+      toast.error("Role not selected. Please select a role before signing up.");
+    }
+
   }, []);
 
   // Validate Form Inputs
@@ -77,6 +84,15 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const storedRole = localStorage.getItem("role");
+
+    if (!storedRole) {
+      // If role is not selected, redirect to role selection page
+      router.push("/user-selection");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     if (!validateFormInputs()) {
       setLoading(false);
