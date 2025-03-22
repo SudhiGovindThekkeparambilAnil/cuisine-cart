@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import Loader from "@/components/Loader";
 
 export default function CreateChefDishPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true); // Track initial page load
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
@@ -17,6 +19,10 @@ export default function CreateChefDishPage() {
   const [price, setPrice] = useState("");
   const [ingredients, setIngredients] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() =>{
+    setTimeout(() => setIsLoading(false), 300)
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,9 +58,19 @@ export default function CreateChefDishPage() {
       router.push("/chef/dishes");
     } catch (error) {
       console.error(error);
-      setError(error instanceof Error ? error.message : "Something went wrong.");
+      setError(
+        error instanceof Error ? error.message : "Something went wrong."
+      );
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 max-w-md mx-auto">
@@ -137,7 +153,9 @@ export default function CreateChefDishPage() {
               placeholder="e.g., tomato, onion, garlic"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">Separate ingredients with commas.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Separate ingredients with commas.
+            </p>
           </div>
 
           {/* Submit Button */}

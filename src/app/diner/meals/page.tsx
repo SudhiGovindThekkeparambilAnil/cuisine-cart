@@ -43,6 +43,8 @@ export default function DinerMealsPage() {
     return <div className="p-4">Loading meals...</div>;
   }
 
+
+  
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold mb-6">Meals For You</h1>

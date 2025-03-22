@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TextArea } from "@/components/ui/textarea";
+import  Loader  from "@/components/Loader";
 
 export default function EditChefDishPage() {
   const router = useRouter();
@@ -82,7 +83,7 @@ export default function EditChefDishPage() {
     }
   };
 
-  if (loading) return <div className="p-4">Loading dish...</div>;
+  if (loading) return <Loader/>;
 
   return (
     <div className="p-4 max-w-md mx-auto">

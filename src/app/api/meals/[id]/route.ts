@@ -2,13 +2,15 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import { Meal } from "@/models/Meal";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Dish } from "@/models/Dish"; 
 
 export async function GET(req: Request, context: any) {
   try {
     await connectToDatabase();
     // Must await context.params to avoid "params should be awaited" error
     const { id } = await context.params;
-
+    
     const meal = await Meal.findById(id).populate("dishIds");
     if (!meal) {
       return NextResponse.json({ error: "Meal not found" }, { status: 404 });

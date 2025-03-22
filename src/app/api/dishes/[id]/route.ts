@@ -8,7 +8,7 @@ import { Dish } from "@/models/Dish";
 export async function GET(_req: Request, context: any) {
   try {
     await connectToDatabase();
-    const { id } = context.params; // ❌ No need for `await`
+    const { id } = await context.params; // ❌ No need for `await`
 
     const dish = await Dish.findById(id);
     if (!dish) {
