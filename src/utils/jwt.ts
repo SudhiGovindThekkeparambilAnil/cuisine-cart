@@ -19,6 +19,7 @@ interface JwtPayload {
   email?: string;
   role?: string;
   name?: string; // Make sure email is expected in the token
+  profileImage?: string;
   id: string;
 }
 
