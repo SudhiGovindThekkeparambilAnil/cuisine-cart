@@ -6,7 +6,13 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const { token, password } = await req.json();
+    console.log("Received token:", token);  // Debug log
+    console.log("Received password:", password);
+    if (!token || !password) {
+      return NextResponse.json({ message: "Token and password are required" }, { status: 400 });
+    }
     const decoded = verifyJwtToken(token);
+
 
     if (!decoded) return NextResponse.json({ message: "Invalid or expired token" }, { status: 400 });
 
