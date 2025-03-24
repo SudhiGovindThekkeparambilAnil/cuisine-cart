@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import Loader from "@/components/Loader";
 import UploadImage from "@/components/core/UploadImage/UploadImage";
 
-export default function ChefProfilePage() {
+export default function ChefProfile() {
   const [userData, setUserData] = useState<any>(null); // To store user data
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);

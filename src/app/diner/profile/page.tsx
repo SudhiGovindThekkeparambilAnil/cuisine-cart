@@ -11,7 +11,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/Loader";
 
-export default function DinerProfilePage() {
+export default function DinerProfile() {
   const [userData, setUserData] = useState<any>(null); // To store user data
   const [loading, setLoading] = useState(true);
   const router = useRouter();
