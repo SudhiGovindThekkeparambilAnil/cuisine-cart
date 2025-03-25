@@ -22,17 +22,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if ( !(await comparePassword(password, user.password))) {
+    if (!(await comparePassword(password, user.password))) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = signJwtToken({ userId: user._id, role: user.role, email: user.email, name: user.name });
+    const token = signJwtToken({
+      id: user._id,
+      role: user.role,
+      email: user.email,
+      name: user.name,
+      profileImage: user.profileImage,
+    });
 
-    const response = NextResponse.json({ message: "Login successful", token, role: user.role }, { status: 200 });
+    const response = NextResponse.json(
+      { message: "Login successful", token, role: user.role, profileImage: user.profileImage },
+      { status: 200 }
+    );
 
     // Set JWT as an HttpOnly cookie
     response.cookies.set("token", token, { httpOnly: true, secure: true, maxAge: 86400 });
-  
+
     return response;
   } catch (error) {
     return NextResponse.json({ error: `Internal Server Error : ${error} ` }, { status: 500 });

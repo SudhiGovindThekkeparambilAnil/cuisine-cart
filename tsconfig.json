@@ -4,11 +4,12 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
+    "useUnknownInCatchVariables": false,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",  // Changed from "bundler" to "node"
+    "moduleResolution": "node", // Changed from "bundler" to "node"
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -27,7 +28,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "types/**/*.d.ts"  // Add this line to include custom types
+    "types/**/*.d.ts" // Add this line to include custom types
   ],
   "exclude": ["node_modules"]
 }

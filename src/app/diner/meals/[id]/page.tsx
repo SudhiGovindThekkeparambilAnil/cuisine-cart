@@ -3,82 +3,88 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
 
 interface Dish {
   _id: string;
   name: string;
-  type: string; // e.g. "main", "side"
+  description: string;
   photoUrl?: string;
 }
 
 interface Meal {
   _id: string;
   name: string;
-  dishIds: Dish[]; // after populate
-  // mealPhotoUrl?: string; // if you store an image for the meal
+  dishIds: Dish[]; // Assuming populated dishes from API
 }
 
-export default function DinerMealDetailPage() {
-  const params = useParams() as { id: string };
+export default function MealDetailPage() {
+  const { id } = useParams(); // Get the meal ID from URL
+  const mealId = Array.isArray(id) ? id[0] : id;
   const [meal, setMeal] = useState<Meal | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!params.id) return;
+    if (mealId) fetchMealDetails(mealId);
+  }, [mealId]);
 
-    setLoading(true);
-    (async () => {
-      try {
-        const res = await fetch(`/api/meals/${params.id}`);
-        if (!res.ok) throw new Error("Failed to fetch meal");
-        const data = await res.json();
-        // data should contain { name, dishIds: [{ _id, name, type, photoUrl }, ...] }
-        setMeal(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [params.id]);
+  const fetchMealDetails = async (mealId: string) => {
+    try {
+      const res = await fetch(`/api/meals/${mealId}`);
+      if (!res.ok) throw new Error("Failed to fetch meal details");
+      const data = await res.json();
+      setMeal(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (loading) return <div className="p-4">Loading meal details...</div>;
-  if (!meal) return <div className="p-4">Meal not found</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader2 className="w-10 h-10 animate-spin text-gray-600" />
+      </div>
+    );
+  }
+
+  if (!meal) {
+    return (
+      <div className="text-center mt-10 text-red-500">
+        Meal not found.
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4">
-      {/* Meal Header */}
-      <div className="flex flex-col items-center mb-6">
-        {/* If you have a mealPhotoUrl, use that. Otherwise, a placeholder. */}
-        <Image
-          src="https://placehold.co//600x300?text=Meal+Hero"
-          alt={meal.name}
-          width={600}
-          height={300}
-          className="w-full max-w-4xl h-auto object-cover rounded-lg mb-4"
-        />
-        <h1 className="text-3xl font-bold">{meal.name}</h1>
-      </div>
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">{meal.name}</h1>
 
-      {/* Dishes section */}
-      <h2 className="text-2xl font-semibold mb-4">Dishes Included ({meal.dishIds.length})</h2>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* List of Dishes in Meal */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {meal.dishIds.map((dish) => (
-          <div key={dish._id} className="border rounded-lg overflow-hidden shadow-sm bg-white">
+          <div key={dish._id} className="border rounded-lg shadow bg-white p-4">
             <Image
-              src={dish.photoUrl || "https://placehold.co//400x250?text=Dish+Image"}
+              src={dish.photoUrl || "https://placehold.co/400x300?text=Dish+Image"}
               alt={dish.name}
               width={400}
-              height={250}
-              className="w-full h-40 object-cover"
+              height={300}
+              className="w-full h-40 object-cover rounded-md"
             />
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-2">{dish.name}</h3>
-              <p className="text-gray-600 capitalize">{dish.type}</p>
-            </div>
+            <h2 className="text-xl font-semibold mt-3">{dish.name}</h2>
+            <p className="text-gray-600">{dish.description}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-6">
+        <Link href="/diner/meals">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Back to Meals
+          </button>
+        </Link>
       </div>
     </div>
   );
