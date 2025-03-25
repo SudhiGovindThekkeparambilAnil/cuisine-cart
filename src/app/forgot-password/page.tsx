@@ -23,7 +23,6 @@ export default function ForgotPasswordPage() {
     try {
       const response = await axios.post("/api/auth/forgot-password", { email:  email.trim() });
       if (response.status === 200) {
-        console.log(response)
         setMessage("");
         setEmailSent(true);
         toast.success("Reset Link Sent!",

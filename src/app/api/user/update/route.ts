@@ -17,18 +17,31 @@ export async function PATCH(req: NextRequest) {
     }
 
     // 2. Parse request body
-    const { profileImage } = await req.json();
-    if (!profileImage) {
-      return NextResponse.json({ error: "Profile image URL is required" }, { status: 400 });
+    const { profileImage, imageGallery } = await req.json();
+    if (!profileImage && !imageGallery) {
+      return NextResponse.json({ error: "Profile image URL or image gallery is required" }, { status: 400 });
+    }
+
+    // Ensure that imageGallery is an array of strings
+    if (imageGallery && !Array.isArray(imageGallery)) {
+      return NextResponse.json({ error: "Image gallery should be an array of image URLs" }, { status: 400 });
+    }
+
+    if (imageGallery && !imageGallery.every((img: any) => img && typeof img.url === "string")) {
+      return NextResponse.json({ error: "Each gallery item should be an object with a 'url' string" }, { status: 400 });
     }
 
     // 3. Connect to DB
     await connectToDatabase();
 
-    // 4. Update user profile image
+    const updateFields: { profileImage?: string; imageGallery?: { url: string }[] } = {};
+    if (profileImage) updateFields.profileImage = profileImage;
+    if (imageGallery) updateFields.imageGallery = imageGallery;
+
+    // 5. Update user profile
     const updatedUser = await User.findByIdAndUpdate(
-      userData.id, //  FIX: Use `id` instead of `userId`
-      { profileImage },
+      userData.id,
+      updateFields,
       { new: true }
     );
 
@@ -39,8 +52,10 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({
       message: "Profile image updated successfully",
       profileImage: updatedUser.profileImage,
+      imageGallery: updatedUser.imageGallery,
     });
   } catch (error) {
+    console.error("Internal Server Error:", error); 
     return NextResponse.json({ error: `Internal Server Error: ${error}` }, { status: 500 });
   }
 }
