@@ -8,14 +8,27 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface ModifierItem {
+  title: string;
+  price: string;
+}
+
+interface Modifier {
+  title: string;
+  required: string;
+  limit: number;
+  items: ModifierItem[];
+}
+
 interface Dish {
   _id: string;
   name: string;
   type: string;
+  cuisine: string;
   photoUrl?: string;
   description: string;
   price: number;
-  ingredients: string[];
+  modifiers: Modifier[];
 }
 
 export default function ChefDishesPage() {
@@ -65,6 +78,7 @@ export default function ChefDishesPage() {
           <Link href="/chef/dishes/new">Create New Dish</Link>
         </Button>
       </div>
+
       {/* Error Message */}
       {error && <p className="text-red-600">{error}</p>}
 
@@ -100,15 +114,30 @@ export default function ChefDishesPage() {
                 />
                 <CardHeader>
                   <h2 className="text-lg font-semibold">{dish.name}</h2>
-                  <p className="text-gray-600 capitalize">{dish.type}</p>
+                  <p className="text-gray-600 capitalize">{dish.type} - {dish.cuisine}</p>
                 </CardHeader>
                 <CardContent className="flex-1">
                   <p className="text-sm text-gray-500">{dish.description}</p>
                   <p className="text-lg font-semibold mt-2">${dish.price.toFixed(2)}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    <strong>Ingredients:</strong>{" "}
-                    {dish.ingredients.length > 0 ? dish.ingredients.join(", ") : "No ingredients listed"}
-                  </p>
+
+                  {/* Display Modifiers */}
+                  {Array.isArray(dish.modifiers) && dish.modifiers.length > 0 && (
+                    <div className="mt-2">
+                      <h3 className="font-semibold">Modifiers:</h3>
+                      {dish.modifiers.map((mod, modIndex) => (
+                        <div key={modIndex} className="mt-1">
+                          <p className="text-sm font-medium">{mod.title} ({mod.required}) - Limit: {mod.limit}</p>
+                          <ul className="text-sm text-gray-500 list-disc pl-4">
+                            {mod.items.map((item, itemIndex) => (
+                              <li key={itemIndex}>
+                                {item.title} (+${item.price})
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter className="flex space-x-2">
                   <Button asChild variant="outline">
