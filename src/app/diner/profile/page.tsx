@@ -5,7 +5,6 @@ import React, { useState, useEffect } from "react";
 import Accordion from "@/components/ui/Accordion";
 import EditableField from "@/components/ui/EditableField";
 import AddAddressModal from "@/components/ui/AddAddressModal";
-import { Rating } from "@/components/ui/rating";
 import Image from "next/image";
 import axios from "axios";
 import { FaPencilAlt } from "react-icons/fa";
