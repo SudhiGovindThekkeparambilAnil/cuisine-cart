@@ -8,31 +8,25 @@ import { connectToDatabase } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("Forgot Password API called");
+  
 
     const { email } = await req.json();
-    console.log("Received email:", email);
+   
     await connectToDatabase();
     const user = await User.findOne({ email });
     if (!user) {
-      console.log("User not found for email:", email);
+   
       return NextResponse.json({ message: "Email not found" }, { status: 404 });
     } else {
       console.log("User found for email:", email);
       
     }
 
-    console.log("User found:", user._id);
-
     const resetToken = signJwtToken({ id: user._id });
-    console.log("Generated reset token:", resetToken);
 
     const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${resetToken}`;
-    console.log("Reset link generated:", resetLink);
 
     await sendResetEmail(email, resetLink);
-
-    console.log("Reset email sent successfully to:", email);
 
     return NextResponse.json({ message: "Password reset link sent to your email" }, { status: 200 });
   } catch (error) {

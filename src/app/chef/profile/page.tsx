@@ -1,15 +1,4 @@
-  // const [userData, setUserData] = useState<any>(null); // To store user data
 
-  // useEffect(() => {
-  //   const fetchUserData = async () => {
-  //     try {
-  //       const res = await axios.get("/api/auth/session"); // Fetch user data from session
-  //       setUserData(res.data);
-  //     } catch (error) {
-  //       console.error("Error fetching user data:", error);
-  //       router.push("/auth/login"); // Redirect to login page if there's an error (unauthorized)
-  //     } finally {
-  //       setLoading(false);
 
 "use client";
 

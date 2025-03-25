@@ -1,26 +1,3 @@
-// import { NextResponse } from "next/server";
-// import { connectToDatabase } from "@/lib/db";
-// import { User } from "@/models/User";
-
-// export async function POST(req: Request) {
-//   try {
-//     await connectToDatabase();
-
-//     const { type, buildingNumber, street, city, state, country, zipcode, phoneNumber } = await req.json();
-
-//     const address = { type, buildingNumber, street, city, state, country, zipcode, phoneNumber };
-//     const updatedUser = await User.findOneAndUpdate(
-//       { email: "user@example.com" },
-//       { $push: { addresses: address } },
-//       { new: true }
-//     );
-
-//     return NextResponse.json(updatedUser);
-//   } catch (error) {
-//     return NextResponse.json({ message: `Error: ${error}` }, { status: 500 });
-//   }
-// }
-
 
 import { NextRequest, NextResponse } from "next/server"; // Import NextRequest
 import { connectToDatabase } from "@/lib/db";
@@ -45,7 +22,7 @@ export async function POST(req: NextRequest) { // Use NextRequest
 
       // Log the request body
       const requestBody = await req.json();
-      console.log("Received Address Data:", requestBody);
+  
 
      // Extract address details from the request body
      const { type, street, city, state, postalCode, country, buildingNumber, phoneNumber } = requestBody;
