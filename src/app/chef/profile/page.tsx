@@ -27,6 +27,7 @@ import Loader from "@/components/Loader";
 import UploadImage from "@/components/core/UploadImage/UploadImage";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 // Define frontend interfaces
 
@@ -83,6 +84,7 @@ export default function ChefProfilePage() {
   const [nameError, setNameError] = useState<string | null>(null);
   const [newSpecialty, setNewSpecialty] = useState('');
   const [isAddingSpecialty, setIsAddingSpecialty] = useState(false); 
+   const router = useRouter();
 
 
   // const router = useRouter();
@@ -179,6 +181,7 @@ export default function ChefProfilePage() {
       const response = await axios.post("/api/profile/update", { name: newName });
       if (response.status === 200) {
         setUser((prev) => ({ ...prev, name: newName }));
+        router.refresh();
       } else {
         console.error("Failed to update name:", response.data);
       }

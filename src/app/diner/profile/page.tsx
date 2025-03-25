@@ -15,6 +15,7 @@ import Loader from "@/components/Loader";
 import UploadImage from "@/components/core/UploadImage/UploadImage";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 // Define frontend interfaces
 interface IAddress {
@@ -57,6 +58,7 @@ export default function DinerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const router = useRouter();
 
    useEffect(() => {
       setIsMounted(true); // Prevents hydration error
@@ -110,6 +112,7 @@ export default function DinerProfilePage() {
       const response = await axios.post("/api/profile/update", { name: newName });
       if (response.status === 200) {
         setUser((prev) => ({ ...prev, name: newName }));
+        router.refresh();
       } else {
         console.error("Failed to update name:", response.data);
       }
