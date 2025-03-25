@@ -17,6 +17,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   profileImage?: string;
+  imageGallery?: { url: string }[]; 
   role: "driver" | "diner" | "chef";
   addresses?: IAddress[];
   cuisineType?: string;
@@ -39,7 +40,8 @@ const UserSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  profileImage: { type: String, default: "" }, // Ensure default empty string to prevent errors
+  profileImage: { type: String, default: "" },
+  imageGallery: [{ url: { type: String, required: true } }],  // Ensure default empty string to prevent errors
   role: { type: String, enum: ["driver", "diner", "chef"], required: true },
   addresses: { type: [AddressSchema], default: [] },
   cuisineType: { type: String },

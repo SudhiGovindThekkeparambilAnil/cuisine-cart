@@ -1,176 +1,3 @@
-// "use client";
-
-// import React, { useState, useEffect } from "react";
-// import Accordion from "@/components/ui/Accordion";
-// import EditableField from "@/components/ui/EditableField";
-// import AddAddressModal from "@/components/ui/AddAddressModal";
-
-// // Define frontend interfaces
-// interface IAddress {
-//   type: string;
-//   buildingNumber: string;  // Added field
-//   street: string;
-//   city: string;
-//   state: string;
-//   postalCode: string;
-//   country: string;
-//   phoneNumber: string; 
-//   _id?: string;
-// }
-
-// interface IUser {
-//   name: string;
-//   email: string;
-//   role: string;
-//   addresses: IAddress[];
-// }
-
-// const DinerProfile = () => {
-//   // Explicitly define the type for user state
-//   const [user, setUser] = useState<IUser>({
-//     name: "",
-//     email: "",
-//     role: "",
-//     addresses: [],
-//   });
-
-//   const [showModal, setShowModal] = useState(false);
-//   const [editingAddress, setEditingAddress] = useState<IAddress | null>(null);
-
-//   useEffect(() => {
-//     // Fetch user data from the backend (use your API route)
-//     const fetchUserProfile = async () => {
-//       const response = await fetch("/api/profile");
-//       if (response.ok) {
-//         const data: IUser = await response.json(); // Explicitly type response
-//         console.log("User Data:", data); // Log the user data
-//         setUser(data);
-        
-//       } else {
-//         console.log("Error fetching user profile:", response.statusText);
-//       }
-//     };
-  
-//     fetchUserProfile();
-//   }, []);
-
-  
-
-//   const handleEditName = async (newName: string) => {
-//     // Call API to update the name
-//     await fetch("/api/profile/update", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({ name: newName }),
-//     });
-//     setUser((prev) => ({ ...prev, name: newName }));
-//   };
-
-//   const handleAddAddress = async (address: IAddress) => {
-//     const response = await fetch("/api/profile/add-address", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify(address),
-//     });
-  
-//     if (response.ok) {
-//       const updatedUser: IUser = await response.json();
-//       setUser(updatedUser); // Update user state with new data from backend
-//     } else {
-//       console.log("Error adding address:", await response.json());
-//     }
-//   };
-
-//   const handleEditAddress = (address: IAddress) => {
-//     setEditingAddress(address);
-//     setShowModal(true);
-//   };
-
-//   const handleSaveEditedAddress = async (updatedAddress: IAddress) => {
-//     const response = await fetch("/api/profile/update-address", {
-//       method: "PUT",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(updatedAddress),
-//     });
-
-//     if (response.ok) {
-//       setUser((prevUser) => ({
-//         ...prevUser,
-//         addresses: prevUser.addresses.map((addr) =>
-//           addr._id === updatedAddress._id ? updatedAddress : addr
-//         ),
-//       }));
-//     } else {
-//       console.log("Error updating address:", await response.json());
-//     }
-
-//     setShowModal(false);
-//     setEditingAddress(null);
-//   };
-
-  
-
-//   return (
-//     <div className="space-y-4">
-//       <Accordion title="Personal Details">
-//         <EditableField label="Name" value={user.name} isEditable onSave={handleEditName} />
-//         <EditableField label="Email" value={user.email} isEditable={false} onSave={() => {}} />
-//         <EditableField label="Role" value={user.role} isEditable={false} onSave={() => {}} />
-
-//         <div className="mt-4">
-//           <h3 className="font-semibold">Addresses</h3>
-//           {user.addresses.length > 0 ? (
-//             user.addresses.map((address, index) => (
-//               <div key={index} className="border p-2 mt-2 rounded flex justify-between items-center">
-//                 <div>
-//                   <p><strong>Type:</strong> {address.type}</p>
-//                   <p><strong>Building Number:</strong> {address.buildingNumber}</p>
-//                   <p><strong>Street:</strong> {address.street}</p>
-//                   <p><strong>City:</strong> {address.city}</p>
-//                   <p><strong>State:</strong> {address.state}</p>
-//                   <p><strong>Postal Code:</strong> {address.postalCode}</p>
-//                   <p><strong>Country:</strong> {address.country}</p>
-//                   <p><strong>Phone Number:</strong> {address.phoneNumber}</p>
-//                 </div>
-//                 <button
-//                   onClick={() => handleEditAddress(address)}
-//                   className="text-blue-500"
-//                 >
-//                   Edit
-//                 </button>
-//               </div>
-//             ))
-//           ) : (
-//             <p>No addresses added yet.</p>
-//           )}
-//           <button onClick={() => setShowModal(true)} className="text-blue-500">
-//             Add Address
-//           </button>
-//         </div>
-//       </Accordion>
-
-//       {showModal && (
-//         <AddAddressModal
-//           onClose={() => {
-//             setShowModal(false);
-//             setEditingAddress(null);
-//           }}
-//           onSave={editingAddress ? handleSaveEditedAddress : handleAddAddress}
-//           initialAddress={editingAddress}
-//         />
-//       )}
-//     </div>
-//   );
-// };
-
-// export default DinerProfile;
-
-
-
 
 "use client";
 
@@ -180,11 +7,14 @@ import EditableField from "@/components/ui/EditableField";
 import AddAddressModal from "@/components/ui/AddAddressModal";
 import { Rating } from "@/components/ui/rating";
 import Image from "next/image";
+import axios from "axios";
 import { FaPencilAlt } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Loader from "@/components/Loader";
+import UploadImage from "@/components/core/UploadImage/UploadImage";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/ui/dialog";
 
 // Define frontend interfaces
 interface IAddress {
@@ -204,6 +34,7 @@ interface IUser {
   email: string;
   role: string;
   addresses: IAddress[];
+  profileImage?: string;
 }
 
 const DinerProfile = () => {
@@ -223,51 +54,81 @@ const DinerProfile = () => {
   const [resetSuccess, setResetSuccess] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
+  const [nameError, setNameError] = useState<string | null>(null);
 
+   useEffect(() => {
+      setIsMounted(true); // Prevents hydration error
+    }, []);
   
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      const response = await fetch("/api/profile");
-      if (response.ok) {
-        const data: IUser = await response.json();
-        setUser(data);
-        console.log("User:", user);
+    useEffect(() => {
+      const fetchUserProfile = async () => {
+        try {
+          const response = await axios.get("/api/profile");
+          if (response.status === 200) {
+            setUser(response.data);
+          } else {
+            console.log("Error fetching user profile:", response.statusText);
+          }
+        } catch (error) {
+          console.log("Error fetching user profile:", error);
+        }
+        setLoading(false);
+      };
+  
+      fetchUserProfile();
+    }, []);
+    
+
+  async function handleImageUpload(url: string) {
+    try {
+      const res = await axios.patch("/api/user/update", { profileImage: url });
+
+      if (res.status === 200) {
+        setUser((prev: any) => ({ ...prev, profileImage: url }));
       } else {
-        console.log("Error fetching user profile:", response.statusText);
+        alert("Failed to update profile image.");
       }
-    };
-
-    fetchUserProfile();
-  }, []);
+    } catch (error) {
+      console.error("Error updating profile image:", error);
+      alert("Something went wrong.");
+    }
+  }
   
-
   const handleEditName = async (newName: string) => {
-    await fetch("/api/profile/update", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name: newName }),
-    });
-    setUser((prev) => ({ ...prev, name: newName }));
+    const nameRegex = /^[A-Za-z\s]{2,50}$/;
+    if (!nameRegex.test(newName)) {
+      setNameError("Name must be 2-50 characters long and contain only letters.");
+      return;
+    }
+
+    setNameError(""); 
+
+    try {
+      const response = await axios.post("/api/profile/update", { name: newName });
+      if (response.status === 200) {
+        setUser((prev) => ({ ...prev, name: newName }));
+      } else {
+        console.error("Failed to update name:", response.data);
+      }
+    } catch (error) {
+      console.error("Error updating name:", error);
+    }
   };
 
   const handleAddAddress = async (address: IAddress) => {
-    const response = await fetch("/api/profile/add-address", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(address),
-    });
-
-    if (response.ok) {
-      const updatedUser: IUser = await response.json();
-      setUser(updatedUser); // Update user state with new data from backend
-      setShowModal(false);// Update user state with new data from backend
-    } else {
-      console.log("Error adding address:", await response.json());
+    try {
+      const response = await axios.post("/api/profile/add-address", address);
+      if (response.status === 200) {
+        setUser(response.data); // Update user state with new data from backend
+        setShowModal(false); // Close the modal
+      } else {
+        console.error("Error adding address:", response.data);
+      }
+    } catch (error) {
+      console.error("Error adding address:", error);
     }
   };
 
@@ -277,71 +138,117 @@ const DinerProfile = () => {
   };
 
   const handleSaveEditedAddress = async (updatedAddress: IAddress) => {
-    const response = await fetch("/api/profile/update-address", {
-
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedAddress),
-    });
-
-    if (response.ok) {
-      setUser((prevUser) => ({
-        ...prevUser,
-        addresses: prevUser.addresses.map((addr) =>
-          addr._id === updatedAddress._id ? updatedAddress : addr
-        ),
-      }));
-    } else {
-      console.log("Error updating address:", await response.json());
+    try {
+      const response = await axios.put("/api/profile/update-address", updatedAddress);
+      if (response.status === 200) {
+        setUser((prevUser) => ({
+          ...prevUser,
+          addresses: prevUser.addresses.map((addr) =>
+            addr._id === updatedAddress._id ? updatedAddress : addr
+          ),
+        }));
+        setShowModal(false);
+        setEditingAddress(null);
+      } else {
+        console.error("Error updating address:", response.data);
+      }
+    } catch (error) {
+      console.error("Error updating address:", error);
     }
-
-    setShowModal(false);
-    setEditingAddress(null);
   };
+
+  const validatePassword = (password: string) => {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    return passwordRegex.test(password);
+  };
+
 
   const handlePasswordReset = async () => {
     if (newPassword !== confirmPassword) {
       setPasswordError("Passwords do not match");
       return;
     }
+
+    if (!validatePassword(newPassword)) {
+      setPasswordError(
+        "Password must be 8-16 characters, with at least one uppercase letter, one lowercase letter, one number, and one special character."
+      );
+      return;
+    }
+
+    setPasswordError(null);
+
+
     const token = localStorage.getItem("token");
     if (!token) {
       setPasswordError("Token is missing or expired");
       return;
     }
-    const response = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({token, password: newPassword }),
-    });
-
-    if (response.ok) {
-      setResetSuccess(true); // Show success box
-      setShowPasswordReset(false);// Hide the reset form after successful change
-    } else {
-      console.log("Error resetting password:", await response.json());
+    
+    try {
+      const response = await axios.post("/api/auth/reset-password", { token, password: newPassword });
+      if (response.status === 200) {
+        setResetSuccess(true); // Show success box
+        setShowPasswordReset(false); // Hide the reset form after successful change
+      } else {
+        console.error("Error resetting password:", response.data);
+      }
+    } catch (error) {
+      console.error("Error resetting password:", error);
     }
   };
 
+  
+  if (loading) {
+    return <Loader />; // Show the loader component while loading
+  }
+
   return (
     <div className="min-h-screen bg-[#FFF6EC] flex justify-center items-center p-6">
-        <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-2xl">
+        <div className="bg-white shadow-lg rounded-lg p-6 pb-24 w-full max-w-3xl">
         {/* Profile Header */}
-        <div className="relative flex items-center justify-between pb-4 border-b border-gray-300">
-          <div>
-            <h1 className="text-2xl font-bold text-[#000000] uppercase">{user.name}</h1>
-            <Rating value={3} className="mt-1" />
-            <p className="text-[#333333] mt-1">Cuisine Type</p>
-          </div>
-          <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
-        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between pb-4 border-b border-gray-300">
+                  
+                  {/* Profile Icon */}
+                  <div className="flex flex-col items-center sm:w-1/2 sm:mr-4">
+                    {isMounted && (
+                      <div className="w-32 h-32 sm:w-32 sm:h-32 bg-white rounded-full flex items-center justify-center shadow-lg border border-gray-200">
+                        {user.profileImage ? (
+                          <Image
+                            src={user.profileImage}
+                            alt="Profile"
+                            width={128}
+                            height={128}
+                            className="w-32 h-32 sm:w-32 sm:h-32 rounded-full object-cover"
+                          />
+                        ) : (
+                          <Image
+                            src="/icons/user-icon.svg"
+                            alt="Default Profile"
+                            width={128}
+                            height={128}
+                            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full"
+                          />
+                        )}
+                      </div>
+                    )}
+                    <div className="mt-4">
+                    <UploadImage onUploadComplete={handleImageUpload} />
+                    </div>
+                  </div>
+                  <div className="sm:w-2/3 mt-4 sm:mt-0">
+                    <h1 className="text-xl sm:text-2xl font-bold text-[#000000] uppercase">{user.name}</h1>
+                    <p className="text-sm sm:text-base text-gray-600 mt-2">Welcome to your profile, {user.name}! <br /> Here you can manage your details and personalize your experience.</p>
+                  </div>
+                </div>
+        
 
     <div className="mt-4">
       <Accordion title="Personal Details">
       <div className="p-4 bg-white">
         <EditableField label="Name" value={user.name} isEditable onSave={handleEditName} />
+        {nameError && <p className="text-red-500 mt-1">{nameError}</p>}
         <EditableField label="Email" value={user.email} isEditable={false} onSave={() => {}} />
         <EditableField label="Role" value={user.role} isEditable={false} onSave={() => {}} />
 
@@ -378,7 +285,7 @@ const DinerProfile = () => {
 
        {/* Account and Security Accordion */}
        <Accordion title="Account and Security">
-        <h1 className="font-semibold text-lg">Account & Security</h1>
+        <h1 className="font-semibold text-lg">Manage your Security</h1>
         <p>
           Here you can update your account password and strengthen your security of your account.
         </p>
@@ -478,19 +385,19 @@ const DinerProfile = () => {
               <p className="text-red-500 mt-2">{passwordError}</p>
             )}
 
-            <Button className="mt-4 px-4 py-2 text-white rounded" onClick={handlePasswordReset}>Reset Password</Button>
+            <div className="mt-4 flex gap-2">
+                <Button className="px-4 py-2 text-white rounded" onClick={handlePasswordReset}>
+                  Reset Password
+                </Button>
+                <Button
+                  className="px-4 py-2 bg-gray-500 text-white rounded"
+                  onClick={() => setShowPasswordReset(false)}>
+                  Cancel
+                </Button>
+            </div>
           </div>
         )}
       </Accordion>
-
-      {/* Show success message after password reset */}
-      {/* {resetSuccess && (
-        <div className="mt-4 p-4 border border-green-500 rounded bg-green-50">
-          <h2 className="text-xl font-bold">Password Reset Successfully</h2>
-          <Image src="/passwordReset.png" alt="Success" width={200} height={200} />
-          <Button className="mt-4 px-4 py-2 text-white rounded" onClick={() => setResetSuccess(false)}>OK</Button>
-        </div>
-      )} */}
 
       <Dialog open={resetSuccess} onOpenChange={setResetSuccess}>
         <DialogContent>

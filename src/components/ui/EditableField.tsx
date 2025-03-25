@@ -22,7 +22,7 @@ const EditableField: React.FC<EditableFieldProps> = ({ label, value, isEditable,
 
   return (
     <div className="flex flex-col pb-2 w-full">
-      <Label className="block mt-4">{label}:</Label>
+      <Label className="block mt-4">{label}</Label>
       {isEditing ? (
         <div className="flex items-center w-full">
           <Input
