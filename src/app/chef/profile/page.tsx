@@ -57,7 +57,7 @@ interface IUser {
   imageGallery?: IImage[];
 }
 
-export default function ChefProfile() {
+export default function ChefProfilePage() {
   const [user, setUser] = useState<IUser>({
     name: "",
     email: "",

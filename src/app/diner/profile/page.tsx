@@ -37,7 +37,7 @@ interface IUser {
   profileImage?: string;
 }
 
-const DinerProfile = () => {
+export default function DinerProfilePage() {
   const [user, setUser] = useState<IUser>({
     name: "",
     email: "",
@@ -429,4 +429,3 @@ const DinerProfile = () => {
   );
 };
 
-export default DinerProfile;
