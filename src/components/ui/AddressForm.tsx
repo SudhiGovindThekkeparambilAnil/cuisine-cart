@@ -59,7 +59,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
   }, [initialAddress]);
 
   const validateFields = () => {
-    let newErrors: { [key: string]: string } = {};
+    const newErrors: { [key: string]: string } = {};
 
     if (!addressFields.buildingNumber.trim()) newErrors.buildingNumber = "Building Number is required.";
     if (!addressFields.street.trim()) newErrors.street = "Street is required.";
