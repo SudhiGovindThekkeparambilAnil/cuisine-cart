@@ -64,7 +64,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
     if (!addressFields.buildingNumber.trim()) newErrors.buildingNumber = "Building Number is required.";
     if (!addressFields.street.trim()) newErrors.street = "Street is required.";
     if (!addressFields.city.trim()) newErrors.city = "City is required.";
-    if (!addressFields.state.trim()) newErrors.state = "State is required.";
+    if (!addressFields.state.trim()) newErrors.state = "Province is required.";
     if (!addressFields.country.trim()) newErrors.country = "Country is required.";
 
     if (!/^[A-Za-z]\d[A-Za-z] \d[A-Za-z]\d$/.test(addressFields.postalCode))
