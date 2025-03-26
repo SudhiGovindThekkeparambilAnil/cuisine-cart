@@ -47,6 +47,7 @@ export default function Header() {
   const dinerNavigation = [
     { name: "Dashboard", href: "/diner/dashboard" },
     { name: "Meals", href: "/diner/meals" },
+    { name: "Dishes", href: "/diner/dishes" },
     { name: "Chefs", href: "/diner/chefs" },
     { name: "My Subscription", href: "/diner/subscriptions" },
     { name: "Profile", href: "/diner/profile" },
