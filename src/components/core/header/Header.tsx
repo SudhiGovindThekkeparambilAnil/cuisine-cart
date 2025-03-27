@@ -51,18 +51,15 @@ export default function Header() {
 
   const chefNavigation = [
     { name: "Dashboard", href: "/chef/dashboard" },
-    { name: "Meals", href: "/chef/meals" },
+    { name: "Meal Plans", href: "/chef/meal-plans" },
     { name: "Dishes", href: "/chef/dishes" },
-    { name: "Subscribers", href: "/chef/subscribers" },
     { name: "Profile", href: "/chef/profile" },
   ];
 
   const dinerNavigation = [
     { name: "Dashboard", href: "/diner/dashboard" },
-    { name: "Meals", href: "/diner/meals" },
+    { name: "Meal Plans", href: "/diner/meal-plans" },
     { name: "Dishes", href: "/diner/dishes" },
-    { name: "Chefs", href: "/diner/chefs" },
-    { name: "My Subscription", href: "/diner/subscriptions" },
     { name: "Profile", href: "/diner/profile" },
     {
       name: `Cart${cartCount > 0 ? ` (${cartCount})` : ""}`,
@@ -173,12 +170,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu */}
-      <Dialog
-        as="div"
-        className="lg:hidden"
-        open={mobileMenuOpen}
-        onClose={setMobileMenuOpen}
-      >
+      <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <div className="fixed inset-0 z-20 flex flex-col justify-between items-center bg-white">
           <DialogPanel className="w-full h-full p-6 flex flex-col justify-between">
@@ -215,9 +207,8 @@ export default function Header() {
                     Login
                   </Link>
                   <Link
-                    href="/auth/signup"
-                    className="text-xl text-gray-600 hover:text-blue-600"
-                  >
+                    href="/user-selection"
+                    className="text-xl text-gray-600 hover:text-blue-600">
                     Signup
                   </Link>
                 </>
@@ -252,12 +243,8 @@ export default function Header() {
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <DialogPanel className="fixed inset-0 z-20 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-            <h3 className="text-xl font-semibold text-gray-800">
-              Confirm Logout
-            </h3>
-            <p className="text-gray-600 mt-4">
-              Are you sure you want to log out?
-            </p>
+            <h3 className="text-xl font-semibold text-gray-800">Confirm Logout</h3>
+            <p className="text-gray-600 mt-4">Are you sure you want to log out?</p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={closeModal}
