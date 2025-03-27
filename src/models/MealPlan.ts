@@ -1,5 +1,5 @@
 // src/models/MealPlan.ts
-import mongoose, { Schema, Document, model, models, Types } from "mongoose";
+import { Schema, Document, model, models, Types } from "mongoose";
 
 export interface Slot {
   dish?: any; // optional, you can later specify a more detailed type

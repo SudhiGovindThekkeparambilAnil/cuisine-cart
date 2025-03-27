@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DishAutocomplete from "@/components/chef/DishAutocomplete";
-import DishModifierModal, { DishModifierModalResult } from "@/components/chef/DishModifierModal";
+import DishModifierModal from "@/components/chef/DishModifierModal";
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -65,23 +65,23 @@ export default function CreateMealPlanPage() {
    *   }
    * plus the final quantity.
    */
-  const handleModifiersUpdate = (
-    slot: "breakfast" | "lunch" | "evening" | "dinner",
-    result: DishModifierModalResult,
-    quantity: number
-  ) => {
-    setMealPlanSlots((prev) => ({
-      ...prev,
-      [slot]: {
-        ...prev[slot],
-        modifiers: result.modifiers,
-        specialInstructions: result.specialInstructions,
-        quantity: quantity,
-      },
-    }));
-    setOpenModal(false);
-    setCurrentSlot(null);
-  };
+  //   const handleModifiersUpdate = (
+  //     slot: "breakfast" | "lunch" | "evening" | "dinner",
+  //     result: DishModifierModalResult,
+  //     quantity: number
+  //   ) => {
+  //     setMealPlanSlots((prev) => ({
+  //       ...prev,
+  //       [slot]: {
+  //         ...prev[slot],
+  //         modifiers: result.modifiers,
+  //         specialInstructions: result.specialInstructions,
+  //         quantity: quantity,
+  //       },
+  //     }));
+  //     setOpenModal(false);
+  //     setCurrentSlot(null);
+  //   };
 
   /** Days selection: add or remove day from the slot's `days` array */
   const handleDaysChange = (
@@ -121,6 +121,7 @@ export default function CreateMealPlanPage() {
         if (data.modifiers) {
           Object.entries(data.modifiers).forEach(([modTitle, modItems]) => {
             if (Array.isArray(modItems)) {
+              console.log("modTitle", modTitle);
               modItems.forEach((item) => {
                 dishPrice += parseFloat(item.price);
               });
