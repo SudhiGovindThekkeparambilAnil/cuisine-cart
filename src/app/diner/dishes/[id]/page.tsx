@@ -6,6 +6,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import axios from "axios";
 
 interface ModifierItem {
   title: string;
@@ -39,6 +41,9 @@ export default function DinerDishDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [totalPrice, setTotalPrice] = useState(0);
   const params = useParams();
+  const MAX_QUANTITY = 8; // Max limit per dish
+  const [cartQuantity, setCartQuantity] = useState(0); 
+  const [isMaxReached, setIsMaxReached] = useState(false);
   const id = params?.id as string;
 
   useEffect(() => {
@@ -89,12 +94,65 @@ export default function DinerDishDetailPage() {
   };
 
   const handleQuantityChange = (action: "increase" | "decrease") => {
-    setQuantity((prev) => (action === "increase" ? prev + 1 : prev > 1 ? prev - 1 : 1));
+    setQuantity((prev) => {
+      if (action === "increase") {
+        return prev < 8 ? prev + 1 : prev; // Preventin the limit than exceeding 8
+      } else {
+        return prev > 1 ? prev - 1 : prev; // Prevent going below 1
+      }
+    });
   };
 
-  const handleBuy = () => {
-    alert("Proceed to checkout!");
+
+  const handleAddToCart = async () => {
+    if (!dish) return;
+  
+    try {
+      // Fetch current cart data
+      const { data: cartData } = await axios.get("/api/cart");
+      const existingItem = cartData.items.find((item: any) => item.dishId === dish._id); 
+      const currentQuantity = existingItem ? existingItem.quantity : 0;
+      const newQuantity = currentQuantity + quantity;
+  
+      // Prevent exceeding max limit
+      if (newQuantity > MAX_QUANTITY) {
+        toast.error(`You can only add up to ${MAX_QUANTITY} of this dish.`);
+        setIsMaxReached(true);
+        return;
+      }
+      console.log(dish)
+      // Prepare cart item data
+      const cartItem = {
+        dishId: dish._id,
+        name: dish.name,
+        photoUrl: dish.photoUrl,
+        price: dish.price,
+        quantity,
+        totalPrice: quantity * dish.price,  // Ensure this is correctly calculated
+        modifiers: Array.from(selectedModifiers, ([title, items]) => ({
+          modifierTitle: title,
+          items,
+        })),
+      };
+      
+      // Add item to cart
+      await axios.post("/api/cart", cartItem, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      // Update state after successful addition
+      setCartQuantity(newQuantity);
+      setIsMaxReached(newQuantity >= MAX_QUANTITY);
+      toast.success(`${dish.name} added to cart!`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not add to cart. Please try again.");
+    }
   };
+  
+
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
@@ -172,7 +230,23 @@ export default function DinerDishDetailPage() {
 
                 {/* Buy Button */}
                 <CardFooter>
-                  <Button className="w-full text-lg py-2" onClick={handleBuy}>Add to Cart</Button>
+                  <div className="flex justify-between items-center">
+                    <Button
+                      onClick={handleAddToCart}
+                      disabled={isMaxReached} // Disable the button if max quantity is reached
+                    >
+                      {isMaxReached
+                        ? `Max ${MAX_QUANTITY} reached`
+                        : "Add to Cart"}
+                    </Button>
+
+                    {/* Display the current cart quantity for this dish */}
+                    <div className="text-sm ms-4 text-gray-500">
+                      {cartQuantity > 0
+                        ? `In Cart: ${cartQuantity}`
+                        : "Not in cart"}
+                    </div>
+                  </div>
                 </CardFooter>
               </Card>
             </div>
