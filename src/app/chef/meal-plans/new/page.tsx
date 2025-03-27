@@ -6,17 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DishAutocomplete from "@/components/chef/DishAutocomplete";
-import DishModifierModal from "@/components/chef/DishModifierModal";
+import DishModifierModal, { DishModifierModalResult } from "@/components/chef/DishModifierModal";
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
+/** ---------- Slot Type ---------- **/
 type Slot = {
-  dish?: any;
-  modifiers?: any;
+  dish?: any; // The selected dish object from DishAutocomplete
+  modifiers?: { [modifierTitle: string]: any[] }; // Arrays of selected items keyed by mod title
+  specialInstructions?: string; // Now separate from the modifiers arrays
   quantity?: number;
   days?: string[];
 };
 
+/** ---------- Main Component ---------- **/
 export default function CreateMealPlanPage() {
   const router = useRouter();
   const [planName, setPlanName] = useState("");
@@ -28,12 +31,16 @@ export default function CreateMealPlanPage() {
     evening: {},
     dinner: {},
   });
+
   const [openModal, setOpenModal] = useState(false);
   const [currentSlot, setCurrentSlot] = useState<
     "breakfast" | "lunch" | "evening" | "dinner" | null
   >(null);
 
-  // Dish selection via autocomplete
+  /**
+   * When the user selects a dish from autocomplete for a given slot,
+   * we set a default quantity and open the modal for configuration.
+   */
   const handleDishSelect = (slot: "breakfast" | "lunch" | "evening" | "dinner", dish: any) => {
     setMealPlanSlots((prev) => ({
       ...prev,
@@ -43,23 +50,32 @@ export default function CreateMealPlanPage() {
         quantity: 1,
         days: prev[slot].days || [],
         modifiers: prev[slot].modifiers || {},
+        specialInstructions: prev[slot].specialInstructions || "",
       },
     }));
     setCurrentSlot(slot);
     setOpenModal(true);
   };
 
-  // Callback from DishModifierModal with explicit typing for modifiersData as any[]
+  /**
+   * Callback from DishModifierModal, receiving a DishModifierModalResult:
+   *   {
+   *     modifiers: { [modifierTitle: string]: ModifierItem[] },
+   *     specialInstructions: string
+   *   }
+   * plus the final quantity.
+   */
   const handleModifiersUpdate = (
     slot: "breakfast" | "lunch" | "evening" | "dinner",
-    modifiersData: any,
+    result: DishModifierModalResult,
     quantity: number
   ) => {
     setMealPlanSlots((prev) => ({
       ...prev,
       [slot]: {
         ...prev[slot],
-        modifiers: modifiersData,
+        modifiers: result.modifiers,
+        specialInstructions: result.specialInstructions,
         quantity: quantity,
       },
     }));
@@ -67,7 +83,7 @@ export default function CreateMealPlanPage() {
     setCurrentSlot(null);
   };
 
-  // Days selection handler
+  /** Days selection: add or remove day from the slot's `days` array */
   const handleDaysChange = (
     slot: "breakfast" | "lunch" | "evening" | "dinner",
     day: string,
@@ -83,29 +99,32 @@ export default function CreateMealPlanPage() {
     });
   };
 
-  // Repeat for all days handler
-  const handleRepeatForDays = (
-    slot: "breakfast" | "lunch" | "evening" | "dinner",
-    days: string[]
-  ) => {
+  /** Quickly repeat the dish for all days. */
+  const handleRepeatForDays = (slot: "breakfast" | "lunch" | "evening" | "dinner") => {
     setMealPlanSlots((prev) => ({
       ...prev,
-      [slot]: { ...prev[slot], days },
+      [slot]: { ...prev[slot], days: [...daysOfWeek] },
     }));
   };
 
-  // Calculate total price for the meal plan
+  /**
+   * Summation logic: For each slot, if there's a dish and any day(s),
+   * multiply the dish price (plus selected modifiers) by quantity * days.length.
+   */
   const calculateTotalPrice = (): number => {
     let total = 0;
     (["breakfast", "lunch", "evening", "dinner"] as const).forEach((slot) => {
       const data = mealPlanSlots[slot];
       if (data.dish && data.days && data.days.length > 0) {
         let dishPrice = data.dish.price;
+        // Iterate only over arrays in data.modifiers
         if (data.modifiers) {
-          (Object.values(data.modifiers) as any[]).forEach((modItems: any[]) => {
-            modItems.forEach((item) => {
-              dishPrice += parseFloat(item.price);
-            });
+          Object.entries(data.modifiers).forEach(([modTitle, modItems]) => {
+            if (Array.isArray(modItems)) {
+              modItems.forEach((item) => {
+                dishPrice += parseFloat(item.price);
+              });
+            }
           });
         }
         const quantity = data.quantity || 1;
@@ -115,22 +134,28 @@ export default function CreateMealPlanPage() {
     return total;
   };
 
+  /**
+   * Submit logic:
+   *  - For each slot, ensure that if a dish is selected, we have at least some days.
+   *    (If you want optional days, remove this check.)
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     for (const slot of ["breakfast", "lunch", "evening", "dinner"] as const) {
       const data = mealPlanSlots[slot];
-      if (!data.dish || !data.days || data.days.length === 0) {
-        alert(`Please select a dish and at least one day for ${slot}`);
+      if (data.dish && (!data.days || data.days.length === 0)) {
+        alert(`Please select at least one day for the ${slot} dish.`);
         return;
       }
     }
 
+    // Construct final payload
     const mealPlanData = {
       planName,
       slots: mealPlanSlots,
       totalPrice: calculateTotalPrice(),
-      // chefId should be added from authentication context if needed
+      chefId: "chef123", // Hardcoded or from auth context
     };
 
     try {
@@ -166,9 +191,9 @@ export default function CreateMealPlanPage() {
           />
         </div>
 
-        {/* For each slot */}
+        {/* Slots for each meal */}
         {(["breakfast", "lunch", "evening", "dinner"] as const).map((slot) => (
-          <div key={slot} className="border p-4 rounded-lg mb-6">
+          <div key={slot} className="border p-4 rounded-lg mb-6 bg-white shadow-sm">
             <h2 className="text-xl font-semibold capitalize mb-2">{slot}</h2>
 
             {/* Dish Autocomplete */}
@@ -176,7 +201,7 @@ export default function CreateMealPlanPage() {
 
             {/* Display Selected Dish */}
             {mealPlanSlots[slot].dish && (
-              <div className="mt-2 flex items-center space-x-4">
+              <div className="mt-4 flex items-center space-x-4">
                 <img
                   src={
                     mealPlanSlots[slot].dish.photoUrl ||
@@ -196,33 +221,33 @@ export default function CreateMealPlanPage() {
 
             {/* Days Selection */}
             <div className="mt-4">
-              <p className="font-semibold mb-2">Select Days:</p>
+              <p className="font-semibold mb-2">Select Days (optional):</p>
               <div className="flex flex-wrap gap-2">
-                {daysOfWeek.map((day) => (
-                  <label key={day} className="flex items-center space-x-1">
-                    <input
-                      type="checkbox"
-                      checked={
-                        mealPlanSlots[slot].days ? mealPlanSlots[slot].days.includes(day) : false
-                      }
-                      onChange={(e) => handleDaysChange(slot, day, e.target.checked)}
-                      className="h-4 w-4"
-                    />
-                    <span className="text-sm">{day.slice(0, 3)}</span>
-                  </label>
-                ))}
+                {daysOfWeek.map((day) => {
+                  const isChecked = mealPlanSlots[slot].days?.includes(day) ?? false;
+                  return (
+                    <label key={day} className="flex items-center space-x-1">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => handleDaysChange(slot, day, e.target.checked)}
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm">{day.slice(0, 3)}</span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
             {/* Repeat for All Days */}
-            <div className="mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleRepeatForDays(slot, daysOfWeek)}>
-                Repeat for All Days
-              </Button>
-            </div>
+            {mealPlanSlots[slot].dish && (
+              <div className="mt-4">
+                <Button type="button" variant="outline" onClick={() => handleRepeatForDays(slot)}>
+                  Repeat for All Days
+                </Button>
+              </div>
+            )}
 
             {/* Configure Dish Options */}
             {mealPlanSlots[slot].dish && (
@@ -262,15 +287,20 @@ export default function CreateMealPlanPage() {
       {openModal && currentSlot && (
         <DishModifierModal
           dish={mealPlanSlots[currentSlot].dish}
-          initialModifiers={mealPlanSlots[currentSlot].modifiers}
+          // Convert stored 'modifiers' to the expected { [modifierTitle]: ModifierItem[] }
+          initialModifiers={
+            (mealPlanSlots[currentSlot].modifiers as { [modTitle: string]: any[] }) || {}
+          }
           initialQuantity={mealPlanSlots[currentSlot].quantity || 1}
-          onClose={(modifiersData: any, quantity: number) => {
+          onClose={(result, quantity) => {
+            // result has { modifiers, specialInstructions }
             setMealPlanSlots((prev) => ({
               ...prev,
-              [currentSlot]: {
-                ...prev[currentSlot],
-                modifiers: modifiersData,
-                quantity: quantity,
+              [currentSlot!]: {
+                ...prev[currentSlot!],
+                modifiers: result.modifiers,
+                specialInstructions: result.specialInstructions,
+                quantity,
               },
             }));
             setOpenModal(false);

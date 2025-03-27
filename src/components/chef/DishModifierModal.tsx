@@ -10,7 +10,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-// Types for the dish and modifiers
+/** ---------- Type Definitions ---------- **/
+
 interface ModifierItem {
   title: string;
   price: number;
@@ -32,24 +33,31 @@ interface Dish {
 }
 
 /**
- * This interface extends the typical { [key: string]: ModifierItem[] }
- * to also include a special instructions string property.
+ * The data we return from this modal: an object of
+ *   { [modifierTitle: string]: ModifierItem[] }
+ * plus a separate specialInstructions string
  */
-export interface SelectedModifiersWithInstructions {
-  [modifierTitle: string]: ModifierItem[] | string;
-  __specialInstructions: string; // The text from the textarea
+export interface DishModifierModalResult {
+  modifiers: { [modifierTitle: string]: ModifierItem[] };
+  specialInstructions: string;
 }
 
+/** Props for the DishModifierModal */
 interface DishModifierModalProps {
   dish: Dish;
-  /**
-   * The initialModifiers object can contain keys matching each modifier title
-   * mapped to an array of ModifierItems. We also allow a `__specialInstructions` key.
-   */
-  initialModifiers: SelectedModifiersWithInstructions;
+  /** Preselected modifiers keyed by modifier title */
+  initialModifiers: { [modifierTitle: string]: ModifierItem[] };
+  /** Preselected quantity */
   initialQuantity: number;
-  onClose: (modifiersData: SelectedModifiersWithInstructions, quantity: number) => void;
+  /**
+   * Callback with the final selection:
+   *   - result: DishModifierModalResult
+   *   - quantity: number
+   */
+  onClose: (result: DishModifierModalResult, quantity: number) => void;
 }
+
+/** ---------- Component Implementation ---------- **/
 
 export default function DishModifierModal({
   dish,
@@ -57,152 +65,148 @@ export default function DishModifierModal({
   initialQuantity,
   onClose,
 }: DishModifierModalProps) {
-  // We cast to our extended type, or default to an empty object.
-  const [selectedModifiers, setSelectedModifiers] = useState<SelectedModifiersWithInstructions>(
-    initialModifiers || {}
-  );
+  // State: currently selected items for each modifier
+  const [selectedModifiers, setSelectedModifiers] = useState<{
+    [modifierTitle: string]: ModifierItem[];
+  }>(initialModifiers || {});
+
+  // State: user-defined quantity
   const [quantity, setQuantity] = useState<number>(initialQuantity);
 
-  // Extract the special instructions if they exist, otherwise empty string
-  const [specialInstructions, setSpecialInstructions] = useState<string>(
-    typeof initialModifiers.__specialInstructions === "string"
-      ? initialModifiers.__specialInstructions
-      : ""
-  );
+  // State: user-entered special instructions (stored separately)
+  const [specialInstructions, setSpecialInstructions] = useState<string>("");
 
   /**
-   * Toggle a given ModifierItem on/off for the specified modifierTitle
+   * Toggles a single ModifierItem on/off for a given modifier title.
+   * Respects the limit property if user tries to add more than allowed.
    */
   const handleOptionToggle = (modifierTitle: string, item: ModifierItem, isSelected: boolean) => {
     setSelectedModifiers((prev) => {
-      // Extract the currently selected items for this modifier or default to []
-      const currentItems = (prev[modifierTitle] as ModifierItem[]) || [];
-      // Find the actual modifier config from the dish to check limits
+      const current = prev[modifierTitle] || [];
+      // Find the matching modifier config from the dish to check limits
       const modConfig = dish.modifiers.find((m) => m.title === modifierTitle);
+      if (!modConfig) return prev;
 
-      if (modConfig) {
-        if (isSelected) {
-          // If not already selected, add it if we haven't exceeded the limit
-          const alreadySelected = currentItems.some((it) => it.title === item.title);
-          if (!alreadySelected && currentItems.length < modConfig.limit) {
-            return {
-              ...prev,
-              [modifierTitle]: [...currentItems, item],
-            };
-          }
-        } else {
-          // Unchecking => remove item
-          return {
-            ...prev,
-            [modifierTitle]: currentItems.filter((it) => it.title !== item.title),
-          };
+      if (isSelected) {
+        // Add item if not already selected and not exceeding limit
+        const alreadySelected = current.some((sel) => sel.title === item.title);
+        if (!alreadySelected && current.length < modConfig.limit) {
+          return { ...prev, [modifierTitle]: [...current, item] };
         }
+      } else {
+        // Unchecking => remove the item
+        return {
+          ...prev,
+          [modifierTitle]: current.filter((sel) => sel.title !== item.title),
+        };
       }
       return prev;
     });
   };
 
   /**
-   * When the modal closes, we embed the specialInstructions
-   * into the final object under `__specialInstructions`
+   * Called when the modal closes or user clicks 'Save Options'.
+   * We pass the final selection up via onClose
    */
   const handleSave = () => {
-    const updatedModifiers: SelectedModifiersWithInstructions = {
-      ...selectedModifiers,
-      __specialInstructions: specialInstructions,
+    const result: DishModifierModalResult = {
+      modifiers: selectedModifiers,
+      specialInstructions,
     };
-    onClose(updatedModifiers, quantity);
+    onClose(result, quantity);
   };
 
   return (
     <Dialog
       open
       onOpenChange={(open) => {
+        // If the dialog is closing, call handleSave
         if (!open) handleSave();
       }}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Configure Options for {dish.name}</DialogTitle>
-        </DialogHeader>
+      <DialogContent>
+        <div className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Configure Options for {dish.name}</DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-6">
-          {/* List out each modifier section */}
-          {dish.modifiers.map((mod, modIndex) => {
-            // Current items user has selected for this mod
-            const currentSelected = (selectedModifiers[mod.title] || []) as ModifierItem[];
+          {/* Modifiers Section */}
+          <div className="space-y-6 mt-4">
+            {dish.modifiers.map((mod, modIndex) => {
+              const currentSelected = selectedModifiers[mod.title] || [];
+              return (
+                <div key={modIndex} className="border-b pb-4">
+                  <p className="font-semibold text-base mb-2">
+                    {mod.title} ({mod.required ? "Required" : "Optional"} - Select up to {mod.limit}
+                    )
+                  </p>
 
-            return (
-              <div key={modIndex} className="border-b pb-4">
-                <p className="font-semibold text-base mb-2">
-                  {mod.title} ({mod.required ? "Required" : "Optional"} - Select up to {mod.limit})
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  {mod.items.map((item, idx) => {
-                    // is this item selected?
-                    const isChecked = currentSelected.some((sel) => sel.title === item.title);
-                    // If user reached the limit and this item isn't selected, disable it
-                    const isDisabled = !isChecked && currentSelected.length >= mod.limit;
+                  <div className="flex flex-wrap gap-4">
+                    {mod.items.map((item, idx) => {
+                      const isChecked = currentSelected.some((sel) => sel.title === item.title);
+                      // If user reached limit & this item isn't checked => disable
+                      const isDisabled = !isChecked && currentSelected.length >= mod.limit;
 
-                    return (
-                      <label
-                        key={idx}
-                        className={`flex items-center space-x-1 ${
-                          isDisabled ? "opacity-50 cursor-not-allowed" : ""
-                        }`}>
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4"
-                          checked={isChecked}
-                          disabled={isDisabled}
-                          onChange={(e) => handleOptionToggle(mod.title, item, e.target.checked)}
-                        />
-                        <span className="text-sm">
-                          {item.title} (+${item.price})
-                        </span>
-                      </label>
-                    );
-                  })}
+                      return (
+                        <label
+                          key={idx}
+                          className={`flex items-center space-x-1 ${
+                            isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                          }`}>
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4"
+                            checked={isChecked}
+                            disabled={isDisabled}
+                            onChange={(e) => handleOptionToggle(mod.title, item, e.target.checked)}
+                          />
+                          <span className="text-sm">
+                            {item.title} (+${item.price})
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {/* Quantity */}
-          <div className="flex items-center space-x-4">
-            <label className="font-semibold text-sm">Quantity:</label>
-            <div className="flex items-center space-x-2">
-              <button
-                type="button"
-                className="px-3 py-1 bg-gray-200 rounded"
-                onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}>
-                -
-              </button>
-              <span className="font-semibold">{quantity}</span>
-              <button
-                type="button"
-                className="px-3 py-1 bg-gray-200 rounded"
-                onClick={() => setQuantity(quantity + 1)}>
-                +
-              </button>
+            {/* Quantity Section */}
+            <div className="flex items-center space-x-4">
+              <label className="font-semibold text-sm">Quantity:</label>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  className="px-3 py-1 bg-gray-200 rounded"
+                  onClick={() => setQuantity(quantity > 1 ? quantity - 1 : 1)}>
+                  -
+                </button>
+                <span className="font-semibold">{quantity}</span>
+                <button
+                  type="button"
+                  className="px-3 py-1 bg-gray-200 rounded"
+                  onClick={() => setQuantity(quantity + 1)}>
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Special Instructions */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Special Instructions</label>
+              <textarea
+                className="w-full p-2 border rounded mt-1"
+                rows={3}
+                value={specialInstructions}
+                onChange={(e) => setSpecialInstructions(e.target.value)}></textarea>
             </div>
           </div>
 
-          {/* Special Instructions */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Special Instructions</label>
-            <textarea
-              className="w-full p-2 border rounded mt-1"
-              rows={3}
-              value={specialInstructions}
-              onChange={(e) => setSpecialInstructions(e.target.value)}></textarea>
-          </div>
+          <DialogFooter className="mt-6">
+            <Button variant="outline" onClick={handleSave}>
+              Save Options
+            </Button>
+          </DialogFooter>
         </div>
-
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={handleSave}>
-            Save Options
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

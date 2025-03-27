@@ -39,19 +39,14 @@ export default function Header() {
   const chefNavigation = [
     { name: "Dashboard", href: "/chef/dashboard" },
     { name: "Meal Plans", href: "/chef/meal-plans" },
-    { name: "Meals", href: "/chef/meals" },
     { name: "Dishes", href: "/chef/dishes" },
-    { name: "Subscribers", href: "/chef/subscribers" },
     { name: "Profile", href: "/chef/profile" },
   ];
 
   const dinerNavigation = [
     { name: "Dashboard", href: "/diner/dashboard" },
     { name: "Meal Plans", href: "/diner/meal-plans" },
-    { name: "Meals", href: "/diner/meals" },
     { name: "Dishes", href: "/diner/dishes" },
-    { name: "Chefs", href: "/diner/chefs" },
-    { name: "My Subscription", href: "/diner/subscriptions" },
     { name: "Profile", href: "/diner/profile" },
   ];
 
@@ -164,7 +159,9 @@ export default function Header() {
                   <Link href="/auth/login" className="text-xl text-gray-600 hover:text-blue-600">
                     Login
                   </Link>
-                  <Link href="/auth/signup" className="text-xl text-gray-600 hover:text-blue-600">
+                  <Link
+                    href="/user-selection"
+                    className="text-xl text-gray-600 hover:text-blue-600">
                     Signup
                   </Link>
                 </>

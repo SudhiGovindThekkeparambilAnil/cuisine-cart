@@ -13,7 +13,8 @@ interface SlotData {
     photoUrl?: string;
     price: number;
   };
-  modifiers: any;
+  modifiers?: { [modifierTitle: string]: any[] };
+  specialInstructions?: string;
   quantity: number;
   days: string[];
 }
@@ -70,7 +71,7 @@ export default function MealPlanDetailPage() {
               <h2 className="text-2xl font-bold capitalize">{slot}</h2>
               <p className="text-sm text-gray-600">Delivered on: {slotData.days.join(", ")}</p>
             </CardHeader>
-            <CardContent className="flex items-center space-x-4">
+            <CardContent className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
               <Image
                 src={slotData.dish.photoUrl || "https://placehold.co/600x400?text=No+Image"}
                 alt={slotData.dish.name}
@@ -78,14 +79,33 @@ export default function MealPlanDetailPage() {
                 height={80}
                 className="object-cover rounded"
               />
-              <div>
+              <div className="flex-1">
                 <p className="font-semibold">{slotData.dish.name}</p>
                 <p className="text-sm text-gray-500">
                   Price: ${slotData.dish.price.toFixed(2)} x {slotData.quantity} (per day)
                 </p>
-                {slotData.modifiers && (
-                  <div className="text-sm text-gray-600">
-                    Options: {JSON.stringify(slotData.modifiers)}
+                {/* Render selected modifiers in a professional layout */}
+                {slotData.modifiers && Object.entries(slotData.modifiers).length > 0 && (
+                  <div className="mt-2">
+                    {Object.entries(slotData.modifiers).map(([modTitle, items]) => (
+                      <div key={modTitle} className="mb-1">
+                        <p className="text-sm font-medium">{modTitle}:</p>
+                        <ul className="list-disc pl-4">
+                          {(items as any[]).map((item, index) => (
+                            <li key={index} className="text-sm text-gray-600">
+                              {item.title} (+${parseFloat(item.price).toFixed(2)})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Render special instructions if provided */}
+                {slotData.specialInstructions && (
+                  <div className="mt-2">
+                    <p className="text-sm font-medium">Special Instructions:</p>
+                    <p className="text-sm text-gray-600">{slotData.specialInstructions}</p>
                   </div>
                 )}
               </div>
