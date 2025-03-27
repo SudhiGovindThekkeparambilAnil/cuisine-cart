@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DishAutocomplete from "@/components/chef/DishAutocomplete";
 import DishModifierModal from "@/components/chef/DishModifierModal";
+import Image from "next/image";
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
@@ -203,7 +204,7 @@ export default function CreateMealPlanPage() {
             {/* Display Selected Dish */}
             {mealPlanSlots[slot].dish && (
               <div className="mt-4 flex items-center space-x-4">
-                <img
+                <Image
                   src={
                     mealPlanSlots[slot].dish.photoUrl ||
                     "https://placehold.co/600x400?text=No+Image"
