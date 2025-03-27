@@ -33,7 +33,7 @@ interface Dish {
 
 interface DishModifierModalProps {
   dish: Dish;
-  initialModifiers: any; // Current selected modifier configuration
+  initialModifiers: any; // Current selected modifiers/options
   initialQuantity: number;
   onClose: (modifiersData: any, quantity: number) => void;
 }
@@ -44,10 +44,9 @@ export default function DishModifierModal({
   initialQuantity,
   onClose,
 }: DishModifierModalProps) {
-  const [selectedModifiers, setSelectedModifiers] = useState(initialModifiers || {});
+  const [selectedModifiers, setSelectedModifiers] = useState<any>(initialModifiers || {});
   const [quantity, setQuantity] = useState(initialQuantity);
 
-  // Example: Simple handler to update modifiers (expand as needed)
   const handleOptionToggle = (modifierTitle: string, item: ModifierItem, isSelected: boolean) => {
     setSelectedModifiers((prev: any) => {
       const current = prev[modifierTitle] || [];
@@ -111,7 +110,9 @@ export default function DishModifierModal({
           </div>
         </div>
         <DialogFooter className="mt-4">
-          <Button onClick={() => onClose(selectedModifiers, quantity)}>Save Options</Button>
+          <Button variant="outline" onClick={() => onClose(selectedModifiers, quantity)}>
+            Save Options
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

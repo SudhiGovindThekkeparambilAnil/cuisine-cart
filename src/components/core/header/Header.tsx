@@ -38,6 +38,7 @@ export default function Header() {
 
   const chefNavigation = [
     { name: "Dashboard", href: "/chef/dashboard" },
+    { name: "Meal Plans", href: "/chef/meal-plans" },
     { name: "Meals", href: "/chef/meals" },
     { name: "Dishes", href: "/chef/dishes" },
     { name: "Subscribers", href: "/chef/subscribers" },
@@ -46,6 +47,7 @@ export default function Header() {
 
   const dinerNavigation = [
     { name: "Dashboard", href: "/diner/dashboard" },
+    { name: "Meal Plans", href: "/diner/meal-plans" },
     { name: "Meals", href: "/diner/meals" },
     { name: "Dishes", href: "/diner/dishes" },
     { name: "Chefs", href: "/diner/chefs" },
@@ -63,7 +65,7 @@ export default function Header() {
     try {
       await axios.post("/api/auth/logout");
       setUser(null);
-      localStorage.removeItem("role"); 
+      localStorage.removeItem("role");
       toast.info("Logout Successful!", {
         description: "Session has been logged out.",
       });
@@ -88,18 +90,14 @@ export default function Header() {
     <header className="bg-white shadow-md">
       <div className="container mx-auto flex justify-between items-center p-6">
         <div className="flex items-center">
-        <Image
+          <Image
             src="/logo.png"
             alt="Company Logo"
             width={90}
             height={90}
             className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 lg:w-26 lg:h-26 me-3 rounded"
           />
-        <p className="text-2xl font-bold text-gray-800">
-          {" "}
-         
-          Cuisine Cart
-        </p>
+          <p className="text-2xl font-bold text-gray-800"> Cuisine Cart</p>
         </div>
 
         {/* Desktop Navigation */}
@@ -141,12 +139,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu */}
-      <Dialog
-        as="div"
-        className="lg:hidden"
-        open={mobileMenuOpen}
-        onClose={setMobileMenuOpen}
-      >
+      <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <div className="fixed inset-0 z-20 flex flex-col justify-between items-center bg-white">
           <DialogPanel className="w-full h-full p-6 flex flex-col justify-between">
@@ -204,12 +197,8 @@ export default function Header() {
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <DialogPanel className="fixed inset-0 z-20 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-            <h3 className="text-xl font-semibold text-gray-800">
-              Confirm Logout
-            </h3>
-            <p className="text-gray-600 mt-4">
-              Are you sure you want to log out?
-            </p>
+            <h3 className="text-xl font-semibold text-gray-800">Confirm Logout</h3>
+            <p className="text-gray-600 mt-4">Are you sure you want to log out?</p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={closeModal}

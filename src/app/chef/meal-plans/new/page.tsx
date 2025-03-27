@@ -11,8 +11,8 @@ import DishModifierModal from "@/components/chef/DishModifierModal";
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 type Slot = {
-  dish?: any; // Selected dish object from autocomplete
-  modifiers?: any; // Selected modifiers/options for the dish
+  dish?: any;
+  modifiers?: any;
   quantity?: number;
   days?: string[];
 };
@@ -49,7 +49,7 @@ export default function CreateMealPlanPage() {
     setOpenModal(true);
   };
 
-  // Callback from the DishModifierModal
+  // Callback from DishModifierModal with explicit typing for modifiersData as any[]
   const handleModifiersUpdate = (
     slot: "breakfast" | "lunch" | "evening" | "dinner",
     modifiersData: any,
@@ -102,7 +102,7 @@ export default function CreateMealPlanPage() {
       if (data.dish && data.days && data.days.length > 0) {
         let dishPrice = data.dish.price;
         if (data.modifiers) {
-          Object.values(data.modifiers).forEach((modItems: any[]) => {
+          (Object.values(data.modifiers) as any[]).forEach((modItems: any[]) => {
             modItems.forEach((item) => {
               dishPrice += parseFloat(item.price);
             });
@@ -118,7 +118,6 @@ export default function CreateMealPlanPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate each slot: must have a dish and at least one day selected
     for (const slot of ["breakfast", "lunch", "evening", "dinner"] as const) {
       const data = mealPlanSlots[slot];
       if (!data.dish || !data.days || data.days.length === 0) {
@@ -131,7 +130,7 @@ export default function CreateMealPlanPage() {
       planName,
       slots: mealPlanSlots,
       totalPrice: calculateTotalPrice(),
-      // Assume chefId is available via authentication (or add later)
+      // chefId should be added from authentication context if needed
     };
 
     try {
@@ -172,7 +171,7 @@ export default function CreateMealPlanPage() {
           <div key={slot} className="border p-4 rounded-lg mb-6">
             <h2 className="text-xl font-semibold capitalize mb-2">{slot}</h2>
 
-            {/* Dish Autocomplete for this slot */}
+            {/* Dish Autocomplete */}
             <DishAutocomplete slotType={slot} onSelect={(dish) => handleDishSelect(slot, dish)} />
 
             {/* Display Selected Dish */}
@@ -232,8 +231,6 @@ export default function CreateMealPlanPage() {
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    // Open modal to configure dish options
-                    // (DishModifierModal will update modifiers and quantity)
                     setCurrentSlot(slot);
                     setOpenModal(true);
                   }}>
@@ -267,7 +264,7 @@ export default function CreateMealPlanPage() {
           dish={mealPlanSlots[currentSlot].dish}
           initialModifiers={mealPlanSlots[currentSlot].modifiers}
           initialQuantity={mealPlanSlots[currentSlot].quantity || 1}
-          onClose={(modifiersData, quantity) => {
+          onClose={(modifiersData: any, quantity: number) => {
             setMealPlanSlots((prev) => ({
               ...prev,
               [currentSlot]: {

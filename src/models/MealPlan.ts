@@ -7,7 +7,7 @@ export interface Slot {
     photoUrl?: string;
     price: number;
   };
-  modifiers?: any; // JSON structure for modifier selections
+  modifiers?: any; // Store modifiers/options (object structure based on DishModifierModal)
   quantity: number;
   days: string[];
 }
