@@ -16,6 +16,7 @@ const eslintConfig = [
       "@typescript-eslint/no-explicit-any": "off",
       "no-var": "error",
       "@typescript-eslint/explicit-module-boundary-types": "off",
+      "@typescript-eslint/no-require-imports": "off"
     }
   }
 ];

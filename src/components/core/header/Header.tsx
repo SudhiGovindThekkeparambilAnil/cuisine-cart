@@ -18,6 +18,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -33,7 +34,19 @@ export default function Header() {
         setUser(null);
       }
     };
+    const fetchCart = async () => {
+      try {
+        const res = await axios.get("/api/cart");
+        if (res.status === 200) {
+          setCartCount(res.data.length); // Set cart count based on cart data
+        }
+      } catch {
+        setCartCount(0); // Default to 0 if there's an error fetching cart
+        toast.error("Error wile fetching the cart");
+      }
+    };
     fetchUser();
+    fetchCart();
   }, [pathname]);
 
   const chefNavigation = [
@@ -48,6 +61,11 @@ export default function Header() {
     { name: "Meal Plans", href: "/diner/meal-plans" },
     { name: "Dishes", href: "/diner/dishes" },
     { name: "Profile", href: "/diner/profile" },
+    {
+      name: `Cart${cartCount > 0 ? ` (${cartCount})` : ""}`,
+      href: "/diner/cart",
+      className: "relative inline-block",
+    },
   ];
 
   // Hide header on login and signup pages
@@ -98,26 +116,43 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex space-x-8">
           {user ? (
-            (user.role === "chef" ? chefNavigation : dinerNavigation).map((item) => (
-              <Link
-                key={item.name}
-                href={item.href || "/"}
-                className="text-gray-600 hover:text-blue-600">
-                {item.name}
-              </Link>
-            ))
+            (user.role === "chef" ? chefNavigation : dinerNavigation).map(
+              (item) => (
+                <Link
+                  key={item.name}
+                  href={item.href || "/"}
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  {item.name}
+                  {item.name === "Cart" && cartCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+              )
+            )
           ) : (
             <>
-              <Link href="/auth/login" className="text-gray-600 hover:text-blue-600">
+              <Link
+                href="/auth/login"
+                className="text-gray-600 hover:text-blue-600"
+              >
                 Login
               </Link>
-              <Link href="/user-selection" className="text-gray-600 hover:text-blue-600">
+              <Link
+                href="/user-selection"
+                className="text-gray-600 hover:text-blue-600"
+              >
                 Signup
               </Link>
             </>
           )}
           {user && (
-            <button onClick={openModal} className="text-red-600 hover:text-red-800">
+            <button
+              onClick={openModal}
+              className="text-red-600 hover:text-red-800"
+            >
               Logout
             </button>
           )}
@@ -127,7 +162,8 @@ export default function Header() {
         <div className="lg:hidden">
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="text-gray-800 focus:outline-none">
+            className="text-gray-800 focus:outline-none"
+          >
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
@@ -145,18 +181,29 @@ export default function Header() {
 
             <nav className="flex flex-col items-center space-y-6 mb-12">
               {user ? (
-                (user.role === "chef" ? chefNavigation : dinerNavigation).map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href || "/"}
-                    className="text-xl text-gray-600 hover:text-blue-600"
-                    onClick={() => setMobileMenuOpen(false)}>
-                    {item.name}
-                  </Link>
-                ))
+                (user.role === "chef" ? chefNavigation : dinerNavigation).map(
+                  (item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href || "/"}
+                      className="text-xl text-gray-600 hover:text-blue-600"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {item.name}
+                      {item.name === "Cart" && cartCount > 0 && (
+                        <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                          {cartCount}
+                        </span>
+                      )}
+                    </Link>
+                  )
+                )
               ) : (
                 <>
-                  <Link href="/auth/login" className="text-xl text-gray-600 hover:text-blue-600">
+                  <Link
+                    href="/auth/login"
+                    className="text-xl text-gray-600 hover:text-blue-600"
+                  >
                     Login
                   </Link>
                   <Link
@@ -172,7 +219,8 @@ export default function Header() {
               <div className="flex justify-center">
                 <button
                   onClick={handleLogout}
-                  className="block bg-red-600 text-white py-3 px-8 rounded-full text-lg font-semibold mb-4 hover:bg-red-700 transition duration-300">
+                  className="block bg-red-600 text-white py-3 px-8 rounded-full text-lg font-semibold mb-4 hover:bg-red-700 transition duration-300"
+                >
                   Logout
                 </button>
               </div>
@@ -182,7 +230,8 @@ export default function Header() {
           <div className="absolute top-4 right-4">
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="text-gray-800 focus:outline-none">
+              className="text-gray-800 focus:outline-none"
+            >
               <XMarkIcon className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
@@ -199,12 +248,14 @@ export default function Header() {
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={closeModal}
-                className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md">
+                className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md"
+              >
                 Cancel
               </button>
               <button
                 onClick={confirmLogout}
-                className=" bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
+                className=" bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md"
+              >
                 Logout
               </button>
             </div>
