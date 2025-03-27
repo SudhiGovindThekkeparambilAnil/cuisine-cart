@@ -167,7 +167,7 @@ export default function UploadFile({
       <button
         type="button"
         onClick={handleOpenModal}
-        className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition"
+        className="bg-gradient-to-r from-[#E47D02] via-[#FF9A1F] to-[#F4A343] hover:opacity-90 text-white px-3 py-1.5 text-sm rounded-lg shadow-md hover:shadow-lg transition-all"
       >
         Upload Image
       </button>
@@ -236,7 +236,7 @@ export default function UploadFile({
                       e.stopPropagation();
                       setSelectedFile(null);
                     }}
-                    className="bg-red-500 text-white px-5 py-2 rounded-lg shadow hover:bg-red-600"
+                    className="bg-red-500 text-white px-5 py-2 mr-3 rounded-lg shadow hover:bg-red-600"
                   >
                     Upload Another Image
                   </button>
