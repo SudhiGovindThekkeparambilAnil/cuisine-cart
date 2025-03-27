@@ -8,6 +8,8 @@ import { TextArea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import Loader from "@/components/Loader";
+import UploadImage from "@/components/core/UploadImage/UploadImage";
+import Image from "next/image";
 
 export default function CreateChefDishPage() {
   const router = useRouter();
@@ -98,10 +100,69 @@ export default function CreateChefDishPage() {
     e.preventDefault();
     setError(null);
 
+    const trimmedName = name.trim();
+    const trimmedType = type.trim();
+    const trimmedCuisine = cuisine.trim();
+    const trimmedDescription = description.trim();
+
+    // **Validation Checks**
+    if (trimmedName.length < 3 || trimmedName.length > 50) {
+      setError("Dish name must be between 3 and 50 characters.");
+      return;
+    }
+
+    if (trimmedType.length < 3 || trimmedType.length > 50) {
+      setError("Dish type must be between 3 and 50 characters.");
+      return;
+    }
+
+    if (trimmedCuisine.length < 3 || trimmedCuisine.length > 50) {
+      setError("Cuisine must be between 3 and 50 characters.");
+      return;
+    }
+
+    if (trimmedDescription.length < 10 || trimmedDescription.length > 500) {
+      setError("Description must be between 10 and 500 characters.");
+      return;
+    }
+
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
       setError("Price must be a positive number.");
       return;
+    }
+
+    for (const modifier of modifiers) {
+      const modTitle = modifier.title.trim();
+      if (modTitle.length < 3 || modTitle.length > 30) {
+        setError("Each modifier title must be between 3 and 30 characters.");
+        return;
+      }
+
+      if (modifier.limit <= 0) {
+        setError("Modifier limit must be greater than 0.");
+        return;
+      }
+
+      for (const item of modifier.items) {
+        const itemTitle = item.title.trim();
+        if (itemTitle.length < 3 || itemTitle.length > 30) {
+          setError("Each item title must be between 3 and 30 characters.");
+          return;
+        }
+
+        const itemPrice = parseFloat(item.price);
+        if (
+          isNaN(itemPrice) ||
+          itemPrice <= 0 ||
+          !/^\d+(\.\d{1,2})?$/.test(item.price)
+        ) {
+          setError(
+            "Each item price must be a positive number with up to 2 decimal places."
+          );
+          return;
+        }
+      }
     }
 
     const dishData = {
@@ -127,7 +188,7 @@ export default function CreateChefDishPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
         },
         body: JSON.stringify(dishData),
       });
@@ -169,7 +230,6 @@ export default function CreateChefDishPage() {
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required
                 className="w-full"
               />
 
@@ -177,8 +237,20 @@ export default function CreateChefDishPage() {
               <Input
                 type="number"
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
+                onChange={(e) => {
+                  const value = e.target.value;
+              
+                  // Allow empty value for user convenience
+                  if (value === "") {
+                    setPrice(value);
+                    return;
+                  }
+              
+                  // Regex: Allow up to 4 digits before decimal and up to 2 digits after
+                  if (/^\d{0,4}(\.\d{0,2})?$/.test(value)) {
+                    setPrice(value);
+                  }
+                }}
                 className="w-full"
               />
 
@@ -187,7 +259,6 @@ export default function CreateChefDishPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                required
                 className="w-full"
               />
 
@@ -195,7 +266,6 @@ export default function CreateChefDishPage() {
               <Input
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                required
                 className="w-full"
               />
 
@@ -203,16 +273,30 @@ export default function CreateChefDishPage() {
               <Input
                 value={cuisine}
                 onChange={(e) => setCuisine(e.target.value)}
-                required
                 className="w-full"
               />
 
-              <Label>Photo URL</Label>
-              <Input
-                value={photoUrl}
-                onChange={(e) => setPhotoUrl(e.target.value)}
-                className="w-full"
-              />
+              <fieldset className="space-y-2 border-none p-0 m-0">
+                <Label>Dish Image</Label>
+                {photoUrl && (
+                  <div className="mb-4">
+                    <Image
+                      src={photoUrl}
+                      alt="Uploaded Dish"
+                      className="w-1/2 h-auto rounded-md"
+                      width={100}
+                      height={100}
+                    />
+                  </div>
+                )}
+                <div
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent form submission when clicking on the upload area
+                  }}
+                >
+                  <UploadImage onUploadComplete={(url) => setPhotoUrl(url)} />
+                </div>
+              </fieldset>
             </div>
 
             {/* Vertical Separator */}
@@ -229,7 +313,6 @@ export default function CreateChefDishPage() {
                     onChange={(e) =>
                       handleModifierChange(modIndex, "title", e.target.value)
                     }
-                    required
                     className="w-full"
                   />
 
@@ -335,7 +418,7 @@ export default function CreateChefDishPage() {
               </span>
             </div>
           </div>
-          
+
           {/* Submit button at the bottom */}
           <div className="w-full md:w-1/3 mx-auto">
             <Button type="submit" className="w-full">
