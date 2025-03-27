@@ -3,9 +3,13 @@
 import { useState, useRef, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import { uploadImage } from "./actions";
+import { toast } from "sonner";
 
 // Function to crop image using canvas
-const getCroppedImage = async (imageSrc: string, croppedAreaPixels: any): Promise<File | null> => {
+const getCroppedImage = async (
+  imageSrc: string,
+  croppedAreaPixels: any
+): Promise<File | null> => {
   const image = new Image();
   image.src = imageSrc;
   await new Promise((resolve) => (image.onload = resolve));
@@ -37,7 +41,9 @@ const getCroppedImage = async (imageSrc: string, croppedAreaPixels: any): Promis
         resolve(null);
         return;
       }
-      const file = new File([blob], "cropped-image.jpg", { type: "image/jpeg" });
+      const file = new File([blob], "cropped-image.jpg", {
+        type: "image/jpeg",
+      });
       resolve(file);
     }, "image/jpeg");
   });
@@ -56,7 +62,9 @@ export default function UploadFile({
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [cropComplete, setCropComplete] = useState(false);
-  const [cropMessage, setCropMessage] = useState("Please select the crop area before proceeding.");
+  const [cropMessage, setCropMessage] = useState(
+    "Please select the crop area before proceeding."
+  );
 
   // Crop settings
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -65,8 +73,17 @@ export default function UploadFile({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Modify all button click handlers
+  const handleOpenModal = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsOpen(true);
+  };
+
   // Handle file selection and show preview
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault(); // Prevent form submission
+    event.stopPropagation();
     const file = event.target.files?.[0];
     if (file) {
       setSelectedFile(file);
@@ -84,7 +101,9 @@ export default function UploadFile({
   }, []);
 
   // Crop and prepare the image for upload
-  const cropImage = async () => {
+  const handleCropClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!imagePreview || !selectedFile || !croppedAreaPixels) {
       alert("Please select an image and crop area.");
       return;
@@ -104,9 +123,11 @@ export default function UploadFile({
   };
 
   // Upload function
-  async function handleUpload() {
+  async function handleUpload(e: React.FormEvent) {
+    e.preventDefault();
+    e.stopPropagation();
     if (!selectedFile) {
-      alert("Please select an image first.");
+      toast.error("Please select an image to upload.");
       return;
     }
 
@@ -120,7 +141,9 @@ export default function UploadFile({
       closeModal();
     } catch (error) {
       console.error("Upload failed", error);
-      alert("Upload failed. Please try again.");
+      toast.error("Upload failed", {
+        description: "Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -142,18 +165,29 @@ export default function UploadFile({
     <div>
       {/* Button to Open Modal */}
       <button
-        onClick={() => setIsOpen(true)}
+        type="button"
+        onClick={handleOpenModal}
         className="bg-gradient-to-r from-[#E47D02] via-[#FF9A1F] to-[#F4A343] hover:opacity-90 text-white px-3 py-1.5 text-sm rounded-lg shadow-md hover:shadow-lg transition-all"
       >
         Upload Image
       </button>
 
-
       {/* Modal */}
       {isOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-[600px]">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Upload Image</h2>
+        <div
+          className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <div
+            className="bg-white p-6 rounded-xl shadow-lg w-[600px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">
+              Upload Image
+            </h2>
 
             {/* File Input */}
             {!selectedFile ? (
@@ -176,7 +210,9 @@ export default function UploadFile({
             ) : (
               <>
                 {/* Display Message to Select Crop Area */}
-                <p className="text-blue-500 text-sm font-semibold mb-2">{cropMessage}</p>
+                <p className="text-blue-500 text-sm font-semibold mb-2">
+                  {cropMessage}
+                </p>
 
                 {/* Cropping UI */}
                 <div className="relative w-full h-64 bg-gray-100 rounded-lg shadow-md overflow-hidden">
@@ -194,16 +230,24 @@ export default function UploadFile({
                 {/* Confirm Buttons */}
                 <div className="flex justify-between mt-4">
                   <button
-                    onClick={() => setSelectedFile(null)}
-                    className="bg-red-500 text-white px-5 py-2 rounded-lg shadow hover:bg-red-600">
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedFile(null);
+                    }}
+                    className="bg-red-500 text-white px-5 py-2 mr-3 rounded-lg shadow hover:bg-red-600"
+                  >
                     Upload Another Image
                   </button>
                   <button
-                    onClick={cropImage}
+                    type="button"
+                    onClick={handleCropClick}
                     className={`bg-green-500 text-white px-5 py-2 rounded-lg shadow hover:bg-green-600 transition ${
                       cropComplete ? "opacity-50" : ""
                     }`}
-                    disabled={cropComplete}>
+                    disabled={cropComplete}
+                  >
                     {cropComplete ? "Cropped" : "Crop Image"}
                   </button>
                 </div>
@@ -213,15 +257,20 @@ export default function UploadFile({
             {/* Upload Button */}
             {croppedImage && (
               <button
+                type="button"
                 onClick={handleUpload}
                 className="bg-indigo-600 text-white px-6 py-3 rounded-lg w-full mt-4 shadow-md hover:bg-indigo-700 transition"
-                disabled={loading}>
+                disabled={loading}
+              >
                 {loading ? "Uploading..." : "Upload"}
               </button>
             )}
 
             {/* Close Button */}
-            <button onClick={closeModal} className="text-gray-500 mt-3 block mx-auto text-sm">
+            <button
+              onClick={closeModal}
+              className="text-gray-500 mt-3 block mx-auto text-sm"
+            >
               Cancel
             </button>
           </div>

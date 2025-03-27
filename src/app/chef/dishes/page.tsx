@@ -70,14 +70,16 @@ export default function ChefDishesPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="px-4 py-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-6 flex flex-col sm:flex-row items-center sm:justify-between gap-4 sm:gap-0">
-        <h1 className="text-2xl sm:text-2xl font-bold text-center sm:text-left mb-4">Chef - Manage Dishes</h1>
-        <Button asChild className="px-4 py-2 w-full sm:w-auto rounded text-center">
-          <Link href="/chef/dishes/new">Create New Dish</Link>
-        </Button>
-      </div>
+  <h1 className="text-2xl sm:text-2xl font-bold text-center sm:text-left">Chef - Manage Dishes</h1>
+  <Button className="w-full sm:w-auto px-6 py-3 text-lg font-medium">
+    <Link href="/chef/dishes/new" className="w-full h-full flex items-center justify-center">
+      Create New Dish
+    </Link>
+  </Button>
+</div>
 
       {/* Error Message */}
       {error && <p className="text-red-600">{error}</p>}
@@ -140,7 +142,7 @@ export default function ChefDishesPage() {
                   )}
                 </CardContent>
                 <CardFooter className="flex space-x-2">
-                  <Button asChild variant="outline">
+                  <Button variant="outline">
                     <Link href={`/chef/dishes/${dish._id}/edit`}>Edit</Link>
                   </Button>
                   <Button variant="destructive" onClick={() => setDeleteDishId(dish._id)}>
@@ -150,6 +152,15 @@ export default function ChefDishesPage() {
               </Card>
             ))}
       </div>
+
+      {!loading && dishes.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500 mb-4">You havent created any dishes yet.</p>
+          <Button >
+            <Link href="/chef/dishes/new">Create Your First Dish</Link>
+          </Button>
+        </div>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteDishId} onOpenChange={() => setDeleteDishId(null)}>

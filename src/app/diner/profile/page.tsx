@@ -120,12 +120,32 @@ export default function DinerProfilePage() {
     }
   };
 
+  // const handleAddAddress = async (address: IAddress) => {
+  //   try {
+  //     const response = await axios.post("/api/profile/add-address", address);
+  //     if (response.status === 200) {
+  //       setUser(response.data); // Update user state with new data from backend
+  //       setShowModal(false); // Close the modal
+  //     } else {
+  //       console.error("Error adding address:", response.data);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error adding address:", error);
+  //   }
+  // };
+
   const handleAddAddress = async (address: IAddress) => {
+    const alreadyExists = user.addresses.some(addr => addr.type === address.type);
+    if (alreadyExists) {
+      alert(`You already have a ${address.type} address.`);
+      return;
+    }
+  
     try {
       const response = await axios.post("/api/profile/add-address", address);
       if (response.status === 200) {
-        setUser(response.data); // Update user state with new data from backend
-        setShowModal(false); // Close the modal
+        setUser(response.data);
+        setShowModal(false);
       } else {
         console.error("Error adding address:", response.data);
       }
@@ -423,6 +443,7 @@ export default function DinerProfilePage() {
           }}
           onSave={editingAddress ? handleSaveEditedAddress : handleAddAddress}
           initialAddress={editingAddress}
+          existingAddresses={user.addresses} 
         />
       )}
     </div>

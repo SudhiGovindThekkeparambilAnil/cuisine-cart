@@ -3,7 +3,12 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 
@@ -15,7 +20,7 @@ interface Dish {
   photoUrl?: string;
   description: string;
   price: number;
-  chefName: string; // Added Chef Name
+  chefName: string;
 }
 
 export default function DinerDishesPage() {
@@ -27,11 +32,14 @@ export default function DinerDishesPage() {
     async function fetchDishes() {
       try {
         const res = await fetch("/api/diner-dishes");
-        if (!res.ok) throw new Error(`Failed to fetch dishes: ${res.statusText}`);
+        if (!res.ok)
+          throw new Error(`Failed to fetch dishes: ${res.statusText}`);
         const data = await res.json();
         setDishes(data);
       } catch (error) {
-        setError(error instanceof Error ? error.message : "Error loading dishes.");
+        setError(
+          error instanceof Error ? error.message : "Error loading dishes."
+        );
         console.error(error);
       } finally {
         setLoading(false);
@@ -41,8 +49,10 @@ export default function DinerDishesPage() {
   }, []);
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-center sm:text-left mb-6">Diner - Browse Dishes</h1>
+    <div className="px-4 py-6 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold text-center sm:text-left mb-6">
+        Diner - Browse Dishes
+      </h1>
 
       {error && <p className="text-red-600">{error}</p>}
 
@@ -65,27 +75,41 @@ export default function DinerDishesPage() {
               ))
           : dishes.map((dish) => (
               <Card key={dish._id} className="w-full flex flex-col">
-                <Image
-                  src={dish.photoUrl || "https://placehold.co/600x400?text=No+Image"}
-                  alt={dish.name}
-                  className="h-48 w-full object-cover"
-                  height={300}
-                  width={500}
-                  priority
-                />
-                <CardHeader>
+                {/* Image with fixed aspect ratio for consistency */}
+                <div className="relative w-full h-48">
+                  <Image
+                    src={
+                      dish.photoUrl ||
+                      "https://placehold.co/600x400?text=No+Image"
+                    }
+                    alt={dish.name}
+                    className="object-cover rounded-t-lg"
+                    layout="fill"
+                    priority
+                  />
+                </div>
+
+                <CardHeader className="p-4">
                   <h2 className="text-lg font-semibold">{dish.name}</h2>
-                  <p className="text-gray-600 capitalize">{dish.type} - {dish.cuisine}</p>
-                  <p className="text-sm text-gray-500">Chef: <span className="font-medium">{dish.chefName}</span></p>
+                  <p className="text-gray-600 capitalize">
+                    {dish.type} - {dish.cuisine}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Chef: <span className="font-medium">{dish.chefName}</span>
+                  </p>
                 </CardHeader>
-                <CardContent className="flex-1">
+
+                <CardContent className="p-4 flex-1">
                   <p className="text-sm text-gray-500">{dish.description}</p>
-                  <p className="text-lg font-semibold mt-2">${dish.price.toFixed(2)}</p>
+                  <p className="text-lg font-semibold mt-2">
+                    ${dish.price.toFixed(2)}
+                  </p>
                 </CardContent>
-                <CardFooter className="flex space-x-2">
-                  <Button >
-                    <Link href={`/diner/dishes/${dish._id}`}>View Details</Link>
-                  </Button>
+
+                <CardFooter className="p-4">
+                  <Link href={`/diner/dishes/${dish._id}`} className="w-full">
+                    <Button className="w-full">View Details</Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}

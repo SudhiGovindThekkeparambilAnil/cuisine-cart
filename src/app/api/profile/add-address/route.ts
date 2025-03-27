@@ -30,7 +30,14 @@ export async function POST(req: NextRequest) { // Use NextRequest
      if (!type || !street || !city || !state || !postalCode || !country) {
        return NextResponse.json({ message: "All address fields are required" }, { status: 400 });
      }
- 
+
+    // Find user and check for existing address of the same type
+    const existingUser = await User.findOne({ email: user.email });
+
+    if (existingUser.addresses.some((addr: any) => addr.type === type)) {
+      return NextResponse.json({ message: `You already have a ${type} address.` }, { status: 400 });
+    }
+    
      // Construct new address object
      const newAddress = { type, street, city, state, postalCode, country, buildingNumber, phoneNumber };
  
