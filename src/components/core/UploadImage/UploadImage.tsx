@@ -195,7 +195,7 @@ export default function UploadFile({
                 <div className="flex justify-between mt-4">
                   <button
                     onClick={() => setSelectedFile(null)}
-                    className="bg-red-500 text-white px-5 py-2 rounded-lg shadow hover:bg-red-600">
+                    className="bg-red-500 text-white px-5 mr-3 py-2 rounded-lg shadow hover:bg-red-600">
                     Upload Another Image
                   </button>
                   <button
