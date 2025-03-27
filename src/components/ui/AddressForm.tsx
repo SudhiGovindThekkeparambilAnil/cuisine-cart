@@ -40,7 +40,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
     postalCode: "",
     phoneNumber: "",
   });
-
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   // Pre-fill the form with initial address data if it exists
   useEffect(() => {
     if (initialAddress) {
@@ -58,12 +58,33 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
     }
   }, [initialAddress]);
 
+  const validateFields = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!addressFields.buildingNumber.trim()) newErrors.buildingNumber = "Building Number is required.";
+    if (!addressFields.street.trim()) newErrors.street = "Street is required.";
+    if (!addressFields.city.trim()) newErrors.city = "City is required.";
+    if (!addressFields.state.trim()) newErrors.state = "Province is required.";
+    if (!addressFields.country.trim()) newErrors.country = "Country is required.";
+
+    if (!/^[A-Za-z]\d[A-Za-z] \d[A-Za-z]\d$/.test(addressFields.postalCode))
+      newErrors.postalCode = "Invalid Postal Code (Format: A1A 1A1).";
+
+    if (!/^\d{10}$/.test(addressFields.phoneNumber))
+      newErrors.phoneNumber = "Phone Number must be 10 digits.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setAddressFields((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" })); 
   };
 
   const handleSave = () => {
+    if (!validateFields()) return; 
     const addressData = { ...addressFields, type: addressType };
 
     // If it's an existing address, ensure _id is passed with the data
@@ -86,6 +107,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
             onChange={handleChange}
             className="border border-gray-300 rounded px-2 py-1 w-full"
           />
+          {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
         </div>
       ))}
       <Button onClick={handleSave} className="py-3 px-4 rounded w-full">Save</Button>

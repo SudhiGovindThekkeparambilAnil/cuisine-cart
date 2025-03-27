@@ -264,7 +264,7 @@ export default function DinerProfilePage() {
                   <p><strong>Building Number:</strong> {address.buildingNumber}</p>
                   <p><strong>Street:</strong> {address.street}</p>
                   <p><strong>City:</strong> {address.city}</p>
-                  <p><strong>State:</strong> {address.state}</p>
+                  <p><strong>Province:</strong> {address.state}</p>
                   <p><strong>Postal Code:</strong> {address.postalCode}</p>
                   <p><strong>Country:</strong> {address.country}</p>
                   <p><strong>Phone Number:</strong> {address.phoneNumber}</p>
