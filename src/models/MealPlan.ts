@@ -1,15 +1,16 @@
-// src/models/MealPlan.ts
 import { Schema, Document, model, models, Types } from "mongoose";
 
 export interface Slot {
-  dish?: any; // optional, you can later specify a more detailed type
-  modifiers?: any; // optional
+  dish?: any; // optional, can be more specific ( { _id, name, photoUrl, price } )
+  modifiers?: any; // optional { [modifierTitle]: ModifierItem[] }
   quantity?: number; // optional
-  days?: string[]; // optional
+  days?: string[]; // optional, e.g. ["Monday", "Wednesday"]
+  specialInstructions?: string; // if you want to store instructions as part of the slot
 }
 
 export interface IMealPlan extends Document {
   planName: string;
+  planImage?: string; // optional plan-level image
   slots: {
     breakfast?: Slot;
     lunch?: Slot;
@@ -17,7 +18,7 @@ export interface IMealPlan extends Document {
     dinner?: Slot;
   };
   totalPrice: number;
-  chefId: Types.ObjectId;
+  chefId: Types.ObjectId; // references the 'User' _id
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -28,6 +29,7 @@ const SlotSchema = new Schema<Slot>(
     modifiers: { type: Schema.Types.Mixed, required: false },
     quantity: { type: Number, required: false },
     days: { type: [String], required: false },
+    specialInstructions: { type: String, required: false },
   },
   { _id: false }
 );
@@ -35,6 +37,7 @@ const SlotSchema = new Schema<Slot>(
 const MealPlanSchema = new Schema<IMealPlan>(
   {
     planName: { type: String, required: true, trim: true },
+    planImage: { type: String, required: false, trim: true },
     slots: {
       breakfast: { type: SlotSchema, required: false },
       lunch: { type: SlotSchema, required: false },
@@ -47,5 +50,4 @@ const MealPlanSchema = new Schema<IMealPlan>(
   { timestamps: true }
 );
 
-// Avoid recompiling if already exists in models
 export const MealPlan = models.MealPlan || model<IMealPlan>("MealPlan", MealPlanSchema);

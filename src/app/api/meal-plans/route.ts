@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     // Cast the user id to ObjectId
     const chefId = new Types.ObjectId(userPayload.id);
 
-    const { planName, slots, totalPrice } = await req.json();
+    const { planName, slots, totalPrice, planImage } = await req.json();
 
     if (!planName || !slots || typeof totalPrice !== "number") {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       slots,
       totalPrice,
       chefId,
+      planImage,
     });
 
     return NextResponse.json(newMealPlan, { status: 201 });

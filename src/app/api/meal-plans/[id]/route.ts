@@ -21,10 +21,12 @@ export async function PUT(req: Request, context: any) {
     await connectToDatabase();
     const { id } = await context.params;
     const updates = await req.json();
+    console.log("updates: ", updates);
     const updatedMealPlan = await MealPlan.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
     }).lean();
+    console.log("updatedMealPlan: ", updatedMealPlan);
     if (!updatedMealPlan) {
       return NextResponse.json({ error: "Meal plan not found" }, { status: 404 });
     }
