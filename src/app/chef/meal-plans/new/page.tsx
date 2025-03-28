@@ -174,6 +174,7 @@ export default function ChefMealPlanCreatePage() {
             onChange={(e) => setPlanName(e.target.value)}
             placeholder="e.g. Sunday Brunch Special"
             required
+            className="w-full"
           />
         </div>
 

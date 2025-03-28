@@ -115,7 +115,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
   };
 
   return (
-    <div className="max-h-[400px] overflow-y-auto p-4 border border-gray-200 rounded-lg shadow-md w-[350px]">
+    <div className="max-h-[400px] overflow-y-auto p-4 border border-gray-200 rounded-lg shadow-md w-full sm:w-[350px]">
       {["buildingNumber", "street", "postalCode", "phoneNumber"].map((field) => (
         <div key={field} className="flex flex-col mb-2">
           <label className="font-semibold text-sm">{fieldLabels[field]}</label> {/* Display friendly label */}

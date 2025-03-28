@@ -48,9 +48,9 @@ export default function ChefMealPlanListPage() {
   if (error) return <div className="p-6 text-red-600">{error}</div>;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">My Meal Plans</h1>
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold mb-4 sm:mb-0">My Meal Plans</h1>
         <Button>
           <Link href="/chef/meal-plans/new">Create New Meal Plan</Link>
         </Button>

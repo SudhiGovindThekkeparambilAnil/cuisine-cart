@@ -176,7 +176,7 @@ export default function UploadFile({
             e.stopPropagation();
           }}>
           <div
-            className="bg-white p-6 rounded-xl shadow-lg w-[600px]"
+            className="bg-white p-6 rounded-xl shadow-lg w-[90%] sm:w-[600px] max-w-full"
             onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Upload Image</h2>
 
@@ -225,7 +225,7 @@ export default function UploadFile({
                 </div>
 
                 {/* Confirm Buttons */}
-                <div className="flex justify-between mt-4">
+                <div className="flex flex-wrap justify-between mt-4">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -239,7 +239,7 @@ export default function UploadFile({
                   <button
                     type="button"
                     onClick={handleCropClick}
-                    className={`bg-green-500 text-white px-5 py-2 rounded-lg shadow hover:bg-green-600 transition ${
+                    className={`bg-green-500 text-white px-5 py-2 rounded-lg shadow hover:bg-green-600 transition w-full mt-2 md:mt-0 sm:w-auto ${
                       cropComplete ? "opacity-50" : ""
                     }`}
                     disabled={cropComplete}>
