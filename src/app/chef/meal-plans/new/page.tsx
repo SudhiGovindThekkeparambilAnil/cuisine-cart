@@ -180,7 +180,7 @@ export default function CreateMealPlanPage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Create Meal Plan Subscription</h1>
+      <h1 className=" text-xl md:text-2xl font-bold mb-6">Create Meal Plan Subscription</h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Meal Plan Name */}
         <div>
@@ -190,13 +190,14 @@ export default function CreateMealPlanPage() {
             onChange={(e) => setPlanName(e.target.value)}
             placeholder="e.g., Weekly Healthy Plan"
             required
+            className="w-full"
           />
         </div>
 
         {/* Slots for each meal */}
         {(["breakfast", "lunch", "evening", "dinner"] as const).map((slot) => (
           <div key={slot} className="border p-4 rounded-lg mb-6 bg-white shadow-sm">
-            <h2 className="text-xl font-semibold capitalize mb-2">{slot}</h2>
+            <h2 className="text-lg md:text-xl font-semibold capitalize mb-2">{slot}</h2>
 
             {/* Dish Autocomplete */}
             <DishAutocomplete slotType={slot} onSelect={(dish) => handleDishSelect(slot, dish)} />
@@ -270,7 +271,7 @@ export default function CreateMealPlanPage() {
 
         {/* Total Price */}
         <div>
-          <h2 className="text-xl font-bold">
+          <h2 className="text-lg  md:text-xl font-bold">
             Total Plan Price: ${calculateTotalPrice().toFixed(2)}
           </h2>
         </div>
