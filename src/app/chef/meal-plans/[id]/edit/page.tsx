@@ -65,6 +65,7 @@ export default function ChefMealPlanEditPage() {
         if (!res.ok) throw new Error("Failed to fetch meal plan");
         const data: MealPlan = await res.json();
         // Populate state from API
+        console.log("data: ", data);
         setPlanName(data.planName);
         setPlanImage(data.planImage || null);
         setSlots(data.slots || {});
@@ -162,6 +163,7 @@ export default function ChefMealPlanEditPage() {
   /** Save changes to the meal plan. */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     if (!planName) {
       alert("Plan Name is required.");
       return;
@@ -249,6 +251,8 @@ export default function ChefMealPlanEditPage() {
                       src={data.dish.photoUrl || "https://placehold.co/600x400?text=No+Image"}
                       alt={data.dish.name}
                       className="h-16 w-16 object-cover rounded"
+                      width={300}
+                      height={200}
                     />
                     <div>
                       <p className="font-semibold">{data.dish.name}</p>

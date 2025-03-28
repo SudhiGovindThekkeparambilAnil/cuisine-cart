@@ -69,6 +69,8 @@ export default function ChefMealPlanListPage() {
                   <Image
                     src={plan.planImage}
                     alt={plan.planName}
+                    width={360}
+                    height={240}
                     className="h-40 w-full object-cover rounded mb-2"
                   />
                 )}

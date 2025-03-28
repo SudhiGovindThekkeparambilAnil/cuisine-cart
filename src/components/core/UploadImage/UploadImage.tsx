@@ -176,7 +176,7 @@ export default function UploadFile({
             e.stopPropagation();
           }}>
           <div
-            className="bg-white p-6 rounded-xl shadow-lg w-[90%] sm:w-[600px] max-w-full"
+            className="bg-white p-6 rounded-xl shadow-lg w-[600px]"
             onClick={(e) => e.stopPropagation()}>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Upload Image</h2>
 
@@ -199,9 +199,9 @@ export default function UploadFile({
                   <NextImage
                     src={croppedImage}
                     alt="Cropped Preview"
-                    fill
+                    width={360}
+                    height={300}
                     className="rounded-lg object-cover border border-gray-300"
-                    unoptimized
                   />
                 </div>
                 <p className="text-gray-600 text-sm">{cropMessage}</p>
