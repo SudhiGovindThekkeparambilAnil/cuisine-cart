@@ -5,20 +5,21 @@ import Link from "next/link";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 
 interface MealPlan {
   _id: string;
   planName: string;
+  planImage?: string;
   totalPrice: number;
-  // slots can be included if needed
 }
 
-export default function MealPlanListPage() {
+export default function DinerMealPlanListPage() {
   const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filter states
+  // Filters
   const [search, setSearch] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -40,11 +41,17 @@ export default function MealPlanListPage() {
     fetchMealPlans();
   }, []);
 
-  // Simple filtering by plan name and price range
+  // Basic filter
   const filteredMealPlans = mealPlans.filter((plan) => {
-    if (search && !plan.planName.toLowerCase().includes(search.toLowerCase())) return false;
-    if (minPrice && plan.totalPrice < parseFloat(minPrice)) return false;
-    if (maxPrice && plan.totalPrice > parseFloat(maxPrice)) return false;
+    if (search && !plan.planName.toLowerCase().includes(search.toLowerCase())) {
+      return false;
+    }
+    if (minPrice && plan.totalPrice < parseFloat(minPrice)) {
+      return false;
+    }
+    if (maxPrice && plan.totalPrice > parseFloat(maxPrice)) {
+      return false;
+    }
     return true;
   });
 
@@ -52,8 +59,8 @@ export default function MealPlanListPage() {
   if (error) return <div className="p-6 text-red-600">{error}</div>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Meal Plans</h1>
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Browse Meal Plans</h1>
 
       {/* Filters */}
       <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -84,6 +91,13 @@ export default function MealPlanListPage() {
               <h2 className="text-lg font-semibold">{plan.planName}</h2>
             </CardHeader>
             <CardContent className="flex-1">
+              {plan.planImage && (
+                <Image
+                  src={plan.planImage}
+                  alt={plan.planName}
+                  className="h-32 w-full object-cover rounded mb-2"
+                />
+              )}
               <p className="text-sm text-gray-500">Total Price: ${plan.totalPrice.toFixed(2)}</p>
             </CardContent>
             <CardFooter>

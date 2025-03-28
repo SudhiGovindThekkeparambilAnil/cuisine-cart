@@ -69,7 +69,7 @@ export default function UploadFile({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Modify all button click handlers
+  // Show modal
   const handleOpenModal = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -78,7 +78,7 @@ export default function UploadFile({
 
   // Handle file selection and show preview
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault(); // Prevent form submission
+    event.preventDefault();
     event.stopPropagation();
     const file = event.target.files?.[0];
     if (file) {
@@ -112,7 +112,7 @@ export default function UploadFile({
       return;
     }
 
-    setCroppedImage(URL.createObjectURL(croppedFile)); // ✅ Only if it's valid
+    setCroppedImage(URL.createObjectURL(croppedFile)); // ✅ set preview
     setSelectedFile(croppedFile);
     setCropComplete(true);
     setCropMessage("Cropped image ready for upload.");
@@ -189,13 +189,21 @@ export default function UploadFile({
                 className="mb-4 border border-gray-300 p-3 rounded-lg w-full text-gray-600"
               />
             ) : croppedImage ? (
-              // Show Cropped Image Preview
+              /* Show Cropped Image Preview */
               <div className="flex flex-col items-center">
-                <NextImage
-                  src={croppedImage}
-                  alt="Cropped Preview"
-                  className="rounded-lg shadow-md mb-4 w-60 h-60 object-cover border border-gray-300"
-                />
+                {/* 
+                  Wrap NextImage in a container of fixed size if you want it 240x240 for example,
+                  or use explicit width/height. E.g. 240 px -> w-60/h-60.
+                */}
+                <div className="relative w-60 h-60 mb-4">
+                  <NextImage
+                    src={croppedImage}
+                    alt="Cropped Preview"
+                    fill
+                    className="rounded-lg object-cover border border-gray-300"
+                    unoptimized
+                  />
+                </div>
                 <p className="text-gray-600 text-sm">{cropMessage}</p>
               </div>
             ) : (
@@ -209,7 +217,7 @@ export default function UploadFile({
                     image={imagePreview}
                     crop={crop}
                     zoom={zoom}
-                    aspect={aspectRatio} // Dynamic aspect ratio
+                    aspect={aspectRatio} // dynamic aspect ratio
                     onCropChange={setCrop}
                     onZoomChange={setZoom}
                     onCropComplete={onCropComplete}
