@@ -45,8 +45,8 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({ onClose, onSave, init
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded shadow-lg">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 sm:p-6">
+       <div className="bg-white p-6 rounded shadow-lg w-full sm:w-96 max-w-xs sm:max-w-md">
       {!addressType && (
         <div className="mb-4">
           <label className="text-lg font-semibold">Select Address Type:</label>

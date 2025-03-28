@@ -305,7 +305,7 @@ export default function ChefProfilePage() {
             <UploadImage onUploadComplete={handleImageUpload} />
             </div>
           </div>
-          <div className="sm:w-2/3 mt-4 sm:mt-0 w-full">
+          <div className="sm:w-2/3 mt-10 sm:mt-0 w-full">
             <h1 className="text-xl sm:text-2xl font-bold text-[#000000] uppercase">{user.name}</h1>
             <Rating value={3} className="mt-1" />
             <p className="text-[#333333] mt-1">{user.cuisineType || "Cuisine Type"}</p>
@@ -344,7 +344,7 @@ export default function ChefProfilePage() {
               ) : (
                 <p>No addresses added yet.</p>
               )}
-              <button onClick={() => setShowModal(true)} className="text-[#F39C12]">
+              <button onClick={() => setShowModal(true)} className="text-[#F39C12] mt-4">
                 Add Address
               </button>
             </div>
