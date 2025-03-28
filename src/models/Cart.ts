@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 // Define CartItem interface
 interface CartItem {
-  dishId: Types.ObjectId;  // Use Types.ObjectId for references
+  dishId: Types.ObjectId; 
   name: string;
   photoUrl: string;
   price: number;
@@ -13,7 +13,7 @@ interface CartItem {
 
 // Define ICart interface
 export interface ICart extends Document {
-  userId: Types.ObjectId;  // Use Types.ObjectId for user reference
+  userId: Types.ObjectId;  
   items: CartItem[];
   createdAt: Date;
   updatedAt: Date;

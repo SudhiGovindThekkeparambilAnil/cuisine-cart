@@ -173,7 +173,7 @@ export default function CheckoutForm() {
           <div className="mt-6 flex justify-center">
             <Button
               type="submit"
-              className="w-[80%] bg-orange-500 hover:bg-orange-600 font-semibold py-3"
+              className="w-[80%]  font-semibold py-3"
             >
               Place Order
             </Button>

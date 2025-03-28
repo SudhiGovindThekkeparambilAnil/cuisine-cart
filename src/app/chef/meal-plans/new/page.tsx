@@ -120,9 +120,9 @@ export default function CreateMealPlanPage() {
         let dishPrice = data.dish.price;
         // Iterate only over arrays in data.modifiers
         if (data.modifiers) {
-          Object.entries(data.modifiers).forEach(([modTitle, modItems]) => {
+          Object.entries(data.modifiers).forEach(([modItems]) => {
             if (Array.isArray(modItems)) {
-              console.log("modTitle", modTitle);
+              // console.log("modTitle", modTitle);
               modItems.forEach((item) => {
                 dishPrice += parseFloat(item.price);
               });

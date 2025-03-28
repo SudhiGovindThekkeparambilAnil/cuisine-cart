@@ -151,7 +151,7 @@ export default function Cart() {
       <div className="flex justify-end">
         <Button
           onClick={handleCheckout}
-          className="w-full sm:w-[70%] lg:w-[50%] bg-orange-500 hover:bg-orange-600 font-semibold py-3 transition duration-200 mt-6 mx-auto  sm:mx-0"
+          className="w-full sm:w-[70%] lg:w-[50%] font-semibold py-3  mt-6 mx-auto  sm:mx-0"
         >
           Proceed to Checkout
         </Button>
