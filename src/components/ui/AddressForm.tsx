@@ -119,7 +119,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
   return (
     <div className="max-h-[400px] overflow-y-auto p-4 border border-gray-200 rounded-lg shadow-md w-full sm:w-[350px]">
       {["buildingNumber", "street", "postalCode", "phoneNumber"].map((field) => (
-        <div key={field} className="flex flex-col mb-2">
+        <div key={field} className="flex flex-col space-y-2 mb-7">
           <label className="font-semibold text-sm">{fieldLabels[field]}</label>{" "}
           {/* Display friendly label */}
           <input
@@ -127,20 +127,20 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
             name={field}
             value={addressFields[field as keyof typeof addressFields]}
             onChange={handleChange}
-            className="border border-gray-300 rounded px-2 py-1 w-full"
+            className="border border-gray-300 rounded px-3 py-3 w-full"
           />
           {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
         </div>
       ))}
 
       {/* City Dropdown */}
-      <div className="flex flex-col mb-2">
+      <div className="flex flex-col space-y-2 mb-7">
         <label className="font-semibold text-sm">City</label>
         <select
           name="city"
           value={addressFields.city}
           onChange={handleChange}
-          className="border border-gray-300 rounded px-2 py-1 w-full">
+          className="border border-gray-300 rounded px-3 py-3 w-full">
           <option value="">Select City</option>
           {cities.map((city) => (
             <option key={city} value={city}>
@@ -152,30 +152,30 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
       </div>
 
       {/* Country (Readonly) */}
-      <div className="flex flex-col mb-2">
+      <div className="flex flex-col space-y-2 mb-7">
         <label className="font-semibold text-sm">Country</label>
         <input
           type="text"
           name="country"
           value={addressFields.country}
           readOnly
-          className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-100 cursor-not-allowed"
+          className="border border-gray-300 rounded px-3 py-3 w-full bg-gray-100 cursor-not-allowed"
         />
       </div>
 
       {/* State (Readonly) */}
-      <div className="flex flex-col mb-2">
+      <div className="flex flex-col space-y-2 mb-7">
         <label className="font-semibold text-sm">Province</label>
         <input
           type="text"
           name="state"
           value={addressFields.state}
           readOnly
-          className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-100 cursor-not-allowed"
+          className="border border-gray-300 rounded px-3 py-3 w-full bg-gray-100 cursor-not-allowed"
         />
       </div>
 
-      <Button onClick={handleSave} className="py-3 px-4 rounded w-full">
+      <Button onClick={handleSave} className="w-full">
         Save
       </Button>
     </div>
