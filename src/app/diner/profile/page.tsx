@@ -120,20 +120,6 @@ export default function DinerProfilePage() {
     }
   };
 
-  // const handleAddAddress = async (address: IAddress) => {
-  //   try {
-  //     const response = await axios.post("/api/profile/add-address", address);
-  //     if (response.status === 200) {
-  //       setUser(response.data); // Update user state with new data from backend
-  //       setShowModal(false); // Close the modal
-  //     } else {
-  //       console.error("Error adding address:", response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding address:", error);
-  //   }
-  // };
-
   const handleAddAddress = async (address: IAddress) => {
     const alreadyExists = user.addresses.some(addr => addr.type === address.type);
     if (alreadyExists) {
@@ -307,7 +293,6 @@ export default function DinerProfilePage() {
 
        {/* Account and Security Accordion */}
        <Accordion title="Account and Security">
-        <h1 className="font-semibold text-lg">Manage your Security</h1>
         <p>
           Here you can update your account password and strengthen your security of your account.
         </p>

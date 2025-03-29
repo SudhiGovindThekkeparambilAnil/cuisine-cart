@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import AddressForm from "./AddressForm";
+import { Button } from "./button";
 
 interface IAddress {
   _id?: string;
@@ -70,10 +71,8 @@ const AddAddressModal: React.FC<AddAddressModalProps> = ({
         {addressType && !error && (
           <AddressForm onSave={onSave} addressType={addressType} initialAddress={initialAddress} />
         )}
-        <div className="flex justify-end space-x-2">
-          <button className="text-red-500" onClick={onClose}>
-            Cancel
-          </button>
+        <div className="flex justify-end space-x-2 mt-3">
+          <Button variant="ghost"  onClick={onClose}>Cancel</Button>
         </div>
       </div>
     </div>

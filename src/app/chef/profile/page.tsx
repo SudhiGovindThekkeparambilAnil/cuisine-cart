@@ -459,7 +459,6 @@ export default function ChefProfilePage() {
 
           {/* Account and Security Accordion */}
           <Accordion title="Account and Security">
-            <h1 className="font-semibold text-lg">Account & Security</h1>
             <p>
             Here you can update your account password and strengthen your security of your account.
             </p>
