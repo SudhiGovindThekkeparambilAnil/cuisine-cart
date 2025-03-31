@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import {Button} from "./button"
+import { Button } from "./button";
 import axios from "axios";
 
 interface AddressFormProps {
@@ -31,7 +30,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
     postalCode: string;
     phoneNumber: string;
   }>({
-    _id: "",  // Make sure _id is either empty or from initialAddress
+    _id: "", // Make sure _id is either empty or from initialAddress
     type: "",
     buildingNumber: "",
     street: "",
@@ -44,19 +43,19 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [cities, setCities] = useState<string[]>([]);
 
-    // Fetch cities from JSON file using Axios
-    useEffect(() => {
-      axios
-        .get("/cities.json") // Ensure the correct path
-        .then((response) => setCities(response.data))
-        .catch((error) => console.error("Error loading cities:", error));
-    }, []);
+  // Fetch cities from JSON file using Axios
+  useEffect(() => {
+    axios
+      .get("/cities.json") // Ensure the correct path
+      .then((response) => setCities(response.data))
+      .catch((error) => console.error("Error loading cities:", error));
+  }, []);
 
   // Pre-fill the form with initial address data if it exists
   useEffect(() => {
     if (initialAddress) {
       setAddressFields({
-        _id: initialAddress._id || "",  // Include _id for editing, else leave it empty
+        _id: initialAddress._id || "", // Include _id for editing, else leave it empty
         type: initialAddress.type || "",
         buildingNumber: initialAddress.buildingNumber || "",
         street: initialAddress.street || "",
@@ -72,19 +71,22 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
   const validateFields = () => {
     const newErrors: { [key: string]: string } = {};
 
-    if (!addressFields.buildingNumber.trim()) newErrors.buildingNumber = "Building Number is required.";
+    if (!addressFields.buildingNumber.trim())
+      newErrors.buildingNumber = "Building Number is required.";
     if (!addressFields.street.trim()) newErrors.street = "Street is required.";
     if (!addressFields.city.trim()) newErrors.city = "City is required.";
 
-     // Building number validation (1 to 10 characters, alphanumeric, spaces, hyphens)
-  if (!/^[0-9\s\-]{1,15}$/.test(addressFields.buildingNumber.trim())) {
-    newErrors.buildingNumber = "Building Number should contain only numbers, spaces, and hyphens, and be between 1 and 15 characters.";
-  }
+    // Building number validation (1 to 10 characters, alphanumeric, spaces, hyphens)
+    if (!/^[0-9\s\-]{1,15}$/.test(addressFields.buildingNumber.trim())) {
+      newErrors.buildingNumber =
+        "Building Number should contain only numbers, spaces, and hyphens, and be between 1 and 15 characters.";
+    }
 
-  // Street validation (3 to 50 characters, alphanumeric, spaces, hyphens, commas)
-  if (!/^[A-Za-z0-9\s\-\,]{3,50}$/.test(addressFields.street.trim())) {
-    newErrors.street = "Street should contain only letters, numbers, spaces, hyphens, and commas, and be between 3 and 50 characters.";
-  }
+    // Street validation (3 to 50 characters, alphanumeric, spaces, hyphens, commas)
+    if (!/^[A-Za-z0-9\s\-\,]{3,50}$/.test(addressFields.street.trim())) {
+      newErrors.street =
+        "Street should contain only letters, numbers, spaces, hyphens, and commas, and be between 3 and 50 characters.";
+    }
 
     if (!/^[A-Za-z]\d[A-Za-z] \d[A-Za-z]\d$/.test(addressFields.postalCode))
       newErrors.postalCode = "Invalid Postal Code (Format: A1A 1A1).";
@@ -99,11 +101,11 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setAddressFields((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" })); 
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSave = () => {
-    if (!validateFields()) return; 
+    if (!validateFields()) return;
     const addressData = { ...addressFields, type: addressType };
 
     // If it's an existing address, ensure _id is passed with the data
@@ -111,34 +113,34 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
       addressData._id = initialAddress._id;
     }
 
-    onSave(addressData);  // Call the save function
+    onSave(addressData); // Call the save function
   };
 
   return (
     <div className="max-h-[400px] overflow-y-auto p-4 border border-gray-200 rounded-lg shadow-md w-full sm:w-[350px]">
       {["buildingNumber", "street", "postalCode", "phoneNumber"].map((field) => (
-        <div key={field} className="flex flex-col mb-2">
-          <label className="font-semibold text-sm">{fieldLabels[field]}</label> {/* Display friendly label */}
+        <div key={field} className="flex flex-col space-y-2 mb-7">
+          <label className="font-semibold text-sm">{fieldLabels[field]}</label>{" "}
+          {/* Display friendly label */}
           <input
             type="text"
             name={field}
             value={addressFields[field as keyof typeof addressFields]}
             onChange={handleChange}
-            className="border border-gray-300 rounded px-2 py-1 w-full"
+            className="border border-gray-300 rounded px-3 py-3 w-full"
           />
           {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
         </div>
       ))}
 
-            {/* City Dropdown */}
-        <div className="flex flex-col mb-2">
+      {/* City Dropdown */}
+      <div className="flex flex-col space-y-2 mb-7">
         <label className="font-semibold text-sm">City</label>
         <select
           name="city"
           value={addressFields.city}
           onChange={handleChange}
-          className="border border-gray-300 rounded px-2 py-1 w-full"
-        >
+          className="border border-gray-300 rounded px-3 py-3 w-full">
           <option value="">Select City</option>
           {cities.map((city) => (
             <option key={city} value={city}>
@@ -149,31 +151,33 @@ const AddressForm: React.FC<AddressFormProps> = ({ addressType, onSave, initialA
         {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
       </div>
 
-       {/* Country (Readonly) */}
-       <div className="flex flex-col mb-2">
+      {/* Country (Readonly) */}
+      <div className="flex flex-col space-y-2 mb-7">
         <label className="font-semibold text-sm">Country</label>
         <input
           type="text"
           name="country"
           value={addressFields.country}
           readOnly
-          className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-100 cursor-not-allowed"
+          className="border border-gray-300 rounded px-3 py-3 w-full bg-gray-100 cursor-not-allowed"
         />
       </div>
 
       {/* State (Readonly) */}
-      <div className="flex flex-col mb-2">
+      <div className="flex flex-col space-y-2 mb-7">
         <label className="font-semibold text-sm">Province</label>
         <input
           type="text"
           name="state"
           value={addressFields.state}
           readOnly
-          className="border border-gray-300 rounded px-2 py-1 w-full bg-gray-100 cursor-not-allowed"
+          className="border border-gray-300 rounded px-3 py-3 w-full bg-gray-100 cursor-not-allowed"
         />
       </div>
 
-      <Button onClick={handleSave} className="py-3 px-4 rounded w-full">Save</Button>
+      <Button onClick={handleSave} className="w-full">
+        Save
+      </Button>
     </div>
   );
 };
