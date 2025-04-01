@@ -21,9 +21,8 @@ interface Dish {
   photoUrl?: string;
   description: string;
   price: number;
-  chefName: string; // Added Chef Name
+  chefName: string; 
   createdAt: Date;
-
 }
 
 export default function DinerDishesPage() {
@@ -115,7 +114,7 @@ export default function DinerDishesPage() {
                   <Image
                     src={
                       dish.photoUrl ||
-                      "https://placehold.co/600x400?text=No+Image"
+                      "/placeholder.jpg"
                     }
                     alt={dish.name}
                     className="object-cover rounded-t-lg"
