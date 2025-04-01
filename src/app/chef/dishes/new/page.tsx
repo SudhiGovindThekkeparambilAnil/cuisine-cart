@@ -23,7 +23,7 @@ export default function CreateChefDishPage() {
   const [modifiers, setModifiers] = useState<
     {
       title: string;
-      required: string;
+      required: boolean;
       limit: number;
       items: { title: string; price: string }[];
     }[]
@@ -36,7 +36,15 @@ export default function CreateChefDishPage() {
 
   const handleModifierChange = (index: number, key: string, value: any) => {
     setModifiers((prev) =>
-      prev.map((mod, i) => (i === index ? { ...mod, [key]: value } : mod))
+      prev.map((mod, i) => {
+        if (i === index) {
+          return {
+            ...mod,
+            [key]: value,
+          };
+        }
+        return mod;
+      })
     );
   };
 
@@ -65,7 +73,7 @@ export default function CreateChefDishPage() {
       ...modifiers,
       {
         title: "",
-        required: "optional",
+        required: false,
         limit: 1,
         items: [{ title: "", price: "" }],
       },
@@ -111,8 +119,9 @@ export default function CreateChefDishPage() {
       return;
     }
 
-    if (trimmedType.length < 3 || trimmedType.length > 50) {
-      setError("Dish type must be between 3 and 50 characters.");
+    const allowedTypes = ["Breakfast", "Lunch", "Dinner"];
+    if (!allowedTypes.includes(trimmedType)) {
+      setError("Dish type must be one of: Breakfast, Lunch, or Dinner.");
       return;
     }
 
@@ -172,7 +181,10 @@ export default function CreateChefDishPage() {
       photoUrl,
       description,
       price: parsedPrice,
-      modifiers,
+      modifiers: modifiers.map((mod) => ({
+        ...mod,
+        required: Boolean(mod.required), // Ensure boolean
+      })),
     };
 
     // Retrieve the token from sessionStorage
@@ -188,7 +200,7 @@ export default function CreateChefDishPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(dishData),
       });
@@ -226,55 +238,70 @@ export default function CreateChefDishPage() {
           <div className="flex flex-col md:flex-row gap-6">
             {/* Left Side - Dish Details */}
             <div className="flex-1 space-y-4">
-              <Label>Dish Name</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full"
-              />
+              <div className="space-y-2">
+                <Label>Dish Name</Label>
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full"
+                />
+              </div>
 
-              <Label>Price ($)</Label>
-              <Input
-                type="number"
-                value={price}
-                onChange={(e) => {
-                  const value = e.target.value;
-              
-                  // Allow empty value for user convenience
-                  if (value === "") {
-                    setPrice(value);
-                    return;
-                  }
-              
-                  // Regex: Allow up to 4 digits before decimal and up to 2 digits after
-                  if (/^\d{0,4}(\.\d{0,2})?$/.test(value)) {
-                    setPrice(value);
-                  }
-                }}
-                className="w-full"
-              />
+              <div className="flex-1 space-y-4">
+                <Label>Price ($)</Label>
+                <Input
+                  type="number"
+                  value={price}
+                  onChange={(e) => {
+                    const value = e.target.value;
 
-              <Label>Description</Label>
-              <TextArea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className="w-full"
-              />
+                    // Allow empty value for user convenience
+                    if (value === "") {
+                      setPrice(value);
+                      return;
+                    }
 
-              <Label>Type</Label>
-              <Input
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className="w-full"
-              />
+                    // Regex: Allow up to 4 digits before decimal and up to 2 digits after
+                    if (/^\d{0,4}(\.\d{0,2})?$/.test(value)) {
+                      setPrice(value);
+                    }
+                  }}
+                  className="w-full"
+                />
+              </div>
 
-              <Label>Cuisine</Label>
-              <Input
-                value={cuisine}
-                onChange={(e) => setCuisine(e.target.value)}
-                className="w-full"
-              />
+              <div className="flex-1 space-y-4">
+                <Label>Description</Label>
+                <TextArea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="w-full"
+                />
+              </div>
+
+              <div className="flex-1 space-y-4">
+                <Label>Type</Label>
+                <select
+                  className="border p-2 w-full rounded"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                >
+                  <option value="">Select Type</option>
+                  <option value="Breakfast">Breakfast</option>
+                  <option value="Lunch">Lunch</option>
+                  <option value="Dinner">Dinner</option>
+                </select>
+              </div>
+
+              <div className="flex-1 space-y-4">
+                <Label>Cuisine</Label>
+                <Input
+                  value={cuisine}
+                  onChange={(e) => setCuisine(e.target.value)}
+                  className="w-full"
+                />
+              </div>
 
               <fieldset className="space-y-2 border-none p-0 m-0">
                 <Label>Dish Image</Label>
@@ -319,13 +346,17 @@ export default function CreateChefDishPage() {
                   <Label>Required / Optional</Label>
                   <select
                     className="border p-2 w-full mb-2"
-                    value={modifier.required}
+                    value={modifier.required ? "true" : "false"}
                     onChange={(e) =>
-                      handleModifierChange(modIndex, "required", e.target.value)
+                      handleModifierChange(
+                        modIndex,
+                        "required",
+                        e.target.value === "true"
+                      )
                     }
                   >
-                    <option value="required">Required</option>
-                    <option value="optional">Optional</option>
+                    <option value="true">Required</option>
+                    <option value="false">Optional</option>
                   </select>
 
                   <Label>Limit to Choose</Label>
@@ -368,14 +399,30 @@ export default function CreateChefDishPage() {
                         type="number"
                         placeholder="Price"
                         value={item.price}
-                        onChange={(e) =>
-                          handleItemChange(
-                            modIndex,
-                            itemIndex,
-                            "price",
-                            e.target.value
-                          )
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          // Allow empty value for user convenience
+                          if (value === "") {
+                            handleItemChange(
+                              modIndex,
+                              itemIndex,
+                              "price",
+                              value
+                            );
+                            return;
+                          }
+
+                          // Regex: Allow up to 4 digits before decimal and up to 2 digits after
+                          if (/^\d{0,4}(\.\d{0,2})?$/.test(value)) {
+                            handleItemChange(
+                              modIndex,
+                              itemIndex,
+                              "price",
+                              value
+                            );
+                          }
+                        }}
                         className="w-full"
                       />
 

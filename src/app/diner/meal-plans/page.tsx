@@ -96,6 +96,8 @@ export default function DinerMealPlanListPage() {
                   src={plan.planImage}
                   alt={plan.planName}
                   className="h-32 w-full object-cover rounded mb-2"
+                  width={300}
+                  height={300}
                 />
               )}
               <p className="text-sm text-gray-500">Total Price: ${plan.totalPrice.toFixed(2)}</p>
