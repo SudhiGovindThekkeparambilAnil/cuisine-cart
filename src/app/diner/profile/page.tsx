@@ -120,20 +120,6 @@ export default function DinerProfilePage() {
     }
   };
 
-  // const handleAddAddress = async (address: IAddress) => {
-  //   try {
-  //     const response = await axios.post("/api/profile/add-address", address);
-  //     if (response.status === 200) {
-  //       setUser(response.data); // Update user state with new data from backend
-  //       setShowModal(false); // Close the modal
-  //     } else {
-  //       console.error("Error adding address:", response.data);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding address:", error);
-  //   }
-  // };
-
   const handleAddAddress = async (address: IAddress) => {
     const alreadyExists = user.addresses.some(addr => addr.type === address.type);
     if (alreadyExists) {
@@ -259,7 +245,7 @@ export default function DinerProfilePage() {
                     <UploadImage onUploadComplete={handleImageUpload} />
                     </div>
                   </div>
-                  <div className="sm:w-2/3 mt-4 sm:mt-0">
+                  <div className="sm:w-2/3 mt-10 sm:mt-0">
                     <h1 className="text-xl sm:text-2xl font-bold text-[#000000] uppercase">{user.name}</h1>
                     <p className="text-sm sm:text-base text-gray-600 mt-2">Welcome to your profile, {user.name}! <br /> Here you can manage your details and personalize your experience.</p>
                   </div>
@@ -298,7 +284,7 @@ export default function DinerProfilePage() {
           ) : (
             <p>No addresses added yet.</p>
           )}
-          <button onClick={() => setShowModal(true)} className="text-[#F39C12]">
+          <button onClick={() => setShowModal(true)} className="text-[#F39C12] mt-4">
             Add Address
           </button>
         </div>
@@ -307,7 +293,6 @@ export default function DinerProfilePage() {
 
        {/* Account and Security Accordion */}
        <Accordion title="Account and Security">
-        <h1 className="font-semibold text-lg">Manage your Security</h1>
         <p>
           Here you can update your account password and strengthen your security of your account.
         </p>

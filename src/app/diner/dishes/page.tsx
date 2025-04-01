@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import Filters from "@/components/ui/Filters";
 
 interface Dish {
   _id: string;
@@ -20,13 +21,21 @@ interface Dish {
   photoUrl?: string;
   description: string;
   price: number;
-  chefName: string;
+  chefName: string; 
+  createdAt: Date;
 }
 
 export default function DinerDishesPage() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    search: "",
+    cuisine: "",
+    type: "",
+    chef: "",
+    sort: "",
+  });
 
   useEffect(() => {
     async function fetchDishes() {
@@ -48,6 +57,28 @@ export default function DinerDishesPage() {
     fetchDishes();
   }, []);
 
+  const filteredDishes = useMemo(() => {
+    return dishes.filter((dish) =>
+      dish.name.toLowerCase().includes(filters.search.toLowerCase()) &&
+      (filters.cuisine ? dish.cuisine === filters.cuisine : true) &&
+      (filters.type ? dish.type === filters.type : true) &&
+      (filters.chef ? dish.chefName === filters.chef : true)
+    );
+  }, [filters, dishes]);
+
+  const sortedDishes = useMemo(() => {
+    const sorted = [...filteredDishes];
+    switch (filters.sort) {
+      case 'priceAsc':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'priceDesc':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'newest':
+        return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      default:
+        return sorted;
+    }
+  }, [filteredDishes, filters.sort]);
   return (
     <div className="px-4 py-6 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold text-center sm:text-left mb-6">
@@ -55,6 +86,9 @@ export default function DinerDishesPage() {
       </h1>
 
       {error && <p className="text-red-600">{error}</p>}
+
+      {/* Filters Component */}
+      <Filters data={dishes} filters={filters} setFilters={setFilters} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {loading
@@ -73,14 +107,14 @@ export default function DinerDishesPage() {
                   </CardFooter>
                 </Card>
               ))
-          : dishes.map((dish) => (
+          : sortedDishes.length > 0 ? sortedDishes.map((dish) => (
               <Card key={dish._id} className="w-full flex flex-col">
                 {/* Image with fixed aspect ratio for consistency */}
                 <div className="relative w-full h-48">
                   <Image
                     src={
                       dish.photoUrl ||
-                      "https://placehold.co/600x400?text=No+Image"
+                      "/placeholder.jpg"
                     }
                     alt={dish.name}
                     className="object-cover rounded-t-lg"
@@ -112,7 +146,9 @@ export default function DinerDishesPage() {
                   </Link>
                 </CardFooter>
               </Card>
-            ))}
+            )) :  (
+              <p>No dishes found.</p>
+            )}
       </div>
     </div>
   );

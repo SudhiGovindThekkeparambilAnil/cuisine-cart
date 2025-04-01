@@ -14,13 +14,13 @@ export interface IModifier {
 
 export interface IDish extends Document {
   name: string;
-  type: string; 
-  cuisine: string; 
+  type: string;
+  cuisine: string;
   photoUrl?: string;
   description: string;
   price: number;
-  modifiers: IModifier[]; 
-  chefId: Types.ObjectId; 
+  modifiers: IModifier[];
+  chefId: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -40,15 +40,20 @@ const ModifierSchema = new Schema<IModifier>({
 const DishSchema = new Schema<IDish>(
   {
     name: { type: String, required: true, trim: true },
-    type: { type: String, required: true, trim: true },
-    cuisine: { type: String, required: true, trim: true }, 
+    type: {
+      type: String,
+      enum: ["Breakfast", "Lunch", "Dinner"], 
+      required: true,
+      trim: true,
+    },
+    cuisine: { type: String, required: true, trim: true },
     photoUrl: { type: String, trim: true },
     description: { type: String, required: true, trim: true },
     price: { type: Number, required: true, min: 0 },
-    modifiers: { type: [ModifierSchema], default: [] }, 
+    modifiers: { type: [ModifierSchema], default: [] },
     chefId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 // Avoid recompiling the model if it already exists in `models`
