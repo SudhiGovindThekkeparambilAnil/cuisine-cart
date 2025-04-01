@@ -23,6 +23,7 @@ export default function Header() {
   const router = useRouter();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
     const fetchUser = async () => {
       try {
         const res = await axios.get("/api/auth/session");
@@ -38,16 +39,39 @@ export default function Header() {
       try {
         const res = await axios.get("/api/cart");
         if (res.status === 200) {
-          setCartCount(res.data.length); // Set cart count based on cart data
+          console.log(res);
+          localStorage.setItem(
+            "updatedCartCount",
+            JSON.stringify(res.data.items.length)
+          );
+          setCartCount(res.data.items.length);
         }
       } catch {
-        setCartCount(0); // Default to 0 if there's an error fetching cart
+        setCartCount(0);
         toast.error("Error wile fetching the cart");
       }
     };
-    fetchUser();
-    fetchCart();
+    if (token) {
+      fetchCart();
+      fetchUser();
+    }
   }, [pathname]);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("updatedCartCount") || "0");
+      setCartCount(cart);
+    };
+
+    // Initial load
+    updateCartCount();
+
+    const interval = setInterval(() => {
+      updateCartCount();
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const chefNavigation = [
     { name: "Dashboard", href: "/chef/dashboard" },
@@ -62,7 +86,7 @@ export default function Header() {
     { name: "Dishes", href: "/diner/dishes" },
     { name: "Profile", href: "/diner/profile" },
     {
-      name: `Cart${cartCount > 0 ? ` (${cartCount})` : ""}`,
+      name: `Cart`,
       href: "/diner/cart",
       className: "relative inline-block",
     },
@@ -78,7 +102,7 @@ export default function Header() {
     try {
       await axios.post("/api/auth/logout");
       setUser(null);
-      localStorage.removeItem("role");
+      localStorage.clear();
       toast.info("Logout Successful!", {
         description: "Session has been logged out.",
       });
@@ -121,11 +145,11 @@ export default function Header() {
                 <Link
                   key={item.name}
                   href={item.href || "/"}
-                  className="text-gray-600 hover:text-blue-600"
+                  className="relative text-gray-600 hover:text-blue-600"
                 >
                   {item.name}
-                  {item.name === "Cart" && cartCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {item.name === `Cart` && cartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                       {cartCount}
                     </span>
                   )}
@@ -170,7 +194,12 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu */}
-      <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
+      <Dialog
+        as="div"
+        className="lg:hidden"
+        open={mobileMenuOpen}
+        onClose={setMobileMenuOpen}
+      >
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <div className="fixed inset-0 z-20 flex flex-col justify-between items-center bg-white">
           <DialogPanel className="w-full h-full p-6 flex flex-col justify-between">
@@ -186,12 +215,12 @@ export default function Header() {
                     <Link
                       key={item.name}
                       href={item.href || "/"}
-                      className="text-xl text-gray-600 hover:text-blue-600"
+                      className="relative text-xl text-gray-600 hover:text-blue-600 inline-flex items-center"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
                       {item.name === "Cart" && cartCount > 0 && (
-                        <span className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        <span className="ml-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                           {cartCount}
                         </span>
                       )}
@@ -208,7 +237,8 @@ export default function Header() {
                   </Link>
                   <Link
                     href="/user-selection"
-                    className="text-xl text-gray-600 hover:text-blue-600">
+                    className="text-xl text-gray-600 hover:text-blue-600"
+                  >
                     Signup
                   </Link>
                 </>
@@ -243,8 +273,12 @@ export default function Header() {
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <DialogPanel className="fixed inset-0 z-20 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-            <h3 className="text-xl font-semibold text-gray-800">Confirm Logout</h3>
-            <p className="text-gray-600 mt-4">Are you sure you want to log out?</p>
+            <h3 className="text-xl font-semibold text-gray-800">
+              Confirm Logout
+            </h3>
+            <p className="text-gray-600 mt-4">
+              Are you sure you want to log out?
+            </p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={closeModal}

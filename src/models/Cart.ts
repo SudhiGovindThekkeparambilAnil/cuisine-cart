@@ -2,7 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 // Define CartItem interface
 interface CartItem {
-  dishId: Types.ObjectId; 
+  dishId: Types.ObjectId;
   name: string;
   photoUrl: string;
   price: number;
@@ -13,7 +13,7 @@ interface CartItem {
 
 // Define ICart interface
 export interface ICart extends Document {
-  userId: Types.ObjectId;  
+  userId: Types.ObjectId;
   items: CartItem[];
   createdAt: Date;
   updatedAt: Date;
@@ -22,7 +22,11 @@ export interface ICart extends Document {
 // Define Cart Schema
 const CartSchema = new Schema<ICart>(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     items: [
       {
         dishId: { type: mongoose.Schema.Types.ObjectId, ref: "Dish" },
@@ -38,16 +42,16 @@ const CartSchema = new Schema<ICart>(
               {
                 title: { type: String, required: true },
                 price: { type: Number, required: true },
-                _id: { type: mongoose.Schema.Types.ObjectId, ref: "Modifier" }
-              }
-            ]
-          }
-        ]
-      }
-    ]
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
   { timestamps: true }
 );
 
 // Export the Cart model
-export default mongoose.models.Cart || mongoose.model<ICart>("Cart", CartSchema);
+export default mongoose.models.Cart ||
+  mongoose.model<ICart>("Cart", CartSchema);

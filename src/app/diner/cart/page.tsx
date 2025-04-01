@@ -23,11 +23,15 @@ interface CartItem {
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const router = useRouter(); 
+  const router = useRouter();
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.push("/auth/login");
+      toast.error("You are not authorized to access the requested page");
+    }
     fetchCart();
-  }, []);
+  }, [router]);
 
   const fetchCart = async () => {
     try {
@@ -47,7 +51,7 @@ export default function Cart() {
 
     try {
       await axios.put(`/api/cart/${id}`, { quantity: newQuantity });
-      toast.success("Cart updated successfully")
+      toast.success("Cart updated successfully");
       fetchCart(); // Refresh cart
     } catch (error) {
       toast.error("Failed to update quantity.");
@@ -58,6 +62,10 @@ export default function Cart() {
   const removeItem = async (id: string) => {
     try {
       await axios.delete(`/api/cart/${id}`);
+      localStorage.setItem(
+        "updatedCartCount",
+        JSON.stringify(cartItems.length - 1)
+      );
       setCartItems(cartItems.filter((item) => item._id !== id));
       toast.success("Item removed");
     } catch (error) {
@@ -71,94 +79,95 @@ export default function Cart() {
       toast.error("Your cart is empty.");
       return;
     }
-    localStorage.setItem("totalAmount", totalAmount.toFixed(2))
-    router.push("/diner/checkout"); 
+    localStorage.setItem("totalAmount", totalAmount.toFixed(2));
+    router.push("/diner/checkout");
   };
 
   const totalAmount = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
   return (
     <Card className="p-6 space-y-4 max-w-[90%] sm:max-w-lg lg:max-w-2xl mx-auto my-4 sm:my-6">
-  <h3 className="text-lg font-semibold text-gray-800">Your Cart</h3>
+      <h3 className="text-lg font-semibold text-gray-800">Your Cart</h3>
 
-  {cartItems.length === 0 ? (
-    <p className="text-gray-500">Your cart is empty.</p>
-  ) : (
-    <div className="space-y-4">
-      {cartItems.map((item) => (
-        <div
-          key={item._id}
-          className="flex flex-col items-start md:items-center justify-between border-b pb-4 mb-4 md:flex-row"
-        >
-          <div className="flex items-center space-x-6">
-            <Image
-              src={item.photoUrl}
-              alt={item.name}
-              width={100} // Slightly bigger image size
-              height={100}
-              className="rounded-lg"
-            />
-            <div>
-              <h4 className="font-medium text-gray-800">{item.name}</h4>
-              <p className="text-sm text-gray-500">
-                ${item.price.toFixed(2)} each
-              </p>
-              <div className="flex items-center mt-2">
+      {cartItems.length === 0 ? (
+        <p className="text-gray-500">Your cart is empty.</p>
+      ) : (
+        <div className="space-y-4">
+          {cartItems.map((item) => (
+            <div
+              key={item._id}
+              className="flex flex-col items-start md:items-center justify-between border-b pb-4 mb-4 md:flex-row"
+            >
+              <div className="flex items-center space-x-6">
+                <Image
+                  src={item.photoUrl}
+                  alt={item.name}
+                  width={100} // Slightly bigger image size
+                  height={100}
+                  className="rounded-lg"
+                />
+                <div>
+                  <h4 className="font-medium text-gray-800">{item.name}</h4>
+                  <p className="text-sm text-gray-500">
+                    ${item.price.toFixed(2)} each
+                  </p>
+                  <div className="flex items-center mt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        updateQuantity(item._id, item.quantity - 1)
+                      }
+                      disabled={item.quantity <= 1}
+                      className="px-3 py-1 text-sm"
+                    >
+                      -
+                    </Button>
+                    <span className="px-4 text-sm">{item.quantity}</span>
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        updateQuantity(item._id, item.quantity + 1)
+                      }
+                      disabled={item.quantity >= MAX_QUANTITY}
+                      className="px-3 py-1 text-sm"
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex  items-center space-x-4 ">
+                <p className="font-semibold text-gray-800">
+                  ${item.totalPrice.toFixed(2)}
+                </p>
                 <Button
-                  variant="outline"
-                  onClick={() =>
-                    updateQuantity(item._id, item.quantity - 1)
-                  }
-                  disabled={item.quantity <= 1}
-                  className="px-3 py-1 text-sm"
+                  variant="destructive"
+                  onClick={() => removeItem(item._id)}
+                  className="px-3 py-2"
                 >
-                  -
-                </Button>
-                <span className="px-4 text-sm">{item.quantity}</span>
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    updateQuantity(item._id, item.quantity + 1)
-                  }
-                  disabled={item.quantity >= MAX_QUANTITY}
-                  className="px-3 py-1 text-sm"
-                >
-                  +
+                  <TrashIcon size={16} />
                 </Button>
               </div>
             </div>
+          ))}
+
+          {/* Total Price */}
+          <div className="flex justify-between font-semibold text-lg mt-4">
+            <span>Total:</span>
+            <span>${totalAmount.toFixed(2)}</span>
           </div>
-          <div className="flex  items-center space-x-4 ">
-            <p className="font-semibold text-gray-800">${item.totalPrice.toFixed(2)}</p>
+
+          {/* Checkout Button */}
+          <div className="flex justify-end">
             <Button
-              variant="destructive"
-              onClick={() => removeItem(item._id)}
-              className="px-3 py-2"
+              onClick={handleCheckout}
+              className="w-full sm:w-[70%] lg:w-[50%] font-semibold py-3  mt-6 mx-auto  sm:mx-0"
             >
-              <TrashIcon size={16} />
+              Proceed to Checkout
             </Button>
           </div>
         </div>
-      ))}
-
-      {/* Total Price */}
-      <div className="flex justify-between font-semibold text-lg mt-4">
-        <span>Total:</span>
-        <span>${totalAmount.toFixed(2)}</span>
-      </div>
-
-      {/* Checkout Button */}
-      <div className="flex justify-end">
-        <Button
-          onClick={handleCheckout}
-          className="w-full sm:w-[70%] lg:w-[50%] font-semibold py-3  mt-6 mx-auto  sm:mx-0"
-        >
-          Proceed to Checkout
-        </Button>
-      </div>
-    </div>
-  )}
-</Card>
-
+      )}
+    </Card>
   );
 }
