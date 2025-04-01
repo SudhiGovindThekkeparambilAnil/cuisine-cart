@@ -6,11 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DishAutocomplete from "@/components/chef/DishAutocomplete";
-import DishModifierModal, { DishModifierModalResult } from "@/components/chef/DishModifierModal";
+import DishModifierModal, {
+  DishModifierModalResult,
+} from "@/components/chef/DishModifierModal";
 import Image from "next/image";
 import UploadImage from "@/components/core/UploadImage/UploadImage";
 
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const daysOfWeek = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 type Slot = {
   dish?: any; // The selected dish object
@@ -49,7 +59,10 @@ export default function ChefMealPlanCreatePage() {
   >(null);
 
   /** Dish selection from autocomplete. */
-  function handleDishSelect(slotKey: "breakfast" | "lunch" | "evening" | "dinner", dish: any) {
+  function handleDishSelect(
+    slotKey: "breakfast" | "lunch" | "evening" | "dinner",
+    dish: any
+  ) {
     setSlots((prev) => ({
       ...prev,
       [slotKey]: {
@@ -92,7 +105,9 @@ export default function ChefMealPlanCreatePage() {
   ) {
     setSlots((prev) => {
       const currentDays = prev[slotKey].days || [];
-      const newDays = isSelected ? [...currentDays, day] : currentDays.filter((d) => d !== day);
+      const newDays = isSelected
+        ? [...currentDays, day]
+        : currentDays.filter((d) => d !== day);
       return {
         ...prev,
         [slotKey]: { ...prev[slotKey], days: newDays },
@@ -101,7 +116,9 @@ export default function ChefMealPlanCreatePage() {
   }
 
   /** Repeat selection for all days of the week. */
-  function repeatAllDays(slotKey: "breakfast" | "lunch" | "evening" | "dinner") {
+  function repeatAllDays(
+    slotKey: "breakfast" | "lunch" | "evening" | "dinner"
+  ) {
     setSlots((prev) => ({
       ...prev,
       [slotKey]: { ...prev[slotKey], days: [...daysOfWeek] },
@@ -111,21 +128,23 @@ export default function ChefMealPlanCreatePage() {
   /** Price calculation from dish + modifiers * quantity * number-of-days. */
   function calculateTotalPrice(): number {
     let total = 0;
-    (["breakfast", "lunch", "evening", "dinner"] as const).forEach((slotKey) => {
-      const data = slots[slotKey];
-      if (data.dish && data.days && data.days.length > 0) {
-        let dishPrice = data.dish.price;
-        if (data.modifiers) {
-          Object.values(data.modifiers).forEach((modItems) => {
-            (modItems as any[]).forEach((item) => {
-              dishPrice += parseFloat(item.price);
+    (["breakfast", "lunch", "evening", "dinner"] as const).forEach(
+      (slotKey) => {
+        const data = slots[slotKey];
+        if (data.dish && data.days && data.days.length > 0) {
+          let dishPrice = data.dish.price;
+          if (data.modifiers) {
+            Object.values(data.modifiers).forEach((modItems) => {
+              (modItems as any[]).forEach((item) => {
+                dishPrice += parseFloat(item.price);
+              });
             });
-          });
+          }
+          const quantity = data.quantity || 1;
+          total += dishPrice * quantity * data.days.length;
         }
-        const quantity = data.quantity || 1;
-        total += dishPrice * quantity * data.days.length;
       }
-    });
+    );
     return total;
   }
 
@@ -163,7 +182,9 @@ export default function ChefMealPlanCreatePage() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className=" text-xl md:text-2xl font-bold mb-6">Create Meal Plan Subscription</h1>
+      <h1 className=" text-xl md:text-2xl font-bold mb-6">
+        Create Meal Plan Subscription
+      </h1>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Plan Name */}
         <div>
@@ -202,88 +223,118 @@ export default function ChefMealPlanCreatePage() {
         </div>
 
         {/* Each slot */}
-        {(["breakfast", "lunch", "evening", "dinner"] as const).map((slotKey) => {
-          const data = slots[slotKey];
-          return (
-            <div key={slotKey} className="border p-4 rounded bg-white shadow-sm">
-              <h2 className="text-lg font-semibold capitalize mb-2">{slotKey}</h2>
-              <DishAutocomplete
-                slotType={slotKey}
-                onSelect={(dish) => handleDishSelect(slotKey, dish)}
-              />
+        {(["breakfast", "lunch", "evening", "dinner"] as const).map(
+          (slotKey) => {
+            const data = slots[slotKey];
+            return (
+              <div
+                key={slotKey}
+                className="border p-4 rounded bg-white shadow-sm"
+              >
+                <h2 className="text-lg font-semibold capitalize mb-2">
+                  {slotKey}
+                </h2>
+                <DishAutocomplete
+                  slotType={slotKey}
+                  onSelect={(dish) => handleDishSelect(slotKey, dish)}
+                />
 
-              {data.dish && (
-                <>
-                  {/* Dish Preview */}
-                  <div className="mt-4 flex items-center space-x-4">
-                    <Image
-                      src={data.dish.photoUrl || "https://placehold.co/600x400?text=No+Image"}
-                      alt={data.dish.name}
-                      width={64}
-                      height={64}
-                      className="object-cover rounded"
-                      unoptimized
-                    />
-                    <div>
-                      <p className="font-semibold">{data.dish.name}</p>
-                      <p className="text-sm text-gray-600">${data.dish.price.toFixed(2)}</p>
+                {data.dish && (
+                  <>
+                    {/* Dish Preview */}
+                    <div className="mt-4 flex items-center space-x-4">
+                      <Image
+                        src={
+                          data.dish.photoUrl ||
+                          "https://placehold.co/600x400?text=No+Image"
+                        }
+                        alt={data.dish.name}
+                        width={64}
+                        height={64}
+                        className="object-cover rounded"
+                        unoptimized
+                      />
+                      <div>
+                        <p className="font-semibold">{data.dish.name}</p>
+                        <p className="text-sm text-gray-600">
+                          ${data.dish.price.toFixed(2)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Days Selection */}
-                  <div className="mt-4">
-                    <p className="font-semibold mb-2">Select Days (optional):</p>
-                    <div className="flex flex-wrap gap-2">
-                      {daysOfWeek.map((day) => {
-                        const isChecked = data.days?.includes(day) ?? false;
-                        return (
-                          <label key={day} className="flex items-center space-x-1">
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={(e) => handleDaysChange(slotKey, day, e.target.checked)}
-                              className="h-4 w-4"
-                            />
-                            <span className="text-sm">{day.slice(0, 3)}</span>
-                          </label>
-                        );
-                      })}
+                    {/* Days Selection */}
+                    <div className="mt-4">
+                      <p className="font-semibold mb-2">
+                        Select Days (optional):
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {daysOfWeek.map((day) => {
+                          const isChecked = data.days?.includes(day) ?? false;
+                          return (
+                            <label
+                              key={day}
+                              className="flex items-center space-x-1"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={(e) =>
+                                  handleDaysChange(
+                                    slotKey,
+                                    day,
+                                    e.target.checked
+                                  )
+                                }
+                                className="h-4 w-4"
+                              />
+                              <span className="text-sm">{day.slice(0, 3)}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="mt-2"
+                        onClick={() => repeatAllDays(slotKey)}
+                      >
+                        Repeat All Days
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="mt-2"
-                      onClick={() => repeatAllDays(slotKey)}>
-                      Repeat All Days
-                    </Button>
-                  </div>
 
-                  {/* Configure Dish Options */}
-                  <div className="mt-4">
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => {
-                        setCurrentSlot(slotKey);
-                        setModalOpen(true);
-                      }}>
-                      Configure Dish Options
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          );
-        })}
+                    {/* Configure Dish Options */}
+                    <div className="mt-4">
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => {
+                          setCurrentSlot(slotKey);
+                          setModalOpen(true);
+                        }}
+                      >
+                        Configure Dish Options
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          }
+        )}
 
         {/* Estimated Price */}
         <div>
-          <p className="font-bold text-lg">Estimated Price: ${calculateTotalPrice().toFixed(2)}</p>
+          <p className="font-bold text-lg">
+            Estimated Price: ${calculateTotalPrice().toFixed(2)}
+          </p>
         </div>
 
         {/* Submit */}
         <div className="flex justify-end">
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6">
+          <Button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+          >
             Save
           </Button>
         </div>
@@ -293,9 +344,14 @@ export default function ChefMealPlanCreatePage() {
       {modalOpen && currentSlot && (
         <DishModifierModal
           dish={slots[currentSlot].dish}
-          initialModifiers={(slots[currentSlot].modifiers as { [modTitle: string]: any[] }) || {}}
+          initialModifiers={
+            (slots[currentSlot].modifiers as { [modTitle: string]: any[] }) ||
+            {}
+          }
           initialQuantity={slots[currentSlot].quantity || 1}
-          onClose={(result, quantity) => handleModifiersUpdate(currentSlot!, result, quantity)}
+          onClose={(result, quantity) =>
+            handleModifiersUpdate(currentSlot!, result, quantity)
+          }
         />
       )}
     </div>

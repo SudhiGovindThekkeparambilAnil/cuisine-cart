@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,10 +51,16 @@ export default function DinerDishDetailPage() {
   const MAX_QUANTITY = 8; // Max limit per dish
   const [cartQuantity, setCartQuantity] = useState(0);
   const [isMaxReached, setIsMaxReached] = useState(false);
+  const [cartDetailId, setCartDetailId] = useState(null);
   const id = params?.id as string;
   const [featuredDishes, setFeaturedDishes] = useState<Dish[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      router.push("/auth/login");
+      toast.error("You are not authorized to access the requested page");
+    }
     async function fetchDishDetail() {
       if (!id) return;
       try {
@@ -73,7 +79,26 @@ export default function DinerDishDetailPage() {
       }
     }
     fetchDishDetail();
-  }, [id]);
+
+    const fetchCart = async () => {
+      try {
+        const cartDetails = await axios.get("/api/cart");
+        if (cartDetails.status === 200) {
+          const cartData = cartDetails.data.items.filter((dish: any) => {
+            return dish.dishId._id === id;
+          });
+          console.log(cartData[0].dishId._id);
+          setQuantity(cartData[0].quantity);
+          setCartQuantity(cartData[0].quantity);
+          setCartDetailId(cartDetails.data.items[0].dishId._id);
+        }
+      } catch {
+        setCartDetailId(null);
+        toast.error("Error wile fetching the cart");
+      }
+    };
+    fetchCart();
+  }, [id, router]);
 
   useEffect(() => {
     let newPrice = dish?.price || 0;
@@ -100,7 +125,7 @@ export default function DinerDishDetailPage() {
         console.error(error);
       }
     }
-  
+
     if (dish) fetchFeaturedDishes();
   }, [dish]);
 
@@ -148,8 +173,8 @@ export default function DinerDishDetailPage() {
 
     // Check if all required modifiers are selected
     const missingModifiers = dish.modifiers
-      .filter((mod) => mod.required) // Only required modifiers
-      .filter((mod) => !selectedModifiers.has(mod.title)); // Check if they are missing
+      .filter((mod) => mod.required)
+      .filter((mod) => !selectedModifiers.has(mod.title));
 
     if (missingModifiers.length > 0) {
       toast.error(
@@ -183,7 +208,7 @@ export default function DinerDishDetailPage() {
         photoUrl: dish.photoUrl,
         price: dish.price,
         quantity,
-        totalPrice: quantity * dish.price, // Ensure this is correctly calculated
+        totalPrice: quantity * dish.price,
         modifiers: Array.from(selectedModifiers, ([title, items]) => ({
           modifierTitle: title,
           items,
@@ -191,14 +216,18 @@ export default function DinerDishDetailPage() {
       };
 
       // Add item to cart
-      await axios.post("/api/cart", cartItem, {
+      const cart = await axios.post("/api/cart", cartItem, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-
+      console.log(cart);
       // Update state after successful addition
       setCartQuantity(newQuantity);
+      localStorage.setItem(
+        "updatedCartCount",
+        JSON.stringify(cart.data.cart.items.length)
+      );
       setIsMaxReached(newQuantity >= MAX_QUANTITY);
       toast.success(`${dish.name} added to cart!`);
     } catch (error) {
@@ -318,19 +347,21 @@ export default function DinerDishDetailPage() {
 
                   {/* Quantity Controls */}
                   <div className="mt-4 flex items-center space-x-4">
-                    <button
+                    <Button
                       className="px-3 py-1 bg-gray-200 rounded text-lg font-bold"
                       onClick={() => handleQuantityChange("decrease")}
+                      disabled={quantity <= 1}
                     >
                       -
-                    </button>
+                    </Button>
                     <span className="text-lg font-semibold">{quantity}</span>
-                    <button
+                    <Button
                       className="px-3 py-1 bg-gray-200 rounded text-lg font-bold"
                       onClick={() => handleQuantityChange("increase")}
+                      disabled={quantity >= MAX_QUANTITY}
                     >
                       +
-                    </button>
+                    </Button>
                   </div>
                 </CardContent>
 
@@ -339,16 +370,16 @@ export default function DinerDishDetailPage() {
                   <div className="flex justify-between items-center">
                     <Button
                       onClick={handleAddToCart}
-                      disabled={isMaxReached} // Disable the button if max quantity is reached
+                      disabled={isMaxReached} // Disabling the button if max quantity is reached
                     >
                       {isMaxReached
                         ? `Max ${MAX_QUANTITY} reached`
                         : "Add to Cart"}
                     </Button>
 
-                    {/* Display the current cart quantity for this dish */}
+                    {/* Displaying the current cart quantity for this dish */}
                     <div className="text-sm ms-4 text-gray-500">
-                      {cartQuantity > 0
+                      {cartQuantity > 0 && cartDetailId == id
                         ? `In Cart: ${cartQuantity}`
                         : "Not in cart"}
                     </div>
@@ -372,31 +403,27 @@ export default function DinerDishDetailPage() {
                 className="flex flex-col justify-between min-w-[200px] bg-white shadow rounded-lg p-3"
               >
                 <div>
-
-                <Image
-                  src={item.photoUrl || "/placeholder.jpg"}
-                  alt={item.name}
-                  width={200}
-                  height={150}
-                  className="rounded-md object-cover"
-                />
-                <h4 className="text-lg font-semibold mt-2">
-                  {item.name}
-                </h4>
-                <p className="text-sm text-gray-600">
-                  ${item.price.toFixed(2)}
-                </p>
+                  <Image
+                    src={item.photoUrl || "/placeholder.jpg"}
+                    alt={item.name}
+                    width={200}
+                    height={150}
+                    className="rounded-md object-cover"
+                  />
+                  <h4 className="text-lg font-semibold mt-2">{item.name}</h4>
+                  <p className="text-sm text-gray-600">
+                    ${item.price.toFixed(2)}
+                  </p>
                 </div>
                 <div>
-
-                <Button
-                  className="mt-2 w-full"
-                  onClick={() =>
-                    (window.location.href = `/diner/dishes/${item._id}`)
-                  }
-                >
-                  View Dish
-                </Button>
+                  <Button
+                    className="mt-2 w-full"
+                    onClick={() =>
+                      (window.location.href = `/diner/dishes/${item._id}`)
+                    }
+                  >
+                    View Dish
+                  </Button>
                 </div>
               </div>
             ))}

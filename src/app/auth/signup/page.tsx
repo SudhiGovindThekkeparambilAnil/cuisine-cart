@@ -36,16 +36,14 @@ export default function SignupPage() {
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
 
   useEffect(() => {
-    // const storedRole = localStorage.getItem("role") || "";
-    // setForm((prev) => ({ ...prev, role: storedRole }));
     const storedRole = localStorage.getItem("role") || "";
     if (storedRole) {
       setForm((prev) => ({ ...prev, role: storedRole }));
     } else {
+      router.push("/user-selection");
       toast.error("Role not selected. Please select a role before signing up.");
     }
-
-  }, []);
+  }, [router]);
 
   // Validate Form Inputs
   const validateFormInputs = () => {
@@ -114,7 +112,7 @@ export default function SignupPage() {
           description: "Your account has been created.",
         });
         router.push("/auth/login");
-      } 
+      }
     } catch (error: any) {
       toast.error(`${error.response.data.error}`, {
         description: `Please try again with valid input details.`,
@@ -187,7 +185,9 @@ export default function SignupPage() {
                       />
                     </div>
                     {errors.name && (
-                      <p className="text-red-500 text-xs  font-bold">{errors.name}</p>
+                      <p className="text-red-500 text-xs  font-bold">
+                        {errors.name}
+                      </p>
                     )}
                   </div>
                   {/* Email Input */}
@@ -216,7 +216,9 @@ export default function SignupPage() {
                       />
                     </div>
                     {errors.email && (
-                      <p className="text-red-500 text-xs  font-bold">{errors.email}</p>
+                      <p className="text-red-500 text-xs  font-bold">
+                        {errors.email}
+                      </p>
                     )}
                   </div>
 
@@ -262,7 +264,9 @@ export default function SignupPage() {
                       </span>
                     </div>
                     {errors.password && (
-                      <p className="text-red-500 text-xs font-bold">{errors.password}</p>
+                      <p className="text-red-500 text-xs font-bold">
+                        {errors.password}
+                      </p>
                     )}
                     <p className="text-gray-600 text-xs">
                       Password must be 8-16 characters, include at least:
@@ -315,7 +319,11 @@ export default function SignupPage() {
                         />
                       </span>
                     </div>
-                    {errors.confirmPassword && <p className="text-red-500 text-xs  font-bold">{errors.confirmPassword}</p>}
+                    {errors.confirmPassword && (
+                      <p className="text-red-500 text-xs  font-bold">
+                        {errors.confirmPassword}
+                      </p>
+                    )}
                   </div>
 
                   {/* Login Button */}
@@ -328,18 +336,17 @@ export default function SignupPage() {
                     </Button>
                   </div>
                 </form>
-              {/* Signup Link */}
-              <p className="text-center text-gray-600 mx-5 py-4 text-xs">
-                Already have an account?{" "}
-                <span
-                  className="text-orange-500 font-semibold cursor-pointer hover:underline"
-                  onClick={() => router.push("/auth/login")}
-                >
-                  Login
-                </span>
-              </p>
+                {/* Signup Link */}
+                <p className="text-center text-gray-600 mx-5 py-4 text-xs">
+                  Already have an account?{" "}
+                  <span
+                    className="text-orange-500 font-semibold cursor-pointer hover:underline"
+                    onClick={() => router.push("/auth/login")}
+                  >
+                    Login
+                  </span>
+                </p>
               </div>
-
             </div>
           </div>
         </div>

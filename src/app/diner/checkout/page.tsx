@@ -31,29 +31,30 @@ export default function CheckoutForm() {
   const [loading, setLoading] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [totalAmount, settotalAmount] = useState(0);
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const { data } = await axios.get("/api/auth/session"); // Fetch session user data
+        const { data } = await axios.get("/api/auth/session");
         if (data?.addresses?.length) {
           setUserAddresses(data.addresses);
           setSelectedAddress(data.addresses[0]); // Default to first address
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        toast.error("Failed to load user data.");
+        toast.error("You are not authorized to access this page");
+        router.push("/auth/login");
       } finally {
         setLoading(false);
       }
     };
-    const totalAmount = localStorage.getItem('totalAmount') || "";
+    const totalAmount = localStorage.getItem("totalAmount") || "";
     if (totalAmount) {
       settotalAmount(JSON.parse(totalAmount));
     }
     fetchUserData();
-  }, []);
+  }, [router]);
 
   const handleAddressChange = (selectedType: string) => {
     const address = userAddresses.find((addr) => addr.type === selectedType);
@@ -68,24 +69,31 @@ export default function CheckoutForm() {
     }
 
     try {
-      await axios.post("/api/order", {
-        address: { ...selectedAddress, type: selectedAddress.type.charAt(0).toUpperCase() + selectedAddress.type.slice(1).toLowerCase()
-      },
-        paymentMethod,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
+      await axios.post(
+        "/api/order",
+        {
+          address: {
+            ...selectedAddress,
+            type:
+              selectedAddress.type.charAt(0).toUpperCase() +
+              selectedAddress.type.slice(1).toLowerCase(),
           },
-      });
+          paymentMethod,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       localStorage.removeItem("totalAmount");
       toast.success("Order placed successfully!");
-      router.push('/diner/dishes');
+      router.push("/diner/dishes");
     } catch (error) {
       console.error(error);
       toast.error("Could not place order. Try again.");
     }
   };
-
 
   return (
     <form
@@ -171,10 +179,7 @@ export default function CheckoutForm() {
 
           {/* Submit Button */}
           <div className="mt-6 flex justify-center">
-            <Button
-              type="submit"
-              className="w-[80%] bg-orange-500 hover:bg-orange-600 font-semibold py-3"
-            >
+            <Button type="submit" className="w-[80%]  font-semibold py-3">
               Place Order
             </Button>
           </div>
