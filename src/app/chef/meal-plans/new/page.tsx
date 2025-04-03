@@ -6,21 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import DishAutocomplete from "@/components/chef/DishAutocomplete";
-import DishModifierModal, {
-  DishModifierModalResult,
-} from "@/components/chef/DishModifierModal";
+import DishModifierModal, { DishModifierModalResult } from "@/components/chef/DishModifierModal";
 import Image from "next/image";
 import UploadImage from "@/components/core/UploadImage/UploadImage";
 
-const daysOfWeek = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 type Slot = {
   dish?: any; // The selected dish object
@@ -58,27 +48,65 @@ export default function ChefMealPlanCreatePage() {
     "breakfast" | "lunch" | "evening" | "dinner" | null
   >(null);
 
-  /** Dish selection from autocomplete. */
-  function handleDishSelect(
-    slotKey: "breakfast" | "lunch" | "evening" | "dinner",
-    dish: any
-  ) {
+  /**
+   * Calculates the subtotal for a single slot based on:
+   * - Base dish price
+   * - Modifiers (add-ons)
+   * - Quantity
+   * - Number of selected days
+   */
+  function calculateSlotSubtotal(slot: Slot): number {
+    if (!slot.dish) return 0;
+    let dishPrice = slot.dish.price || 0;
+
+    // Sum modifiers
+    if (slot.modifiers) {
+      Object.values(slot.modifiers).forEach((modItems) => {
+        modItems.forEach((item) => {
+          dishPrice += parseFloat(item.price.toString());
+        });
+      });
+    }
+
+    const quantity = slot.quantity || 1;
+    const daysCount = slot.days?.length || 0;
+
+    return dishPrice * quantity * daysCount;
+  }
+
+  /**
+   * Sums all slot subtotals to get an estimated total cost of the meal plan.
+   */
+  function calculateTotalPrice(): number {
+    let total = 0;
+    (["breakfast", "lunch", "evening", "dinner"] as const).forEach((slotKey) => {
+      total += calculateSlotSubtotal(slots[slotKey]);
+    });
+    return total;
+  }
+
+  /**
+   * Handles user selecting a dish from DishAutocomplete.
+   */
+  function handleDishSelect(slotKey: "breakfast" | "lunch" | "evening" | "dinner", dish: any) {
     setSlots((prev) => ({
       ...prev,
       [slotKey]: {
         ...prev[slotKey],
         dish,
-        quantity: 1,
+        quantity: prev[slotKey].quantity || 1,
         days: prev[slotKey].days || [],
         modifiers: prev[slotKey].modifiers || {},
         specialInstructions: prev[slotKey].specialInstructions || "",
       },
     }));
     setCurrentSlot(slotKey);
-    setModalOpen(true);
+    setModalOpen(true); // open the modal for custom modifiers / instructions
   }
 
-  /** DishModifierModal callback. */
+  /**
+   * Handles the result from DishModifierModal (modifiers, special instructions, quantity).
+   */
   function handleModifiersUpdate(
     slotKey: "breakfast" | "lunch" | "evening" | "dinner",
     result: DishModifierModalResult,
@@ -97,7 +125,9 @@ export default function ChefMealPlanCreatePage() {
     setCurrentSlot(null);
   }
 
-  /** Days selection. */
+  /**
+   * Handles toggling a specific day (Mon, Tue, Wed, etc.) for a slot.
+   */
   function handleDaysChange(
     slotKey: "breakfast" | "lunch" | "evening" | "dinner",
     day: string,
@@ -105,9 +135,8 @@ export default function ChefMealPlanCreatePage() {
   ) {
     setSlots((prev) => {
       const currentDays = prev[slotKey].days || [];
-      const newDays = isSelected
-        ? [...currentDays, day]
-        : currentDays.filter((d) => d !== day);
+      const newDays = isSelected ? [...currentDays, day] : currentDays.filter((d) => d !== day);
+
       return {
         ...prev,
         [slotKey]: { ...prev[slotKey], days: newDays },
@@ -115,40 +144,19 @@ export default function ChefMealPlanCreatePage() {
     });
   }
 
-  /** Repeat selection for all days of the week. */
-  function repeatAllDays(
-    slotKey: "breakfast" | "lunch" | "evening" | "dinner"
-  ) {
+  /**
+   * Convenience function to select all days of the week at once.
+   */
+  function repeatAllDays(slotKey: "breakfast" | "lunch" | "evening" | "dinner") {
     setSlots((prev) => ({
       ...prev,
       [slotKey]: { ...prev[slotKey], days: [...daysOfWeek] },
     }));
   }
 
-  /** Price calculation from dish + modifiers * quantity * number-of-days. */
-  function calculateTotalPrice(): number {
-    let total = 0;
-    (["breakfast", "lunch", "evening", "dinner"] as const).forEach(
-      (slotKey) => {
-        const data = slots[slotKey];
-        if (data.dish && data.days && data.days.length > 0) {
-          let dishPrice = data.dish.price;
-          if (data.modifiers) {
-            Object.values(data.modifiers).forEach((modItems) => {
-              (modItems as any[]).forEach((item) => {
-                dishPrice += parseFloat(item.price);
-              });
-            });
-          }
-          const quantity = data.quantity || 1;
-          total += dishPrice * quantity * data.days.length;
-        }
-      }
-    );
-    return total;
-  }
-
-  /** Final create request. */
+  /**
+   * Final create request to the server.
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!planName) {
@@ -158,7 +166,7 @@ export default function ChefMealPlanCreatePage() {
 
     const newMealPlan = {
       planName,
-      planImage, // We store the final URL from UploadImage
+      planImage,
       slots,
       totalPrice: calculateTotalPrice(),
     };
@@ -181,110 +189,116 @@ export default function ChefMealPlanCreatePage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className=" text-xl md:text-2xl font-bold mb-6">
-        Create Meal Plan Subscription
-      </h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Plan Name */}
-        <div>
-          <Label className="mb-1">Meal Plan Name</Label>
-          <Input
-            value={planName}
-            onChange={(e) => setPlanName(e.target.value)}
-            placeholder="e.g. Sunday Brunch Special"
-            required
-            className="w-full"
-          />
-        </div>
+    <div className="bg-gray-50 min-h-screen py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        {/* Page Title + Intro */}
+        <h1 className="text-2xl font-bold mb-2 text-gray-800">Create a New Meal Plan</h1>
+        <p className="text-gray-600 mb-6 leading-relaxed">
+          Use this page to set up a new meal plan subscription for your customers. You can assign
+          dishes to each time slot (Breakfast, Lunch, Evening, Dinner), choose specific days of the
+          week, and add any additional instructions or modifiers. The total price will be
+          automatically calculated as you select dishes and options.
+        </p>
 
-        {/* Plan Image (via the new UploadImage component) */}
-        <div>
-          <Label className="mb-1">Meal Plan Image</Label>
-          <div className="mt-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Plan Name */}
+          <div className="bg-white p-4 rounded shadow-sm">
+            <Label className="mb-1 block text-sm font-semibold text-gray-700">
+              Meal Plan Name <span className="text-red-500">*</span>
+            </Label>
+            <p className="text-xs text-gray-500 mb-2">
+              Provide a descriptive name for this plan (e.g., “Weekday Healthy Lunches” or “Sunday
+              Brunch Special”). This name will help you and your customers identify the plan.
+            </p>
+            <Input
+              value={planName}
+              onChange={(e) => setPlanName(e.target.value)}
+              placeholder="e.g., Sunday Brunch Special"
+              required
+              className="w-full"
+            />
+          </div>
+
+          {/* Plan Image (UploadImage) */}
+          <div className="bg-white p-4 rounded shadow-sm">
+            <Label className="mb-1 block text-sm font-semibold text-gray-700">
+              Meal Plan Image
+            </Label>
+            <p className="text-xs text-gray-500 mb-2">
+              (Optional) Upload an image to help visualize this plan for your customers. It could be
+              a signature dish or a general meal photo.
+            </p>
             <UploadImage
               aspectRatio={16 / 9}
               onUploadComplete={(url: string) => setPlanImage(url)}
             />
+            {planImage && (
+              <div className="mt-3">
+                <Image
+                  src={planImage}
+                  alt="Meal Plan Preview"
+                  width={200}
+                  height={120}
+                  className="object-cover rounded border"
+                  unoptimized
+                />
+              </div>
+            )}
           </div>
 
-          {planImage && (
-            <div className="mt-3">
-              <Image
-                src={planImage}
-                alt="Meal Plan"
-                width={200}
-                height={120}
-                className="object-cover rounded border"
-                unoptimized
-              />
-            </div>
-          )}
-        </div>
+          {/* Slots (Breakfast, Lunch, Evening, Dinner) */}
+          {(["breakfast", "lunch", "evening", "dinner"] as const).map((slotKey) => {
+            const slotData = slots[slotKey];
+            const slotSubtotal = calculateSlotSubtotal(slotData);
 
-        {/* Each slot */}
-        {(["breakfast", "lunch", "evening", "dinner"] as const).map(
-          (slotKey) => {
-            const data = slots[slotKey];
             return (
-              <div
-                key={slotKey}
-                className="border p-4 rounded bg-white shadow-sm"
-              >
-                <h2 className="text-lg font-semibold capitalize mb-2">
-                  {slotKey}
-                </h2>
+              <div key={slotKey} className="bg-white p-4 rounded shadow-sm">
+                <h2 className="text-lg font-semibold capitalize mb-2 text-gray-800">{slotKey}</h2>
+                <p className="text-xs text-gray-500 mb-2">
+                  Search and select a dish that matches the{" "}
+                  <strong className="text-gray-700 capitalize">{slotKey}</strong> slot type. Choose
+                  how many days to serve it, add special instructions, or configure optional
+                  modifiers.
+                </p>
+
+                {/* Dish Autocomplete */}
                 <DishAutocomplete
                   slotType={slotKey}
                   onSelect={(dish) => handleDishSelect(slotKey, dish)}
                 />
 
-                {data.dish && (
+                {slotData.dish && (
                   <>
                     {/* Dish Preview */}
                     <div className="mt-4 flex items-center space-x-4">
                       <Image
-                        src={
-                          data.dish.photoUrl ||
-                          "https://placehold.co/600x400?text=No+Image"
-                        }
-                        alt={data.dish.name}
+                        src={slotData.dish.photoUrl || "https://placehold.co/600x400?text=No+Image"}
+                        alt={slotData.dish.name}
                         width={64}
                         height={64}
                         className="object-cover rounded"
                         unoptimized
                       />
                       <div>
-                        <p className="font-semibold">{data.dish.name}</p>
+                        <p className="font-semibold">{slotData.dish.name}</p>
                         <p className="text-sm text-gray-600">
-                          ${data.dish.price.toFixed(2)}
+                          Base Price: ${slotData.dish.price.toFixed(2)}
                         </p>
                       </div>
                     </div>
 
                     {/* Days Selection */}
                     <div className="mt-4">
-                      <p className="font-semibold mb-2">
-                        Select Days (optional):
-                      </p>
+                      <p className="font-semibold mb-2 text-sm">Select Days to Serve:</p>
                       <div className="flex flex-wrap gap-2">
                         {daysOfWeek.map((day) => {
-                          const isChecked = data.days?.includes(day) ?? false;
+                          const isChecked = slotData.days?.includes(day) ?? false;
                           return (
-                            <label
-                              key={day}
-                              className="flex items-center space-x-1"
-                            >
+                            <label key={day} className="flex items-center space-x-1">
                               <input
                                 type="checkbox"
                                 checked={isChecked}
-                                onChange={(e) =>
-                                  handleDaysChange(
-                                    slotKey,
-                                    day,
-                                    e.target.checked
-                                  )
-                                }
+                                onChange={(e) => handleDaysChange(slotKey, day, e.target.checked)}
                                 className="h-4 w-4"
                               />
                               <span className="text-sm">{day.slice(0, 3)}</span>
@@ -296,64 +310,64 @@ export default function ChefMealPlanCreatePage() {
                         type="button"
                         variant="outline"
                         className="mt-2"
-                        onClick={() => repeatAllDays(slotKey)}
-                      >
+                        onClick={() => repeatAllDays(slotKey)}>
                         Repeat All Days
                       </Button>
                     </div>
 
-                    {/* Configure Dish Options */}
-                    <div className="mt-4">
+                    {/* Configure Dish Options + Subtotal */}
+                    <div className="mt-4 flex items-center justify-between">
                       <Button
                         variant="outline"
                         type="button"
                         onClick={() => {
                           setCurrentSlot(slotKey);
                           setModalOpen(true);
-                        }}
-                      >
+                        }}>
                         Configure Dish Options
                       </Button>
+
+                      {/* Show Subtotal for this slot */}
+                      <div className="text-right">
+                        <p className="text-sm font-semibold text-gray-700">
+                          Subtotal:
+                          <span className="ml-1 text-orange-600">${slotSubtotal.toFixed(2)}</span>
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          (Base Price + Add-Ons) x Quantity x # of Days
+                        </p>
+                      </div>
                     </div>
                   </>
                 )}
               </div>
             );
-          }
+          })}
+
+          {/* Estimated Price */}
+          <div className="bg-white p-4 rounded shadow-sm flex items-center justify-between">
+            <p className="font-semibold text-gray-700">Estimated Total Price:</p>
+            <p className="text-xl font-bold text-orange-600">${calculateTotalPrice().toFixed(2)}</p>
+          </div>
+
+          {/* Submit */}
+          <div className="flex justify-end">
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6">
+              Save Meal Plan
+            </Button>
+          </div>
+        </form>
+
+        {/* DishModifierModal for configuring chosen dish */}
+        {modalOpen && currentSlot && (
+          <DishModifierModal
+            dish={slots[currentSlot].dish}
+            initialModifiers={(slots[currentSlot].modifiers as { [modTitle: string]: any[] }) || {}}
+            initialQuantity={slots[currentSlot].quantity || 1}
+            onClose={(result, quantity) => handleModifiersUpdate(currentSlot!, result, quantity)}
+          />
         )}
-
-        {/* Estimated Price */}
-        <div>
-          <p className="font-bold text-lg">
-            Estimated Price: ${calculateTotalPrice().toFixed(2)}
-          </p>
-        </div>
-
-        {/* Submit */}
-        <div className="flex justify-end">
-          <Button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
-          >
-            Save
-          </Button>
-        </div>
-      </form>
-
-      {/* DishModifierModal */}
-      {modalOpen && currentSlot && (
-        <DishModifierModal
-          dish={slots[currentSlot].dish}
-          initialModifiers={
-            (slots[currentSlot].modifiers as { [modTitle: string]: any[] }) ||
-            {}
-          }
-          initialQuantity={slots[currentSlot].quantity || 1}
-          onClose={(result, quantity) =>
-            handleModifiersUpdate(currentSlot!, result, quantity)
-          }
-        />
-      )}
+      </div>
     </div>
   );
 }
