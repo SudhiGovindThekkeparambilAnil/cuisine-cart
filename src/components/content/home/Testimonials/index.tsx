@@ -41,7 +41,7 @@ const Testimonials = () => (
           </div>
           <p>
             &quot;The meals are so flavorful and healthy! I’ve saved time, money, and I feel like
-            I'm eating food from my own kitchen. I highly recommend this app...&quot;
+            I&apos;m eating food from my own kitchen. I highly recommend this app...&quot;
           </p>
         </div>
       </div>
