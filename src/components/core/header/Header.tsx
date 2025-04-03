@@ -126,16 +126,18 @@ export default function Header() {
   return (
     <header className="bg-white shadow-md">
       <div className="container mx-auto flex justify-between items-center p-6">
-        <div className="flex items-center">
-          <Image
-            src="/logo.png"
-            alt="Company Logo"
-            width={90}
-            height={90}
-            className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 lg:w-26 lg:h-26 me-3 rounded"
-          />
-          <p className="text-2xl font-bold text-gray-800"> Cuisine Cart</p>
-        </div>
+        <Link href={"/"}>
+          <div className="flex items-center">
+            <Image
+              src="/logo.png"
+              alt="Company Logo"
+              width={90}
+              height={90}
+              className="w-20 h-20 sm:w-22 sm:h-22 md:w-24 md:h-24 lg:w-26 lg:h-26 me-3 rounded"
+            />
+            <p className="text-2xl font-bold text-gray-800"> Cuisine Cart</p>
+          </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex space-x-8">
