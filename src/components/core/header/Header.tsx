@@ -33,6 +33,9 @@ export default function Header() {
         }
       } catch {
         setUser(null);
+        toast.error("Session expired, please login again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
       }
     };
     const fetchCart = async () => {
@@ -40,10 +43,7 @@ export default function Header() {
         const res = await axios.get("/api/cart");
         if (res.status === 200) {
           console.log(res);
-          localStorage.setItem(
-            "updatedCartCount",
-            JSON.stringify(res.data.items.length)
-          );
+          localStorage.setItem("updatedCartCount", JSON.stringify(res.data.items.length));
           setCartCount(res.data.items.length);
         }
       } catch {
@@ -52,8 +52,8 @@ export default function Header() {
       }
     };
     if (token) {
-      fetchCart();
       fetchUser();
+      fetchCart();
     }
   }, [pathname]);
 
@@ -140,43 +140,31 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex space-x-8">
           {user ? (
-            (user.role === "chef" ? chefNavigation : dinerNavigation).map(
-              (item) => (
-                <Link
-                  key={item.name}
-                  href={item.href || "/"}
-                  className="relative text-gray-600 hover:text-blue-600"
-                >
-                  {item.name}
-                  {item.name === `Cart` && cartCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                      {cartCount}
-                    </span>
-                  )}
-                </Link>
-              )
-            )
+            (user.role === "chef" ? chefNavigation : dinerNavigation).map((item) => (
+              <Link
+                key={item.name}
+                href={item.href || "/"}
+                className="relative text-gray-600 hover:text-blue-600">
+                {item.name}
+                {item.name === `Cart` && cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            ))
           ) : (
             <>
-              <Link
-                href="/auth/login"
-                className="text-gray-600 hover:text-blue-600"
-              >
+              <Link href="/auth/login" className="text-gray-600 hover:text-blue-600">
                 Login
               </Link>
-              <Link
-                href="/user-selection"
-                className="text-gray-600 hover:text-blue-600"
-              >
+              <Link href="/user-selection" className="text-gray-600 hover:text-blue-600">
                 Signup
               </Link>
             </>
           )}
           {user && (
-            <button
-              onClick={openModal}
-              className="text-red-600 hover:text-red-800"
-            >
+            <button onClick={openModal} className="text-red-600 hover:text-red-800">
               Logout
             </button>
           )}
@@ -186,20 +174,14 @@ export default function Header() {
         <div className="lg:hidden">
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="text-gray-800 focus:outline-none"
-          >
+            className="text-gray-800 focus:outline-none">
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      <Dialog
-        as="div"
-        className="lg:hidden"
-        open={mobileMenuOpen}
-        onClose={setMobileMenuOpen}
-      >
+      <Dialog as="div" className="lg:hidden" open={mobileMenuOpen} onClose={setMobileMenuOpen}>
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <div className="fixed inset-0 z-20 flex flex-col justify-between items-center bg-white">
           <DialogPanel className="w-full h-full p-6 flex flex-col justify-between">
@@ -210,35 +192,28 @@ export default function Header() {
 
             <nav className="flex flex-col items-center space-y-6 mb-12">
               {user ? (
-                (user.role === "chef" ? chefNavigation : dinerNavigation).map(
-                  (item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href || "/"}
-                      className="relative text-xl text-gray-600 hover:text-blue-600 inline-flex items-center"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      {item.name}
-                      {item.name === "Cart" && cartCount > 0 && (
-                        <span className="ml-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                          {cartCount}
-                        </span>
-                      )}
-                    </Link>
-                  )
-                )
+                (user.role === "chef" ? chefNavigation : dinerNavigation).map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href || "/"}
+                    className="relative text-xl text-gray-600 hover:text-blue-600 inline-flex items-center"
+                    onClick={() => setMobileMenuOpen(false)}>
+                    {item.name}
+                    {item.name === "Cart" && cartCount > 0 && (
+                      <span className="ml-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
+                ))
               ) : (
                 <>
-                  <Link
-                    href="/auth/login"
-                    className="text-xl text-gray-600 hover:text-blue-600"
-                  >
+                  <Link href="/auth/login" className="text-xl text-gray-600 hover:text-blue-600">
                     Login
                   </Link>
                   <Link
                     href="/user-selection"
-                    className="text-xl text-gray-600 hover:text-blue-600"
-                  >
+                    className="text-xl text-gray-600 hover:text-blue-600">
                     Signup
                   </Link>
                 </>
@@ -249,8 +224,7 @@ export default function Header() {
               <div className="flex justify-center">
                 <button
                   onClick={handleLogout}
-                  className="block bg-red-600 text-white py-3 px-8 rounded-full text-lg font-semibold mb-4 hover:bg-red-700 transition duration-300"
-                >
+                  className="block bg-red-600 text-white py-3 px-8 rounded-full text-lg font-semibold mb-4 hover:bg-red-700 transition duration-300">
                   Logout
                 </button>
               </div>
@@ -260,8 +234,7 @@ export default function Header() {
           <div className="absolute top-4 right-4">
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="text-gray-800 focus:outline-none"
-            >
+              className="text-gray-800 focus:outline-none">
               <XMarkIcon className="h-6 w-6" aria-hidden="true" />
             </button>
           </div>
@@ -273,23 +246,17 @@ export default function Header() {
         <div className="fixed inset-0 z-10 bg-black bg-opacity-50" />
         <DialogPanel className="fixed inset-0 z-20 flex justify-center items-center">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
-            <h3 className="text-xl font-semibold text-gray-800">
-              Confirm Logout
-            </h3>
-            <p className="text-gray-600 mt-4">
-              Are you sure you want to log out?
-            </p>
+            <h3 className="text-xl font-semibold text-gray-800">Confirm Logout</h3>
+            <p className="text-gray-600 mt-4">Are you sure you want to log out?</p>
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={closeModal}
-                className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md"
-              >
+                className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md">
                 Cancel
               </button>
               <button
                 onClick={confirmLogout}
-                className=" bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md"
-              >
+                className=" bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-md">
                 Logout
               </button>
             </div>
