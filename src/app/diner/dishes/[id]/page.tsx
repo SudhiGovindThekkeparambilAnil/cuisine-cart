@@ -94,11 +94,11 @@ export default function DinerDishDetailPage() {
         }
       } catch {
         setCartDetailId(null);
-        toast.error("Error wile fetching the cart");
+        // toast.error("Error wile fetching the cart");
       }
     };
     fetchCart();
-  }, [id, router]);
+  }, [id, router, cartQuantity]);
 
   useEffect(() => {
     let newPrice = dish?.price || 0;
@@ -379,7 +379,7 @@ export default function DinerDishDetailPage() {
 
                     {/* Displaying the current cart quantity for this dish */}
                     <div className="text-sm ms-4 text-gray-500">
-                      {cartQuantity > 0 && cartDetailId == id
+                      {cartQuantity > 0 || cartDetailId == id
                         ? `In Cart: ${cartQuantity}`
                         : "Not in cart"}
                     </div>

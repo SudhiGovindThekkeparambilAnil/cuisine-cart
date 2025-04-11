@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 const Footer = () => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const Footer = () => {
       } catch {
         setUser(null);
       } finally {
-        setLoading(false);
+        setUser(null);
       }
     };
     if (localStorage.getItem("token")) fetchUser();
@@ -49,16 +49,6 @@ const Footer = () => {
   ];
 
   const isAuthPage = pathname === "/auth/login" || pathname === "/auth/signup";
-
-  if (loading) {
-    return (
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>Loading footer...</p>
-        </div>
-      </footer>
-    );
-  }
 
   return (
     <footer className="bg-gray-800 text-white py-8">
