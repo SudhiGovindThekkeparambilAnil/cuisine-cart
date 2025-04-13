@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 const Footer = () => {
   const [user, setUser] = useState(null);
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -20,13 +20,23 @@ const Footer = () => {
           setUser(res.data);
         }
       } catch {
-        setUser(null);
+        setUser(null); // only set to null on error
       } finally {
-        setUser(null);
+        setLoading(false); // fix: was incorrectly setting setUser(null)
       }
     };
-    if (localStorage.getItem("token")) fetchUser();
-  }, [pathname]);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchUser();
+    } else {
+      setUser(null);
+      setLoading(false);
+    }
+  }, [
+    pathname,
+    typeof window !== "undefined" && localStorage.getItem("token"),
+  ]);
 
   const chefNavigation = [
     { name: "Dashboard", href: "/chef/dashboard" },
@@ -49,6 +59,16 @@ const Footer = () => {
   ];
 
   const isAuthPage = pathname === "/auth/login" || pathname === "/auth/signup";
+
+  if (loading) {
+    return (
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p>Loading footer...</p>
+        </div>
+      </footer>
+    );
+  }
 
   return (
     <footer className="bg-gray-800 text-white py-8">
