@@ -20,9 +20,9 @@ const Footer = () => {
           setUser(res.data);
         }
       } catch {
-        setUser(null); // only set to null on error
+        setUser(null);
       } finally {
-        setLoading(false); // fix: was incorrectly setting setUser(null)
+        setLoading(false);
       }
     };
 
@@ -59,16 +59,6 @@ const Footer = () => {
   ];
 
   const isAuthPage = pathname === "/auth/login" || pathname === "/auth/signup";
-
-  if (loading) {
-    return (
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>Loading footer...</p>
-        </div>
-      </footer>
-    );
-  }
 
   return (
     <footer className="bg-gray-800 text-white py-8">
