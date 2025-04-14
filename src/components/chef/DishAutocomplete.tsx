@@ -13,8 +13,22 @@ interface Dish {
 }
 
 interface DishAutocompleteProps {
+  // The calling code uses "evening", but your Dish model only recognizes "Breakfast", "Lunch", "Dinner".
   slotType: "breakfast" | "lunch" | "evening" | "dinner";
   onSelect: (dish: Dish) => void;
+}
+
+// Helper to map the slotType to the Dish model's enum
+// If your DB only recognizes "Breakfast", "Lunch", "Dinner", we do this:
+function mapSlotTypeToDishType(slotType: string) {
+  if (slotType.toLowerCase() === "breakfast") return "Breakfast";
+  if (slotType.toLowerCase() === "lunch") return "Lunch";
+  // We assume "evening" is actually stored as "Dinner"
+  if (slotType.toLowerCase() === "evening") return "Dinner";
+  if (slotType.toLowerCase() === "dinner") return "Dinner";
+
+  // Fallback if none matched (shouldn't happen normally)
+  return "Dinner";
 }
 
 export default function DishAutocomplete({ slotType, onSelect }: DishAutocompleteProps) {
@@ -23,20 +37,41 @@ export default function DishAutocomplete({ slotType, onSelect }: DishAutocomplet
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
+    // If query is too short, don't bother searching
     if (query.length < 2) {
       setResults([]);
       return;
     }
+
     async function fetchDishes() {
       try {
-        // Fetch dishes that match the slot type and query (filter by dish type)
-        const res = await fetch(`/api/dishes?type=${slotType}&q=${query}`);
+        // Retrieve your auth token (e.g., from localStorage, cookies, or context)
+        // Example using localStorage:
+        const token = localStorage.getItem("token");
+
+        // Convert the slotType to match the Dish enum
+        const dishType = mapSlotTypeToDishType(slotType);
+
+        // Make sure we include the Authorization header
+        const res = await fetch(`/api/dishes?type=${dishType}&q=${query}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        });
+
+        if (!res.ok) {
+          console.error("Failed to fetch dishes:", res.statusText);
+          return;
+        }
+
         const data = await res.json();
         setResults(data);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching dishes:", error);
       }
     }
+
     fetchDishes();
   }, [query, slotType]);
 
@@ -50,6 +85,7 @@ export default function DishAutocomplete({ slotType, onSelect }: DishAutocomplet
         }}
         placeholder={`Search ${slotType} dishes...`}
       />
+
       {showDropdown && results.length > 0 && (
         <ul className="absolute z-10 bg-white border w-full max-h-60 overflow-y-auto">
           {results.map((dish) => (

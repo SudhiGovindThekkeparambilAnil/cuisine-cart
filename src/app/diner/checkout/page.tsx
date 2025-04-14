@@ -63,35 +63,66 @@ export default function CheckoutForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    localStorage.removeItem("orderCreated");
     if (!selectedAddress) {
       toast.error("Please select an address.");
       return;
     }
 
+    const formattedAddress = {
+      ...selectedAddress,
+      type:
+        selectedAddress.type.charAt(0).toUpperCase() +
+        selectedAddress.type.slice(1).toLowerCase(),
+    };
+
     try {
-      await axios.post(
-        "/api/order",
-        {
-          address: {
-            ...selectedAddress,
-            type:
-              selectedAddress.type.charAt(0).toUpperCase() +
-              selectedAddress.type.slice(1).toLowerCase(),
-          },
-          paymentMethod,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      // Save selected address
+      localStorage.setItem("selectedAddress", JSON.stringify(formattedAddress));
+
+      // Fetch cart to get items & total amount
+      const { data: cartData } = await axios.get("/api/cart");
+
+      const orderItems = cartData?.items || [];
+      const totalAmount = orderItems.reduce(
+        (sum: number, item: any) => sum + item.totalPrice,
+        0
       );
-      localStorage.removeItem("totalAmount");
-      toast.success("Order placed successfully!");
-      router.push("/diner/dishes");
+
+      // Save cart info for Stripe success redirect
+      localStorage.setItem("orderItems", JSON.stringify(orderItems));
+      localStorage.setItem("totalAmount", JSON.stringify(totalAmount));
+
+      if (paymentMethod === "card") {
+        const { data } = await axios.post("/api/create-payment", {
+          address: formattedAddress,
+          paymentMethod: "stripe",
+        });
+
+        if (data?.url) {
+          window.location.href = data.url;
+        } else {
+          toast.error("Stripe session failed");
+        }
+      } else {
+        // Cash on Delivery
+        await axios.post("/api/order", {
+          address: formattedAddress,
+          paymentMethod: "cod",
+          items: orderItems,
+          totalAmount,
+        });
+
+        localStorage.removeItem("selectedAddress");
+        localStorage.removeItem("totalAmount");
+        localStorage.removeItem("orderItems");
+
+        toast.success("Order placed with Cash on Delivery!");
+        router.push("/diner/dashboard");
+      }
     } catch (error) {
-      console.error(error);
-      toast.error("Could not place order. Try again.");
+      console.error("Order placement error:", error);
+      toast.error("Could not place order. Please try again.");
     }
   };
 
@@ -166,7 +197,7 @@ export default function CheckoutForm() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="card">Credit/Debit Card</SelectItem>
-                <SelectItem value="paypal">PayPal</SelectItem>
+                <SelectItem value="cod">Cash on Delivery</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -174,7 +205,7 @@ export default function CheckoutForm() {
           {/* Display Total Amount */}
           <div className="flex justify-between font-semibold text-lg mt-4">
             <span>Total:</span>
-            <span>${totalAmount}</span>
+            <span>${totalAmount.toFixed(2)}</span>
           </div>
 
           {/* Submit Button */}
