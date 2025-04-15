@@ -26,15 +26,6 @@ const orderHistory = [
   },
 ];
 
-interface Dish {
-  _id: string;
-  name: string;
-  imageUrl: string;
-  description: string;
-  price: number;
-  // Add other properties relevant to your dish
-}
-
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<{

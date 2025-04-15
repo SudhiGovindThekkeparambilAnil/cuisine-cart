@@ -13,7 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import axios from "axios";
-import { Heart, HeartOff } from "lucide-react";
+import { Heart } from "lucide-react";
 
 interface ModifierItem {
   title: string;
