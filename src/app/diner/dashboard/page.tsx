@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import HistoryCard from "@/components/diner/HistoryCard";
-import ChefCard from "@/components/diner/ChefCard";
 import ChefRecommendations from "@/components/diner/ChefRecom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
+import DishCard from "@/components/diner/DishCard";
+import jwt from "jsonwebtoken";
 // Sample Data
 const orderHistory = [
   {
@@ -26,20 +26,14 @@ const orderHistory = [
   },
 ];
 
-const favoriteChefs = [
-  {
-    name: "Mohammed",
-    cuisine: "Indian",
-    rating: 5,
-    imageUrl: "/images/cook-1.jpg",
-  },
-  {
-    name: "Alex",
-    cuisine: "Italian",
-    rating: 3,
-    imageUrl: "/images/cook-2.jpg",
-  },
-];
+interface Dish {
+  _id: string;
+  name: string;
+  imageUrl: string;
+  description: string;
+  price: number;
+  // Add other properties relevant to your dish
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -49,19 +43,45 @@ export default function DashboardPage() {
     name: string;
   } | null>(null);
 
+  const [favoriteDishes, setFavoriteDishes] = useState<any[]>([]);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await axios.get("/api/auth/session");
-        console.log(res)
+
+        console.log(res);
         setUser(res.data);
       } catch (error) {
         console.error("Session fetch error:", error);
         router.push("/auth/login");
       }
     };
+    const fetchFavorites = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        // Check if token is not null
+        if (token) {
+          const decodedToken: any = jwt.decode(token); // Decode token to get the user id
+          const userId = decodedToken.id;
+
+          // Make the request with the userId in the URL
+          const res = await axios.get(`/api/diner-dishes/${userId}/favorites`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          setFavoriteDishes(res.data.dishes || []);
+        } else {
+          console.error("No token found. Please log in.");
+          router.push("/auth/login"); // Redirect if token is missing
+        }
+      } catch (error) {
+        console.error("Failed to fetch favorites", error);
+      }
+    };
     fetchUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchFavorites();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -143,11 +163,15 @@ export default function DashboardPage() {
         </div>
 
         <div>
-          <h2 className="text-xl font-bold mb-4">Favourite Chefs</h2>
+          <h2 className="text-xl font-bold mb-4">Favourite Dish</h2>
           <Card className="p-4 max-h-72 sm:max-h-80 overflow-y-auto">
-            {favoriteChefs.map((chef, index) => (
-              <ChefCard key={index} {...chef} />
-            ))}
+            {favoriteDishes.length === 0 ? (
+              <p>No favorite dishes yet</p>
+            ) : (
+              favoriteDishes.map((dish, index) => (
+                <DishCard key={index} dish={dish} />
+              ))
+            )}
           </Card>
         </div>
       </div>

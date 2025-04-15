@@ -13,6 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import axios from "axios";
+import { Heart, HeartOff } from "lucide-react";
 
 interface ModifierItem {
   title: string;
@@ -35,6 +36,7 @@ interface Dish {
   description: string;
   price: number;
   chefName: string;
+  isFavorited: boolean;
   modifiers: Modifier[];
 }
 
@@ -54,6 +56,7 @@ export default function DinerDishDetailPage() {
   const [cartDetailId, setCartDetailId] = useState(null);
   const id = params?.id as string;
   const [featuredDishes, setFeaturedDishes] = useState<Dish[]>([]);
+  const [isFavorited, setIsFavorited] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -64,10 +67,17 @@ export default function DinerDishDetailPage() {
     async function fetchDishDetail() {
       if (!id) return;
       try {
-        const res = await fetch(`/api/diner-dishes/${id}`);
+        const token = localStorage.getItem("token");
+        const res = await fetch(`/api/diner-dishes/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!res.ok) throw new Error(`Failed to fetch dish: ${res.statusText}`);
         const data = await res.json();
         setDish(data);
+        console.log("Fetched dish:", data);
+        setIsFavorited(data.isFavorited);
         setTotalPrice(data.price);
       } catch (error) {
         setError(
@@ -236,6 +246,41 @@ export default function DinerDishDetailPage() {
     }
   };
 
+  // Toggle the favorite status
+  async function toggleFavorite() {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("Please login first");
+        return;
+      }
+
+      const url = `/api/diner-dishes/${dish?._id}/favorites`;
+      if (dish?.isFavorited) {
+        await axios.delete(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setDish((prev) => prev && { ...prev, isFavorited: false });
+        setIsFavorited(false); // Set local state to false
+        toast.success("Dish removed from favorites");
+      } else {
+        await axios.post(
+          url,
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setDish((prev) => prev && { ...prev, isFavorited: true });
+        setIsFavorited(true); // Set local state to true
+        toast.success("Dish added to favorites");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error updating favorite status");
+    }
+  }
+
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       {loading ? (
@@ -261,7 +306,18 @@ export default function DinerDishDetailPage() {
             <div className="space-y-6">
               <Card className="shadow-lg">
                 <CardHeader>
-                  <h2 className="text-2xl font-semibold">{dish.name}</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-semibold">{dish.name}</h2>
+                    <Button onClick={toggleFavorite} variant="ghost">
+                      <Heart
+                        className={
+                          isFavorited
+                            ? "fill-red-500 text-red-500"
+                            : "text-gray-400"
+                        }
+                      />
+                    </Button>
+                  </div>
                   <p className="text-gray-600 capitalize">
                     {dish.type} - {dish.cuisine}
                   </p>
