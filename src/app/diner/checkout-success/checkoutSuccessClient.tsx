@@ -17,7 +17,7 @@ export default function CheckoutSuccessClient() {
     const placeOrder = async () => {
       const isOrderCreated = localStorage.getItem("orderCreated");
       if (isOrderCreated === "true") {
-        setLoading(false); // Already created, don't retry
+        setLoading(false); // Prevent resubmission
         return;
       }
 
@@ -37,6 +37,8 @@ export default function CheckoutSuccessClient() {
           return;
         }
 
+        localStorage.setItem("orderCreated", "true");
+
         const address = JSON.parse(storedAddress);
         const items = JSON.parse(storedItems);
 
@@ -52,11 +54,12 @@ export default function CheckoutSuccessClient() {
           localStorage.removeItem("selectedAddress");
           localStorage.removeItem("orderItems");
           localStorage.removeItem("totalAmount");
-          localStorage.setItem("orderCreated", "true"); // prevent resubmission
         }
       } catch (err) {
         console.error("Order creation failed:", err);
         toast.error("Order creation failed.");
+        // ❗ Optional: Roll back the flag if needed
+        localStorage.removeItem("orderCreated");
       } finally {
         setLoading(false);
       }
