@@ -13,6 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import axios from "axios";
+import { TextArea } from "@/components/ui/textarea";
 import { Heart } from "lucide-react";
 
 interface ModifierItem {
@@ -22,7 +23,7 @@ interface ModifierItem {
 
 interface Modifier {
   title: string;
-  required: string;
+  required: boolean;
   limit: number;
   items: ModifierItem[];
 }
@@ -37,6 +38,7 @@ interface Dish {
   price: number;
   chefName: string;
   isFavorited: boolean;
+  chefId: string | { _id: string; name?: string };
   modifiers: Modifier[];
 }
 
@@ -56,6 +58,7 @@ export default function DinerDishDetailPage() {
   const [cartDetailId, setCartDetailId] = useState(null);
   const id = params?.id as string;
   const [featuredDishes, setFeaturedDishes] = useState<Dish[]>([]);
+  const [specialInstructions, setSpecialInstructions] = useState("");
   const [isFavorited, setIsFavorited] = useState(false);
   const router = useRouter();
 
@@ -97,7 +100,6 @@ export default function DinerDishDetailPage() {
           const cartData = cartDetails.data.items.filter((dish: any) => {
             return dish.dishId._id === id;
           });
-          console.log(cartData[0].dishId._id);
           setQuantity(cartData[0].quantity);
           setCartQuantity(cartData[0].quantity);
           setCartDetailId(cartDetails.data.items[0].dishId._id);
@@ -147,24 +149,19 @@ export default function DinerDishDetailPage() {
     const newModifiers = new Map(selectedModifiers);
 
     if (modifier.required) {
-      // Ensure only one selection for required modifiers
+      // For required modifiers, always set the selection to the chosen item.
       newModifiers.set(modifier.title, [item]);
     } else {
       let selectedItems = newModifiers.get(modifier.title) || [];
-
       if (isChecked) {
-        // Add item if limit isn't exceeded
         if (selectedItems.length < modifier.limit) {
           selectedItems = [...selectedItems, item];
         }
       } else {
-        // Remove item if unchecked
         selectedItems = selectedItems.filter((i) => i.title !== item.title);
       }
-
       newModifiers.set(modifier.title, selectedItems);
     }
-
     setSelectedModifiers(newModifiers);
   };
 
@@ -223,6 +220,8 @@ export default function DinerDishDetailPage() {
           modifierTitle: title,
           items,
         })),
+        chefId: typeof dish.chefId === "object" ? dish.chefId._id : dish.chefId,
+        specialInstructions,
       };
 
       // Add item to cart
@@ -231,7 +230,6 @@ export default function DinerDishDetailPage() {
           "Content-Type": "application/json",
         },
       });
-      console.log(cart);
       // Update state after successful addition
       setCartQuantity(newQuantity);
       localStorage.setItem(
@@ -395,10 +393,12 @@ export default function DinerDishDetailPage() {
                     <label className="block text-sm font-medium">
                       Special Instructions
                     </label>
-                    <textarea
+                    <TextArea
                       className="w-full p-2 border rounded mt-1 resize-none"
                       rows={3}
-                    ></textarea>
+                      value={specialInstructions}
+                      onChange={(e) => setSpecialInstructions(e.target.value)}
+                    />
                   </div>
 
                   {/* Quantity Controls */}
@@ -424,14 +424,22 @@ export default function DinerDishDetailPage() {
                 {/* Buy Button */}
                 <CardFooter>
                   <div className="flex justify-between items-center">
-                    <Button
-                      onClick={handleAddToCart}
-                      disabled={isMaxReached} // Disabling the button if max quantity is reached
-                    >
-                      {isMaxReached
-                        ? `Max ${MAX_QUANTITY} reached`
-                        : "Add to Cart"}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleAddToCart}
+                        disabled={isMaxReached} // Disabling the button if max quantity is reached
+                      >
+                        {isMaxReached
+                          ? `Max ${MAX_QUANTITY} reached`
+                          : "Add to Cart"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push("/diner/cart")}
+                      >
+                        Go to Cart
+                      </Button>
+                    </div>
 
                     {/* Displaying the current cart quantity for this dish */}
                     <div className="text-sm ms-4 text-gray-500">
