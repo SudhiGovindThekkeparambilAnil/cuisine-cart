@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 const Footer = () => {
   const [user, setUser] = useState(null);
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -22,11 +22,21 @@ const Footer = () => {
       } catch {
         setUser(null);
       } finally {
-        setUser(null);
+        setLoading(false);
       }
     };
-    if (localStorage.getItem("token")) fetchUser();
-  }, [pathname]);
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchUser();
+    } else {
+      setUser(null);
+      setLoading(false);
+    }
+  }, [
+    pathname,
+    typeof window !== "undefined" && localStorage.getItem("token"),
+  ]);
 
   const chefNavigation = [
     { name: "Dashboard", href: "/chef/dashboard" },
