@@ -159,12 +159,7 @@ export async function GET(req: Request) {
     }
 
     const dish = await Dish.find({ favoritedBy: userId });
-    if (!dish || dish.length === 0) {
-      return NextResponse.json(
-        { message: "No favorite dishes found" },
-        { status: 404 }
-      );
-    }
+    return NextResponse.json({ dishes: dish }, { status: 200 });
 
     return NextResponse.json({ dishes: dish }, { status: 200 });
   } catch (error: any) {

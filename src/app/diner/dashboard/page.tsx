@@ -10,21 +10,13 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import DishCard from "@/components/diner/DishCard";
 import jwt from "jsonwebtoken";
-// Sample Data
-const orderHistory = [
-  {
-    itemName: "Biryani",
-    chefName: "Mohammed",
-    quantity: 1,
-    imageUrl: "/images/order-history.jpg",
-  },
-  {
-    itemName: "Breakfast Service",
-    chefName: "Mohammed",
-    quantity: 1,
-    imageUrl: "/images/chef-recom.jpg",
-  },
-];
+interface OrderItem {
+  itemName: string;
+  chefName: string;
+  quantity: number;
+  imageUrl: string;
+  orderId: string;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -35,6 +27,7 @@ export default function DashboardPage() {
   } | null>(null);
 
   const [favoriteDishes, setFavoriteDishes] = useState<any[]>([]);
+  const [orderHistory, setOrderHistory] = useState<OrderItem[]>([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -70,8 +63,30 @@ export default function DashboardPage() {
         console.error("Failed to fetch favorites", error);
       }
     };
+    const fetchOrderHistory = async () => {
+      try {
+        const res = await axios.get("/api/order");
+        const data = res.data;
+
+        // Flatten and transform orders to match HistoryCard props
+        const transformed = data.flatMap((order: any) =>
+          order.items.map((item: any) => ({
+            itemName: item.name,
+            chefName: item.chefId?.name || "Unknown Chef",
+            quantity: item.quantity,
+            imageUrl: item.photoUrl || "/placeholder.jpg",
+            orderId: order._id,
+          }))
+        );
+
+        setOrderHistory(transformed);
+      } catch (error) {
+        console.error("Error loading order history:", error);
+      }
+    };
     fetchUser();
     fetchFavorites();
+    fetchOrderHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -146,18 +161,26 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h2 className="text-xl font-bold mb-4">Order History</h2>
-          <Card className="p-4 max-h-72 sm:max-h-80 overflow-y-auto">
-            {orderHistory.map((order, index) => (
-              <HistoryCard key={index} {...order} />
-            ))}
+          <Card className="p-4 h-48 sm:max-h-80 overflow-y-auto">
+            {orderHistory.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-gray-500 text-center">
+                No order history found
+              </div>
+            ) : (
+              orderHistory.map((order, index) => (
+                <HistoryCard key={index} {...order} />
+              ))
+            )}
           </Card>
         </div>
 
         <div>
           <h2 className="text-xl font-bold mb-4">Favourite Dish</h2>
-          <Card className="p-4 max-h-72 sm:max-h-80 overflow-y-auto">
+          <Card className="p-4 h-48 sm:max-h-80 overflow-y-auto">
             {favoriteDishes.length === 0 ? (
-              <p>No favorite dishes yet</p>
+              <div className="flex items-center justify-center h-full text-gray-500 text-center">
+                No favorite dishes yet
+              </div>
             ) : (
               favoriteDishes.map((dish, index) => (
                 <DishCard key={index} dish={dish} />
