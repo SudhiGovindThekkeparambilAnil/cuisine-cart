@@ -1,14 +1,23 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface HistoryCardProps {
   itemName: string;
   chefName: string;
   quantity: number;
   imageUrl: string;
+  orderId: string;
 }
 
-export default function HistoryCard({ itemName, chefName, quantity, imageUrl }: HistoryCardProps) {
+export default function HistoryCard({
+  itemName,
+  chefName,
+  quantity,
+  imageUrl,
+  orderId,
+}: HistoryCardProps) {
+  const router = useRouter();
   return (
     <div className="flex flex-col sm:flex-row border-b mb-4 pb-4 items-center sm:items-start gap-4 w-full">
       {/* Image Section */}
@@ -39,14 +48,11 @@ export default function HistoryCard({ itemName, chefName, quantity, imageUrl }: 
 
         {/* Buttons - Inline & Responsive */}
         <div className="flex justify-center sm:justify-start gap-2 mt-3 flex-wrap">
-          <Button className="bg-[#F39C12] hover:bg-[#E67E22] text-white text-sm">
-            View more
-          </Button>
           <Button
-            variant="outline"
-            className="border-[#F39C12] text-[#F39C12] hover:bg-[#FFF8EF] hover:text-[#E67E22] text-sm"
+            className="text-sm"
+            onClick={() => router.push(`/diner/order/${orderId}`)}
           >
-            Reorder
+            View more
           </Button>
         </div>
       </div>

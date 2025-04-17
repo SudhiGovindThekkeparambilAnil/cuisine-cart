@@ -5,7 +5,12 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Accordion from "@/components/ui/Accordion";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -77,9 +82,10 @@ export default function SubscriptionDetailPage() {
       </div>
     );
   }
-  if (!sub) return <div className="p-6 text-center">Subscription not found.</div>;
+  if (!sub)
+    return <div className="p-6 text-center">Subscription not found.</div>;
 
-  const { mealPlanId: plan, addressId: addr, status, weeks, totalPrice, deliveryTime } = sub;
+  const { mealPlanId: plan, status, weeks, totalPrice, deliveryTime } = sub;
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -93,7 +99,8 @@ export default function SubscriptionDetailPage() {
               paused: "bg-blue-100 text-blue-800",
               cancelled: "bg-red-100 text-red-800",
             }[status]
-          }`}>
+          }`}
+        >
           {status.toUpperCase()}
         </span>
       </div>
@@ -167,13 +174,16 @@ export default function SubscriptionDetailPage() {
           Object.values(slot.modifiers || {}).forEach((items) =>
             items.forEach((it) => (addonTotal += it.price))
           );
-          const slotCost = (slot.dish.price + addonTotal) * slot.quantity * slot.days.length;
+          const slotCost =
+            (slot.dish.price + addonTotal) * slot.quantity * slot.days.length;
 
           return (
             <Card key={key} className="mb-4">
               <CardHeader>
                 <h3 className="text-lg font-medium capitalize">{key}</h3>
-                <p className="text-sm text-gray-500">Delivered on: {slot.days.join(", ")}</p>
+                <p className="text-sm text-gray-500">
+                  Delivered on: {slot.days.join(", ")}
+                </p>
               </CardHeader>
               <CardContent className="flex space-x-4">
                 <div className="w-24 h-16 relative flex-shrink-0 overflow-hidden rounded">
@@ -187,7 +197,8 @@ export default function SubscriptionDetailPage() {
                 <div className="flex-1">
                   <p className="font-semibold">{slot.dish.name}</p>
                   <p className="text-sm text-gray-600">
-                    ${slot.dish.price.toFixed(2)} × {slot.quantity} × {slot.days.length} days
+                    ${slot.dish.price.toFixed(2)} × {slot.quantity} ×{" "}
+                    {slot.days.length} days
                   </p>
                   {slot.modifiers && (
                     <div className="mt-2">
@@ -213,7 +224,9 @@ export default function SubscriptionDetailPage() {
                 </div>
               </CardContent>
               <CardFooter className="justify-end">
-                <p className="font-semibold">Subtotal: ${slotCost.toFixed(2)} CAD</p>
+                <p className="font-semibold">
+                  Subtotal: ${slotCost.toFixed(2)} CAD
+                </p>
               </CardFooter>
             </Card>
           );
@@ -227,8 +240,11 @@ export default function SubscriptionDetailPage() {
         <Button
           variant="destructive"
           onClick={() =>
-            axios.delete(`/api/subscriptions/${id}`).then(() => router.push("/diner/dashboard"))
-          }>
+            axios
+              .delete(`/api/subscriptions/${id}`)
+              .then(() => router.push("/diner/dashboard"))
+          }
+        >
           Cancel Subscription
         </Button>
       </div>
