@@ -42,9 +42,6 @@ export default function DishCard({ dish }: DishCardProps) {
           </div>
         </div>
         <div className="mt-2">
-          {/* <Button className="bg-[#F39C12] hover:bg-[#E67E22] text-white text-sm">
-            View more
-          </Button> */}
           <Link href={`/diner/dishes/${dish._id}`}>
             <Button className="text-sm">View Details</Button>
           </Link>
