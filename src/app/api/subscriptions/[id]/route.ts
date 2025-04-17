@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import Subscription from "@/models/Subscription";
-import { verifyJwtToken } from "@/utils/jwt";
 
 // GET / PATCH / DELETE (cancel)
 export async function GET(_req: NextRequest, { params }: any) {
