@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import Filters from "@/components/ui/Filters";
 
 interface ModifierItem {
   title: string;
@@ -40,6 +41,7 @@ interface Dish {
   description: string;
   price: number;
   modifiers: Modifier[];
+  createdAt: Date;
 }
 
 export default function ChefDishesPage() {
@@ -47,6 +49,13 @@ export default function ChefDishesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteDishId, setDeleteDishId] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    search: "",
+    cuisine: "",
+    type: "",
+    sort: "",
+    chef: "",
+  });
 
   // Fetch only the logged-in chef's dishes
   useEffect(() => {
@@ -81,6 +90,32 @@ export default function ChefDishesPage() {
 
     fetchDishes();
   }, []);
+
+  const filteredDishes = useMemo(() => {
+    return dishes.filter(
+      (dish) =>
+        dish.name.toLowerCase().includes(filters.search.toLowerCase()) &&
+        (filters.cuisine ? dish.cuisine === filters.cuisine : true) &&
+        (filters.type ? dish.type === filters.type : true)
+    );
+  }, [filters, dishes]);
+
+  const sortedDishes = useMemo(() => {
+    const sorted = [...filteredDishes];
+    switch (filters.sort) {
+      case "priceAsc":
+        return sorted.sort((a, b) => a.price - b.price);
+      case "priceDesc":
+        return sorted.sort((a, b) => b.price - a.price);
+      case "newest":
+        return sorted.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      default:
+        return sorted;
+    }
+  }, [filteredDishes, filters.sort]);
 
   // Delete Dish
   const handleDelete = async () => {
@@ -118,88 +153,97 @@ export default function ChefDishesPage() {
       {/* Error Message */}
       {error && <p className="text-red-600">{error}</p>}
 
+      {/* Filters Component */}
+      <Filters data={dishes} filters={filters} setFilters={setFilters} />
+
       {/* Dishes Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {loading
-          ? Array(6)
-              .fill(0)
-              .map((_, index) => (
-                <Card key={index} className="w-full">
-                  <Skeleton className="h-48 w-full" />
-                  <CardContent className="p-4 space-y-3">
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-full" />
-                  </CardContent>
-                  <CardFooter className="p-4 flex space-x-2">
-                    <Skeleton className="h-10 w-16" />
-                    <Skeleton className="h-10 w-16" />
-                  </CardFooter>
-                </Card>
-              ))
-          : dishes.map((dish) => (
-              <Card key={dish._id} className="w-full flex flex-col">
-                {/* Dish Image */}
-                <Image
-                  src={
-                    dish.photoUrl ||
-                    "/placeholder.jpg"
-                  }
-                  alt={dish.name}
-                  className="h-48 w-full object-cover"
-                  height={300}
-                  width={500}
-                  priority
-                />
-                <CardHeader>
-                  <h2 className="text-lg font-semibold">{dish.name}</h2>
-                  <p className="text-gray-600 capitalize">
-                    {dish.type} - {dish.cuisine}
-                  </p>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <p className="text-sm text-gray-500">{dish.description}</p>
-                  <p className="text-lg font-semibold mt-2">
-                    ${dish.price.toFixed(2)}
-                  </p>
-
-                  {/* Display Modifiers */}
-                  {Array.isArray(dish.modifiers) &&
-                    dish.modifiers.length > 0 && (
-                      <div className="mt-2">
-                        <h3 className="font-semibold">Modifiers:</h3>
-                        {dish.modifiers.map((mod, modIndex) => (
-                          <div key={modIndex} className="mt-1">
-                            <p className="text-sm font-medium">
-                              {mod.title} (
-                              {mod.required ? "Required" : "Optional"}) - Limit:{" "}
-                              {mod.limit}
-                            </p>
-                            <ul className="text-sm text-gray-500 list-disc pl-4">
-                              {mod.items.map((item, itemIndex) => (
-                                <li key={itemIndex}>
-                                  {item.title} (+${item.price})
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+        {loading ? (
+          Array(6)
+            .fill(0)
+            .map((_, index) => (
+              <Card key={index} className="w-full">
+                <Skeleton className="h-48 w-full" />
+                <CardContent className="p-4 space-y-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-full" />
                 </CardContent>
-                <CardFooter className="flex space-x-2">
-                  <Button variant="outline">
-                    <Link href={`/chef/dishes/${dish._id}/edit`}>Edit</Link>
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => setDeleteDishId(dish._id)}
-                  >
-                    Delete
-                  </Button>
+                <CardFooter className="p-4 flex space-x-2">
+                  <Skeleton className="h-10 w-16" />
+                  <Skeleton className="h-10 w-16" />
                 </CardFooter>
               </Card>
-            ))}
+            ))
+        ) : sortedDishes.length > 0 ? (
+          sortedDishes.map((dish) => (
+            <Card key={dish._id} className="w-full flex flex-col">
+              {/* Dish Image */}
+              <Image
+                src={dish.photoUrl || "/placeholder.jpg"}
+                alt={dish.name}
+                className="h-48 w-full object-cover"
+                height={300}
+                width={500}
+                priority
+              />
+              <CardHeader>
+                <h2 className="text-lg font-semibold">{dish.name}</h2>
+                <p className="text-gray-600 capitalize">
+                  {dish.type} - {dish.cuisine}
+                </p>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <p className="text-sm text-gray-500">{dish.description}</p>
+                <p className="text-lg font-semibold mt-2">
+                  ${dish.price.toFixed(2)}
+                </p>
+
+                {/* Display Modifiers */}
+                {Array.isArray(dish.modifiers) && dish.modifiers.length > 0 && (
+                  <div className="mt-2">
+                    <h3 className="font-semibold">Modifiers:</h3>
+                    {dish.modifiers.map((mod, modIndex) => (
+                      <div key={modIndex} className="mt-1">
+                        <p className="text-sm font-medium">
+                          {mod.title} ({mod.required ? "Required" : "Optional"})
+                          - Limit: {mod.limit}
+                        </p>
+                        <ul className="text-sm text-gray-500 list-disc pl-4">
+                          {mod.items.map((item, itemIndex) => (
+                            <li key={itemIndex}>
+                              {item.title} (+${item.price})
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex space-x-2">
+                <Button variant="outline">
+                  <Link href={`/chef/dishes/${dish._id}/edit`}>Edit</Link>
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setDeleteDishId(dish._id)}
+                >
+                  Delete
+                </Button>
+              </CardFooter>
+            </Card>
+          ))
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500 mb-4">
+              You havent created any dishes yet.
+            </p>
+            <Button>
+              <Link href="/chef/dishes/new">Create Your First Dish</Link>
+            </Button>
+          </div>
+        )}
       </div>
 
       {!loading && dishes.length === 0 && (
