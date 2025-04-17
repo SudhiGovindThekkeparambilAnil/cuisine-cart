@@ -10,7 +10,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import DishCard from "@/components/diner/DishCard";
 import jwt from "jsonwebtoken";
-import { useParams } from "next/navigation";
+
 interface OrderItem {
   itemName: string;
   chefName: string;
@@ -18,18 +18,17 @@ interface OrderItem {
   imageUrl: string;
   orderId: string;
 }
-interface Subscription {
+interface SubscriptionSummary {
   _id: string;
-  userId: string;
-  mealPlanId: {
-    planName: string;
-    planImage?: string;
-    chefName?: string; // if you store that
-  };
+  status: "pending" | "active" | "paused" | "cancelled";
   weeks: number;
   totalPrice: number;
-  deliveryTime: string;
-  status: "pending" | "active" | "cancelled" | "paused";
+  nextDelivery: string; // you’ll need to populate this in your API
+  mealPlanId: {
+    _id: string;
+    planName: string;
+    planImage?: string;
+  };
 }
 
 export default function DashboardPage() {
@@ -39,11 +38,10 @@ export default function DashboardPage() {
     role: string;
     name: string;
   } | null>(null);
-  const { id } = useParams();
 
   const [favoriteDishes, setFavoriteDishes] = useState<any[]>([]);
   const [orderHistory, setOrderHistory] = useState<OrderItem[]>([]);
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [subs, setSubs] = useState<SubscriptionSummary[] | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -57,24 +55,18 @@ export default function DashboardPage() {
         router.push("/auth/login");
       }
     };
-    // const fetchSubscription = async () => {
-    //   try {
-    //     const res = await axios.get(`/api/subscriptions/${id}`); // or your endpoint
-    //     setSubscription(res.data);
-    //   } catch (err) {
-    //     console.error("Failed to load subscription:", err);
-    //   }
-    // };
+
     const fetchSubscription = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
 
         const decodedToken: any = jwt.decode(token);
-        const userId = decodedToken.id;
 
-        const res = await axios.get(`/api/subscriptions/user/${userId}`);
-        setSubscription(res.data);
+        const res = await axios.get<SubscriptionSummary[]>(
+          "/api/subscriptions"
+        );
+        setSubs(res.data);
       } catch (err) {
         console.error("Failed to load subscription:", err);
       }
@@ -142,62 +134,93 @@ export default function DashboardPage() {
         {/* Subscription Plan */}
         <div>
           <h2 className="text-xl font-bold mb-4">Subscription Plan</h2>
-          {subscription ? (
-            <Card className="overflow-hidden">
-              <div className="flex flex-col lg:flex-row">
-                {/* Image Container - Makes it Responsive */}
-                <div className="w-full lg:w-2/5 relative">
-                  <div className="w-full h-full">
-                    <Image
-                      src={
-                        subscription.mealPlanId.planImage ||
-                        "/images/sub-plan.jpg"
-                      }
-                      alt={subscription.mealPlanId.planName}
-                      width={200}
-                      height={200}
-                      className=" w-full h-[200px] md:h-full object-cover border rounded-xl"
-                    />
-                  </div>
-                </div>
+          <Card className="h-80 sm:max-h-96 overflow-y-auto">
+            {subs && subs.length > 0 ? (
+              subs?.map((s) => (
+                <div key={s._id} className="flex flex-col lg:flex-row">
+                  {s.mealPlanId.planImage && (
+                    <div className="w-full lg:w-2/5 relative">
+                      <div className="w-full h-full">
+                        <Image
+                          src={s.mealPlanId.planImage}
+                          alt={s.mealPlanId.planName}
+                          width={200}
+                          height={200}
+                          className=" w-full h-[200px] md:h-full object-cover border rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {/* Subscription Details */}
+                  <div className="p-4 flex-1">
+                    <div className="space-y-2">
+                      <div>
+                        <span className="font-semibold">Meal Plan: </span>
+                        {s.mealPlanId.planName}
+                      </div>
+                      <div>
+                        <span className="font-semibold">Status: </span>
+                        <span
+                          className={`px-2 py-1 rounded-full text-sm ${
+                            {
+                              pending: "bg-yellow-100 text-yellow-800",
+                              active: "bg-green-100 text-green-800",
+                              paused: "bg-blue-100 text-blue-800",
+                              cancelled: "bg-red-100 text-red-800",
+                            }[s.status]
+                          }`}
+                        >
+                          {s.status.toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-semibold">Weeks: </span>
+                        {s.weeks}
+                      </div>
+                      <div>
+                        <span className="font-semibold">Next Delivery: </span>
 
-                {/* Subscription Details */}
-                <div className="p-4 flex-1">
-                  <div className="space-y-2">
-                    <div>
-                      <span className="font-semibold">Meal Plan:</span>
-                      {subscription.mealPlanId.planName}
-                    </div>
-                    <div>
-                      <span className="font-semibold">Weeks:</span>
-                      {subscription.weeks}
-                    </div>
-                    <div>
-                      <span className="font-semibold">Delivery Time:</span>
-                      {subscription.deliveryTime}
-                    </div>
-                    <div>
-                      <span className="font-semibold">Price:</span>{" "}
-                      {subscription.totalPrice}
-                    </div>
-                    <div className="pt-2 space-y-2">
-                      <Button className="w-full text-xs sm:text-sm bg-[#F39C12] hover:bg-[#E67E22] text-white">
-                        View Subscription
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full text-xs sm:text-sm border-[#F39C12] text-[#F39C12] hover:bg-[#FFF8EF] hover:text-[#E67E22]"
-                      >
-                        Cancel Subscription
-                      </Button>
+                        {new Date(s.nextDelivery).toLocaleDateString()}
+                      </div>
+                      <div>
+                        <span className="font-semibold">Total:</span> $
+                        {s.totalPrice.toFixed(2)} CAD
+                      </div>
+                      <div className="pt-2 space-y-2">
+                        <Button
+                          className="w-full text-xs sm:text-sm"
+                          variant="default"
+                          onClick={() =>
+                            router.push(`/diner/subscriptions/${s._id}`)
+                          }
+                        >
+                          View
+                        </Button>
+                        <Button
+                          className="w-full text-xs sm:text-sm"
+                          variant="outline"
+                          onClick={async () => {
+                            if (!confirm("Cancel this subscription?")) return;
+                            await axios.delete(`/api/subscriptions/${s._id}`);
+                            setSubs(
+                              (prev) =>
+                                prev?.filter((x) => x._id !== s._id) || null
+                            );
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500 text-center">
+                You have no subscription.
               </div>
-            </Card>
-          ) : (
-            <div className="text-gray-500">No active subscription</div>
-          )}
+            )}{" "}
+          </Card>
         </div>
         {/* Chef Recommendations */}
         <ChefRecommendations />
