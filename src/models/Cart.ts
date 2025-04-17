@@ -8,7 +8,9 @@ interface CartItem {
   price: number;
   quantity: number;
   totalPrice: number;
+  chefId: Types.ObjectId;
   modifiers?: { modifierTitle: string; items: string[] }[];
+  specialInstructions?: string;
 }
 
 // Define ICart interface
@@ -35,6 +37,11 @@ const CartSchema = new Schema<ICart>(
         price: { type: Number, required: true },
         quantity: { type: Number, required: true },
         totalPrice: { type: Number, required: true },
+        chefId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
         modifiers: [
           {
             modifierTitle: { type: String, required: true },
@@ -46,6 +53,7 @@ const CartSchema = new Schema<ICart>(
             ],
           },
         ],
+        specialInstructions: { type: String, default: "" },
       },
     ],
   },
