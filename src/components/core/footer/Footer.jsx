@@ -33,15 +33,13 @@ const Footer = () => {
       setUser(null);
       setLoading(false);
     }
-  }, [
-    pathname,
-    typeof window !== "undefined" && localStorage.getItem("token"),
-  ]);
+  }, [pathname, typeof window !== "undefined" && localStorage.getItem("token")]);
 
   const chefNavigation = [
-    { name: "Dashboard", href: "/chef/dashboard" },
+    { name: "Subscriptions", href: "/chef/subscriptions" },
     { name: "Meal Plans", href: "/chef/meal-plans" },
     { name: "Dishes", href: "/chef/dishes" },
+    { name: "Orders", href: "/chef/order" },
     { name: "Profile", href: "/chef/profile" },
   ];
 
@@ -77,43 +75,21 @@ const Footer = () => {
             <div className="text-center md:text-left">
               <h1 className="font-bold text-lg md:text-xl">Cuisine Cart</h1>
               <p className="text-xs md:text-sm mt-1 md:mt-2 text-gray-400">
-                &copy; {new Date().getFullYear()} Cuisine Cart. All rights
-                reserved.
+                &copy; {new Date().getFullYear()} Cuisine Cart. All rights reserved.
               </p>
             </div>
           </div>
 
           {/* Social Media Links */}
           <div className="flex space-x-6">
-            <Link
-              href="https://www.facebook.com"
-              target="_blank"
-              aria-label="Facebook"
-            >
-              <FaFacebook
-                size={20}
-                className="hover:text-blue-500 transition-colors"
-              />
+            <Link href="https://www.facebook.com" target="_blank" aria-label="Facebook">
+              <FaFacebook size={20} className="hover:text-blue-500 transition-colors" />
             </Link>
-            <Link
-              href="https://www.instagram.com"
-              target="_blank"
-              aria-label="Instagram"
-            >
-              <FaInstagram
-                size={20}
-                className="hover:text-pink-500 transition-colors"
-              />
+            <Link href="https://www.instagram.com" target="_blank" aria-label="Instagram">
+              <FaInstagram size={20} className="hover:text-pink-500 transition-colors" />
             </Link>
-            <Link
-              href="https://www.twitter.com"
-              target="_blank"
-              aria-label="Twitter"
-            >
-              <FaTwitter
-                size={20}
-                className="hover:text-blue-400 transition-colors"
-              />
+            <Link href="https://www.twitter.com" target="_blank" aria-label="Twitter">
+              <FaTwitter size={20} className="hover:text-blue-400 transition-colors" />
             </Link>
           </div>
         </div>
@@ -130,8 +106,7 @@ const Footer = () => {
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className="hover:text-white transition-colors block py-1"
-                      >
+                        className="hover:text-white transition-colors block py-1">
                         {item.name}
                       </Link>
                     </li>
@@ -143,20 +118,14 @@ const Footer = () => {
               {user && (
                 <div className="text-center sm:text-left">
                   <h3 className="font-bold text-lg mb-4">
-                    {user.role === "chef"
-                      ? "Chef's Navigation"
-                      : "Diner's Navigation"}
+                    {user.role === "chef" ? "Chef's Navigation" : "Diner's Navigation"}
                   </h3>
                   <ul className="space-y-2 text-gray-400">
-                    {(user.role === "chef"
-                      ? chefNavigation
-                      : dinerNavigation
-                    ).map((item) => (
+                    {(user.role === "chef" ? chefNavigation : dinerNavigation).map((item) => (
                       <li key={item.name}>
                         <Link
                           href={item.href}
-                          className="hover:text-white transition-colors block py-1"
-                        >
+                          className="hover:text-white transition-colors block py-1">
                           {item.name}
                         </Link>
                       </li>
@@ -170,17 +139,13 @@ const Footer = () => {
                 <h3 className="font-bold text-lg mb-4">Contact</h3>
                 <ul className="text-gray-400 space-y-2">
                   <li>
-                    <span className="block py-1">
-                      Email: support@cuisinecart.com
-                    </span>
+                    <span className="block py-1">Email: support@cuisinecart.com</span>
                   </li>
                   <li>
                     <span className="block py-1">Phone: +1 800-123-4567</span>
                   </li>
                   <li>
-                    <span className="block py-1">
-                      Address: 123 Food St, City, Country
-                    </span>
+                    <span className="block py-1">Address: 123 Food St, City, Country</span>
                   </li>
                 </ul>
               </div>
@@ -191,14 +156,12 @@ const Footer = () => {
               <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
                 <Link
                   href="/auth/login"
-                  className="hover:text-white transition-colors text-center py-2"
-                >
+                  className="hover:text-white transition-colors text-center py-2">
                   Login
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="hover:text-white transition-colors text-center py-2"
-                >
+                  className="hover:text-white transition-colors text-center py-2">
                   Sign Up
                 </Link>
               </div>

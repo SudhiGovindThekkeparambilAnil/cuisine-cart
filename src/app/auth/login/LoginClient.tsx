@@ -14,22 +14,19 @@ import AuthContainer from "@/components/AuthContainer";
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  let roleQueryParam = searchParams.get("role"); 
+  let roleQueryParam = searchParams.get("role");
 
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
-    const [errors, setErrors] = useState({
-      email: "",
-      password: "",
-    });
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const passwordRegex =
-    /^[A-Za-z\d@$!%*?&]{8,16}$/;
-
-
+  const passwordRegex = /^[A-Za-z\d@$!%*?&]{8,16}$/;
 
   useEffect(() => {
     const checkSession = async () => {
@@ -40,7 +37,7 @@ export default function LoginPage() {
           if (user) {
             // Redirect based on role
             if (user.role === "chef") {
-              router.push("/chef/dashboard");
+              router.push("/chef/subscriptions");
             } else if (user.role === "diner") {
               router.push("/diner/dashboard");
             }
@@ -65,7 +62,6 @@ export default function LoginPage() {
       password: "",
     };
 
-    
     if (!emailRegex.test(form.email)) {
       errors.email = "Invalid email address.";
       isValid = false;
@@ -74,7 +70,7 @@ export default function LoginPage() {
       errors.password = `Password must be valid format.`;
       isValid = false;
     }
-  
+
     setErrors(errors);
     return isValid;
   };
@@ -90,11 +86,10 @@ export default function LoginPage() {
       return;
     }
     try {
-
       const reqbody = {
         email: form.email.trim(),
         password: form.password.trim(),
-      }
+      };
       const res = await axios.post("/api/auth/login", reqbody);
 
       if (res.status === 200) {
@@ -107,16 +102,15 @@ export default function LoginPage() {
           description: "Logged In successfully.",
         });
 
-
         // Then optionally navigate somewhere:
         if (roleQueryParam === "diner") {
           router.push("/diner/dashboard");
         } else if (roleQueryParam === "chef") {
-          router.push("/chef/dashboard");
+          router.push("/chef/subscriptions");
         } else {
           router.push("/");
         }
-      } 
+      }
     } catch (error: any) {
       toast.error(`${error.response.data.error}`, {
         description: `Please try again with valid credentials`,
@@ -128,8 +122,7 @@ export default function LoginPage() {
   };
 
   return (
-      <AuthContainer>
-
+    <AuthContainer>
       <div className="flex items-center justify-center min-h-screen bg-[#FFF6EC] p-4 ">
         {/* Login Container */}
         <div className="relative bg-white shadow-lg rounded-3xl overflow-hidden w-full max-w-6xl h-[750px] border border-[#FF9A1F] flex flex-col items-center my-5">
@@ -160,15 +153,10 @@ export default function LoginPage() {
 
               <div className="relative w-full flex flex-col items-center  lg:p-10 mt-20 pt-20">
                 {/* Form Section */}
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-2 w-[100%] max-w-[400px]"
-                >
+                <form onSubmit={handleSubmit} className="space-y-2 w-[100%] max-w-[400px]">
                   {/* Email Input */}
                   <div>
-                    <Label className="block text-gray-700 font-semibold mb-1">
-                      Email
-                    </Label>
+                    <Label className="block text-gray-700 font-semibold mb-1">Email</Label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
                         <Image
@@ -184,9 +172,7 @@ export default function LoginPage() {
                         type="email"
                         value={form.email}
                         required
-                        onChange={(e) =>
-                          setForm({ ...form, email: e.target.value })
-                        }
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
                         className="w-full h-12 p-3 pl-12 border border-[#FF9A1F] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       />
                     </div>
@@ -197,9 +183,7 @@ export default function LoginPage() {
 
                   {/* Password Input */}
                   <div className="relative">
-                    <Label className="block text-gray-700 font-semibold mb-1">
-                      Password
-                    </Label>
+                    <Label className="block text-gray-700 font-semibold mb-1">Password</Label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
                         <Image
@@ -215,20 +199,15 @@ export default function LoginPage() {
                         type={showPassword ? "text" : "password"}
                         value={form.password}
                         required
-                        onChange={(e) =>
-                          setForm({ ...form, password: e.target.value })
-                        }
+                        onChange={(e) => setForm({ ...form, password: e.target.value })}
                         className="w-full h-12 p-3 pl-12 pr-12 border border-[#FF9A1F] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                       />
                       <span
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
+                        onClick={() => setShowPassword(!showPassword)}>
                         <Image
                           src={
-                            showPassword
-                              ? "/icons/visibility-off.svg"
-                              : "/icons/visibility-on.svg"
+                            showPassword ? "/icons/visibility-off.svg" : "/icons/visibility-on.svg"
                           }
                           alt="Toggle Password"
                           width={22}
@@ -246,8 +225,7 @@ export default function LoginPage() {
                   <div className="flex justify-end">
                     <span
                       className="text-orange-500 font-semibold cursor-pointer hover:underline"
-                      onClick={() => router.push("/forgot-password")}
-                    >
+                      onClick={() => router.push("/forgot-password")}>
                       Forgot Password?
                     </span>
                   </div>
@@ -256,8 +234,7 @@ export default function LoginPage() {
                   <div className="w-full flex justify-center">
                     <Button
                       type="submit"
-                      className="w-[80%] bg-orange-500 hover:bg-orange-600 font-semibold py-3 transition duration-200"
-                    >
+                      className="w-[80%] bg-orange-500 hover:bg-orange-600 font-semibold py-3 transition duration-200">
                       {loading ? <Loader /> : "Login"}
                     </Button>
                   </div>
@@ -266,11 +243,10 @@ export default function LoginPage() {
 
               {/* Signup Link */}
               <p className="text-center text-gray-600 mt-6">
-              Don&apos;t have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <span
                   className="text-orange-500 font-semibold cursor-pointer hover:underline"
-                  onClick={() => router.push("/auth/signup")}
-                >
+                  onClick={() => router.push("/auth/signup")}>
                   Sign Up
                 </span>
               </p>

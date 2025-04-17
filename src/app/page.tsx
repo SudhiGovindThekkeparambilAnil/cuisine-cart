@@ -19,7 +19,7 @@ export default function Home() {
         if (res.data.role == "diner") {
           router.push("/diner/dashboard");
         } else {
-          router.push("/chef/dashboard");
+          router.push("/chef/subscriptions");
         }
       }
     };
@@ -31,8 +31,7 @@ export default function Home() {
       <div className="fixed bottom-4 right-4">
         <a
           href="#hero"
-          className="text-white p-2 bg-orange-600 rounded-full shadow-lg hover:bg-orange-700"
-        >
+          className="text-white p-2 bg-orange-600 rounded-full shadow-lg hover:bg-orange-700">
           ↑
         </a>
       </div>
