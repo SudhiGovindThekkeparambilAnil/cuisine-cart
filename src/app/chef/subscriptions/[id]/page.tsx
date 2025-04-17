@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 type Status = "pending" | "active" | "paused" | "cancelled";
 
@@ -83,6 +84,7 @@ export default function ChefSubscriptionDetailPage() {
     if (newStatus === sub.status) return;
     await axios.patch(`/api/chef/subscriptions/${id}`, { status: newStatus });
     router.refresh();
+    toast.success(`Subscription Status Updated!`);
   };
 
   const renderSlot = (key: keyof SubscriptionDetail["mealPlan"]["slots"]) => {

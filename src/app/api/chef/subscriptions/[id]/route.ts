@@ -1,12 +1,12 @@
 // src/app/api/chef/subscriptions/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { verifyJwtToken } from "@/utils/jwt";
 import { connectToDatabase } from "@/lib/db";
 import Subscription from "@/models/Subscription";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
   // 1) Auth & role check
-  const token = req.cookies.get("token")?.value;
+  const token = (req as any).cookies?.get("token")?.value;
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   // 2) Connect & load subscription + full mealPlan + full user
   await connectToDatabase();
   const raw = await Subscription.findById(params.id)
-    .populate("mealPlanId") // <-- grab *all* mealPlan fields, including slots
+    .populate("mealPlanId") // grab *all* mealPlan fields, including slots
     .populate("userId", "-password") // grab addresses too
     .lean();
 
@@ -79,9 +79,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   });
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   // 1) Auth & role check
-  const token = req.cookies.get("token")?.value;
+  const token = (req as any).cookies?.get("token")?.value;
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const payload = verifyJwtToken(token);
