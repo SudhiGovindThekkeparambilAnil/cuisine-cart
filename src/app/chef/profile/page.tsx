@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -15,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import Loader from "@/components/Loader";
 import UploadImage from "@/components/core/UploadImage/UploadImage";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogFooter, DialogHeader} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 
 // Define frontend interfaces
@@ -71,17 +69,15 @@ export default function ChefProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
-  const [newSpecialty, setNewSpecialty] = useState('');
-  const [isAddingSpecialty, setIsAddingSpecialty] = useState(false); 
-   const router = useRouter();
-
+  const [newSpecialty, setNewSpecialty] = useState("");
+  const [isAddingSpecialty, setIsAddingSpecialty] = useState(false);
+  const router = useRouter();
 
   // const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true); // Prevents hydration error
   }, []);
-
 
   const handleEditChefInfo = async (field: string, value: string | number | string[]) => {
     try {
@@ -95,7 +91,6 @@ export default function ChefProfilePage() {
       console.error("Error updating profile:", error);
     }
   };
-  
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -114,7 +109,6 @@ export default function ChefProfilePage() {
 
     fetchUserProfile();
   }, []);
-  
 
   async function handleImageUpload(url: string) {
     try {
@@ -131,15 +125,15 @@ export default function ChefProfilePage() {
     }
   }
 
-   // Handle gallery image upload separately
-   async function handleGalleryImageUpload(url: string) {
+  // Handle gallery image upload separately
+  async function handleGalleryImageUpload(url: string) {
     try {
       const updatedGallery: IImage[] = [...(user.imageGallery || []), { url }]; // Store as IImage[]
-  
+
       const res = await axios.patch("/api/user/update", {
         imageGallery: updatedGallery, // Send IImage[] to backend
       });
-  
+
       if (res.status === 200) {
         setUser((prev: IUser) => ({
           ...prev,
@@ -153,10 +147,7 @@ export default function ChefProfilePage() {
       alert("Something went wrong.");
     }
   }
-  
-  
 
-  
   const handleEditName = async (newName: string) => {
     const nameRegex = /^[A-Za-z\s]{2,50}$/;
     if (!nameRegex.test(newName)) {
@@ -164,7 +155,7 @@ export default function ChefProfilePage() {
       return;
     }
 
-    setNameError(""); 
+    setNameError("");
 
     try {
       const response = await axios.post("/api/profile/update", { name: newName });
@@ -180,12 +171,12 @@ export default function ChefProfilePage() {
   };
 
   const handleAddAddress = async (address: IAddress) => {
-    const alreadyExists = user.addresses.some(addr => addr.type === address.type);
+    const alreadyExists = user.addresses.some((addr) => addr.type === address.type);
     if (alreadyExists) {
       alert(`You already have a ${address.type} address.`);
       return;
     }
-  
+
     try {
       const response = await axios.post("/api/profile/add-address", address);
       if (response.status === 200) {
@@ -198,7 +189,6 @@ export default function ChefProfilePage() {
       console.error("Error adding address:", error);
     }
   };
-
 
   const handleEditAddress = (address: IAddress) => {
     setEditingAddress(address);
@@ -226,11 +216,9 @@ export default function ChefProfilePage() {
   };
 
   const validatePassword = (password: string) => {
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
     return passwordRegex.test(password);
   };
-
 
   const handlePasswordReset = async () => {
     if (newPassword !== confirmPassword) {
@@ -247,15 +235,17 @@ export default function ChefProfilePage() {
 
     setPasswordError(null);
 
-
     const token = localStorage.getItem("token");
     if (!token) {
       setPasswordError("Token is missing or expired");
       return;
     }
-    
+
     try {
-      const response = await axios.post("/api/auth/reset-password", { token, password: newPassword });
+      const response = await axios.post("/api/auth/reset-password", {
+        token,
+        password: newPassword,
+      });
       if (response.status === 200) {
         setResetSuccess(true); // Show success box
         setShowPasswordReset(false); // Hide the reset form after successful change
@@ -267,7 +257,6 @@ export default function ChefProfilePage() {
     }
   };
 
-  
   if (loading) {
     return <Loader />; // Show the loader component while loading
   }
@@ -277,7 +266,6 @@ export default function ChefProfilePage() {
       <div className="bg-white shadow-lg rounded-lg p-6 pb-24 w-full max-w-3xl">
         {/* Profile Header */}
         <div className="flex flex-col sm:flex-row items-center justify-between pb-4 border-b border-gray-300">
-
           {/* Profile Icon */}
           <div className="flex flex-col items-center sm:w-1/2 sm:mr-4">
             {isMounted && (
@@ -302,7 +290,7 @@ export default function ChefProfilePage() {
               </div>
             )}
             <div className="mt-4">
-            <UploadImage onUploadComplete={handleImageUpload} />
+              <UploadImage onUploadComplete={handleImageUpload} />
             </div>
           </div>
           <div className="sm:w-2/3 mt-10 sm:mt-0 w-full">
@@ -314,248 +302,279 @@ export default function ChefProfilePage() {
 
         <div className="mt-4">
           <Accordion title="Personal Details">
-          <div className="p-4 bg-white">
-            <EditableField label="Name" value={user.name} isEditable onSave={handleEditName} />
-            {nameError && <p className="text-red-500 mt-1">{nameError}</p>}
-            <EditableField label="Email" value={user.email} isEditable={false} onSave={() => {}} />
-            <EditableField label="Role" value={user.role} isEditable={false} onSave={() => {}} />
+            <div className="p-4 bg-white">
+              <EditableField label="Name" value={user.name} isEditable onSave={handleEditName} />
+              {nameError && <p className="text-red-500 mt-1">{nameError}</p>}
+              <EditableField
+                label="Email"
+                value={user.email}
+                isEditable={false}
+                onSave={() => {}}
+              />
+              <EditableField label="Role" value={user.role} isEditable={false} onSave={() => {}} />
 
-            <div className="mt-4">
-              <h3 className="block">Addresses:</h3>
-              {user.addresses.length > 0 ? (
-                user.addresses.map((address, index) => (
-                  <div key={index} className="border border-[#FFC487] p-2 mt-2 rounded-md flex justify-between items-center">
-                    <div>
-                      <p><strong>Type:</strong> {address.type}</p>
-                      <p><strong>Building Number:</strong> {address.buildingNumber}</p>
-                      <p><strong>Street:</strong> {address.street}</p>
-                      <p><strong>City:</strong> {address.city}</p>
-                      <p><strong>Province:</strong> {address.state}</p>
-                      <p><strong>Postal Code:</strong> {address.postalCode}</p>
-                      <p><strong>Country:</strong> {address.country}</p>
-                      <p><strong>Phone Number:</strong> {address.phoneNumber}</p>
+              <div className="mt-4">
+                <h3 className="block">Addresses:</h3>
+                {user.addresses.length > 0 ? (
+                  user.addresses.map((address, index) => (
+                    <div
+                      key={index}
+                      className="border border-[#FFC487] p-2 mt-2 rounded-md flex justify-between items-center">
+                      <div>
+                        <p>
+                          <strong>Type:</strong> {address.type}
+                        </p>
+                        <p>
+                          <strong>Building Number:</strong> {address.buildingNumber}
+                        </p>
+                        <p>
+                          <strong>Street:</strong> {address.street}
+                        </p>
+                        <p>
+                          <strong>City:</strong> {address.city}
+                        </p>
+                        <p>
+                          <strong>Province:</strong> {address.state}
+                        </p>
+                        <p>
+                          <strong>Postal Code:</strong> {address.postalCode}
+                        </p>
+                        <p>
+                          <strong>Country:</strong> {address.country}
+                        </p>
+                        <p>
+                          <strong>Phone Number:</strong> {address.phoneNumber}
+                        </p>
+                      </div>
+                      <FaPencilAlt
+                        className="text-[#333333] cursor-pointer"
+                        onClick={() => handleEditAddress(address)}
+                      />
                     </div>
-                    <FaPencilAlt
-                                className="text-[#333333] cursor-pointer"
-                                onClick={() => handleEditAddress(address)}
-                              />
-                  </div>
-                ))
-              ) : (
-                <p>No addresses added yet.</p>
-              )}
-              <button onClick={() => setShowModal(true)} className="text-[#F39C12] mt-4">
-                Add Address
-              </button>
-            </div>
+                  ))
+                ) : (
+                  <p>No addresses added yet.</p>
+                )}
+                <button onClick={() => setShowModal(true)} className="text-[#F39C12] mt-4">
+                  Add Address
+                </button>
+              </div>
             </div>
           </Accordion>
 
           {/* New Chef Information Accordion */}
-              <Accordion title="Chef Information">
-                <div className="p-4 bg-white">
-                  <EditableField label="Cuisine Type" value={user.cuisineType || ""} isEditable onSave={(value) => handleEditChefInfo("cuisineType", value)} />
+          <Accordion title="Chef Information">
+            <div className="p-4 bg-white">
+              <EditableField
+                label="Cuisine Type"
+                value={user.cuisineType || ""}
+                isEditable
+                onSave={(value) => handleEditChefInfo("cuisineType", value)}
+              />
 
-                  <div className="mb-2">
-                   
-                    <Label className="block mt-4">Cuisine Specialities</Label>
+              <div className="mb-2">
+                <Label className="block mt-4">Cuisine Specialities</Label>
 
-                    {/* Display specialties as a list */}
-                    <div className="space-y-2 mb-4">
-                      {user.cuisineSpecialties && user.cuisineSpecialties.length > 0 ? (
-                        <ul className="list-disc ">
-                          {(user.cuisineSpecialties ?? []).map((specialty, index) => (
-                            <li key={index} className=" text-gray-600 flex items-center gap-3 justify-between h-11">
-                              <div className="flex items-center space-x-2 w-full">
-                                <EditableField
-                                  label=""
-                                  value={specialty}
-                                  isEditable
-                                  onSave={(newValue) => {
-                                    // Update the specialty when edited
-                                    const updatedSpecialties = [...(user.cuisineSpecialties ?? [])];
-                                    updatedSpecialties[index] = newValue.trim();
-                                    handleEditChefInfo("cuisineSpecialties", updatedSpecialties);
-                                  }}
-                        
-                                />
-                              </div>
-                              
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-sm text-gray-600">No specialties added yet.</p>
-                      )}
-                    </div>
-
-                  {/* Button to toggle adding a new specialty */}
-                  {!isAddingSpecialty ? (
-                          <Button className="px-3 py-1.5 text-white text-sm" 
-                            onClick={() => setIsAddingSpecialty(true)} // Show the input field when clicked
-                            > Add Specialty
-                          </Button>
-                        ) : (
-                          <div className="flex flex-col sm:flex-row items-center w-full">
-                            <input
-                              type="text"
-                              value={newSpecialty}
-                              onChange={(e) => setNewSpecialty(e.target.value)}
-                              placeholder="Add new specialty"
-                              className="p-2 border border-gray-300 rounded-md w-full"
+                {/* Display specialties as a list */}
+                <div className="space-y-2 mb-4">
+                  {user.cuisineSpecialties && user.cuisineSpecialties.length > 0 ? (
+                    <ul className="list-disc ">
+                      {(user.cuisineSpecialties ?? []).map((specialty, index) => (
+                        <li
+                          key={index}
+                          className=" text-gray-600 flex items-center gap-3 justify-between h-11">
+                          <div className="flex items-center space-x-2 w-full">
+                            <EditableField
+                              label=""
+                              value={specialty}
+                              isEditable
+                              onSave={(newValue) => {
+                                // Update the specialty when edited
+                                const updatedSpecialties = [...(user.cuisineSpecialties ?? [])];
+                                updatedSpecialties[index] = newValue.trim();
+                                handleEditChefInfo("cuisineSpecialties", updatedSpecialties);
+                              }}
                             />
-                            
-                            <div className="flex flex-col sm:flex-row items-center justify-center w-full sm:w-auto mt-2 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-2">
-                            <Button className="w-full sm:w-auto" onClick={() => {
-                                if (newSpecialty.trim()) {
-                                  const updatedSpecialties = [...(user.cuisineSpecialties ?? []), newSpecialty.trim()];
-                                  handleEditChefInfo("cuisineSpecialties", updatedSpecialties);
-                                  setNewSpecialty(""); // Reset input after adding
-                                }
-                                setIsAddingSpecialty(false); // Hide the input field after adding
-                              }}>Add</Button>
-                            <Button onClick={() => setIsAddingSpecialty(false)} // Hide the input field when clicked
-                              className="bg-gray-500 text-white hover:bg-gray-600 w-full sm:w-auto">Cancel</Button>
-                           </div>
                           </div>
-                        )}
-
-                  </div>
-
-
-                  <EditableField
-                    label="Years of Experience"
-                    value={user.yearsOfExperience?.toString() || ""}
-                    isEditable
-                    onSave={(value) => handleEditChefInfo("yearsOfExperience", Number(value))}
-                  />
-                </div>
-              </Accordion>
-              <Accordion title="Image Gallery">
-                <div className="p-4 bg-white">
-                <p className="text-sm text-gray-600 mb-3">Bring your gallery to life by uploading stunning visuals that truly represent your creative journey or showcase your best moments.</p>
-                  <div className="mb-6">
-                    <UploadImage onUploadComplete={handleGalleryImageUpload} />
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="font-semibold text-lg mb-2">Gallery</h3>
-                    {/* Display uploaded images here */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {user.imageGallery?.map((image, index) => (
-                        <div key={index} className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
-                          <Image
-                            src={image.url}
-                            alt={`Gallery Image ${index + 1}`}
-                            width={200}
-                            height={200}
-                            className="object-cover w-full h-full"
-                          />
-                        </div>
+                        </li>
                       ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-600">No specialties added yet.</p>
+                  )}
+                </div>
+
+                {/* Button to toggle adding a new specialty */}
+                {!isAddingSpecialty ? (
+                  <Button
+                    className="px-3 py-1.5 text-white text-sm"
+                    onClick={() => setIsAddingSpecialty(true)} // Show the input field when clicked
+                  >
+                    {" "}
+                    Add Specialty
+                  </Button>
+                ) : (
+                  <div className="flex flex-col sm:flex-row items-center w-full">
+                    <input
+                      type="text"
+                      value={newSpecialty}
+                      onChange={(e) => setNewSpecialty(e.target.value)}
+                      placeholder="Add new specialty"
+                      className="p-2 border border-gray-300 rounded-md w-full"
+                    />
+
+                    <div className="flex flex-col sm:flex-row items-center justify-center w-full sm:w-auto mt-2 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-2">
+                      <Button
+                        className="w-full sm:w-auto"
+                        onClick={() => {
+                          if (newSpecialty.trim()) {
+                            const updatedSpecialties = [
+                              ...(user.cuisineSpecialties ?? []),
+                              newSpecialty.trim(),
+                            ];
+                            handleEditChefInfo("cuisineSpecialties", updatedSpecialties);
+                            setNewSpecialty(""); // Reset input after adding
+                          }
+                          setIsAddingSpecialty(false); // Hide the input field after adding
+                        }}>
+                        Add
+                      </Button>
+                      <Button
+                        onClick={() => setIsAddingSpecialty(false)} // Hide the input field when clicked
+                        className="bg-gray-500 text-white hover:bg-gray-600 w-full sm:w-auto">
+                        Cancel
+                      </Button>
                     </div>
                   </div>
+                )}
+              </div>
+
+              <EditableField
+                label="Years of Experience"
+                value={user.yearsOfExperience?.toString() || ""}
+                isEditable
+                onSave={(value) => handleEditChefInfo("yearsOfExperience", Number(value))}
+              />
+            </div>
+          </Accordion>
+          <Accordion title="Image Gallery">
+            <div className="p-4 bg-white">
+              <p className="text-sm text-gray-600 mb-3">
+                Bring your gallery to life by uploading stunning visuals that truly represent your
+                creative journey or showcase your best moments.
+              </p>
+              <div className="mb-6">
+                <UploadImage onUploadComplete={handleGalleryImageUpload} />
+              </div>
+              <div className="mt-4">
+                <h3 className="font-semibold text-lg mb-2">Gallery</h3>
+                {/* Display uploaded images here */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {user.imageGallery?.map((image, index) => (
+                    <div key={index} className="w-full h-32 bg-gray-200 rounded-md overflow-hidden">
+                      <Image
+                        src={image.url}
+                        alt={`Gallery Image ${index + 1}`}
+                        width={200}
+                        height={200}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  ))}
                 </div>
-              </Accordion>
+              </div>
+            </div>
+          </Accordion>
 
           {/* Account and Security Accordion */}
           <Accordion title="Account and Security">
             <p>
-            Here you can update your account password and strengthen your security of your account.
+              Here you can update your account password and strengthen your security of your
+              account.
             </p>
-            <button
-              onClick={() => setShowPasswordReset(true)}
-              className="text-[#F39C12] mt-2"
-            >
+            <button onClick={() => setShowPasswordReset(true)} className="text-[#F39C12] mt-2">
               Set New Password
             </button>
 
             {showPasswordReset && (
               <div className="mt-4">
                 {/* New Password Field */}
-                            <div className="relative">
-                              <Label className="block">New Password</Label>
-                              {/* Password Icon (Left) */}
-                              <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                                <Image
-                                  src="/icons/password.svg"
-                                  alt="Password Icon"
-                                  width={22}
-                                  height={22}
-                                  className="filter invert-0 brightness-0"
-                                />
-                              </span>
-                              <Input
-                                type={showNewPassword ? "text" : "password"}
-                                className="border p-3 pl-12 pr-12 rounded mt-2 w-full"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                              />
-                              <span
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                                onClick={() => setShowNewPassword(!showNewPassword)}
-                              >
-                                <Image
-                                  src={
-                                    showNewPassword
-                                      ? "/icons/visibility-on.svg"
-                                      : "/icons/visibility-off.svg"
-                                      
-                                  }
-                                  alt="Toggle Password"
-                                  width={22}
-                                  height={22}
-                                  className="filter invert-0 brightness-0"
-                                />
-                              </span>
-                              
-                            </div>
-                            <p className="text-gray-600 text-xs">
-                              Password must be 8-16 characters, include at least:
-                              <br />✔ One uppercase letter
-                              <br />✔ One lowercase letter
-                              <br />✔ One number
-                              <br />✔ One special character (@, #, $, etc.)
-                            </p>
-                            {/* Confirm Password Field */}
-                            <div className="relative mt-4">
-                              <Label className="block">Confirm New Password</Label>
-                              {/* Password Icon (Left) */}
-                              <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                                <Image
-                                  src="/icons/password.svg"
-                                  alt="Password Icon"
-                                  width={22}
-                                  height={22}
-                                  className="filter invert-0 brightness-0"
-                                />
-                              </span>
-                              <Input
-                                type={showConfirmPassword ? "text" : "password"}
-                                className="border p-3 pl-12 pr-12 rounded mt-2 w-full"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                              />
-                              
-                              <span
-                                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                              >
-                                <Image
-                                  src={
-                                    showConfirmPassword
-                                      ? "/icons/visibility-on.svg"
-                                      : "/icons/visibility-off.svg"
-                                  }
-                                  alt="Toggle Password"
-                                  width={22}
-                                  height={22}
-                                  className="filter invert-0 brightness-0"
-                                />
-                              </span>
-                            </div>
-                {passwordError && (
-                  <p className="text-red-500 mt-2">{passwordError}</p>
-                )}
+                <div className="relative">
+                  <Label className="block">New Password</Label>
+                  {/* Password Icon (Left) */}
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    <Image
+                      src="/icons/password.svg"
+                      alt="Password Icon"
+                      width={22}
+                      height={22}
+                      className="filter invert-0 brightness-0"
+                    />
+                  </span>
+                  <Input
+                    type={showNewPassword ? "text" : "password"}
+                    className="border p-3 pl-12 pr-12 rounded mt-2 w-full"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <span
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    onClick={() => setShowNewPassword(!showNewPassword)}>
+                    <Image
+                      src={
+                        showNewPassword ? "/icons/visibility-on.svg" : "/icons/visibility-off.svg"
+                      }
+                      alt="Toggle Password"
+                      width={22}
+                      height={22}
+                      className="filter invert-0 brightness-0"
+                    />
+                  </span>
+                </div>
+                <p className="text-gray-600 text-xs">
+                  Password must be 8-16 characters, include at least:
+                  <br />✔ One uppercase letter
+                  <br />✔ One lowercase letter
+                  <br />✔ One number
+                  <br />✔ One special character (@, #, $, etc.)
+                </p>
+                {/* Confirm Password Field */}
+                <div className="relative mt-4">
+                  <Label className="block">Confirm New Password</Label>
+                  {/* Password Icon (Left) */}
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    <Image
+                      src="/icons/password.svg"
+                      alt="Password Icon"
+                      width={22}
+                      height={22}
+                      className="filter invert-0 brightness-0"
+                    />
+                  </span>
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    className="border p-3 pl-12 pr-12 rounded mt-2 w-full"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+
+                  <span
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                    <Image
+                      src={
+                        showConfirmPassword
+                          ? "/icons/visibility-on.svg"
+                          : "/icons/visibility-off.svg"
+                      }
+                      alt="Toggle Password"
+                      width={22}
+                      height={22}
+                      className="filter invert-0 brightness-0"
+                    />
+                  </span>
+                </div>
+                {passwordError && <p className="text-red-500 mt-2">{passwordError}</p>}
 
                 <div className="mt-4 flex gap-2">
                   <Button className="px-4 py-2 text-white rounded" onClick={handlePasswordReset}>
@@ -563,8 +582,7 @@ export default function ChefProfilePage() {
                   </Button>
                   <Button
                     className="px-4 py-2 bg-gray-500 text-white rounded"
-                    onClick={() => setShowPasswordReset(false)}
-                  >
+                    onClick={() => setShowPasswordReset(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -574,18 +592,22 @@ export default function ChefProfilePage() {
 
           {/* Show success message after password reset */}
           <Dialog open={resetSuccess} onOpenChange={setResetSuccess}>
-                  <DialogContent>
-                    <DialogHeader>
-                      <h2 className="text-xl text-center font-bold">Password Reset Successfully</h2>
-                    </DialogHeader>
-                    <div className="flex justify-center">
-                      <Image src="/passwordReset.png" alt="Success" width={150} height={150} />
-                    </div>
-                    <DialogFooter className="flex justify-center mt-4">
-                      <Button className="mt-4 px-4 py-2 text-white rounded" onClick={() => setResetSuccess(false)}>OK</Button>
-                    </DialogFooter>
-                  </DialogContent>
-            </Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <h2 className="text-xl text-center font-bold">Password Reset Successfully</h2>
+              </DialogHeader>
+              <div className="flex justify-center">
+                <Image src="/passwordReset.png" alt="Success" width={150} height={150} />
+              </div>
+              <DialogFooter className="flex justify-center mt-4">
+                <Button
+                  className="mt-4 px-4 py-2 text-white rounded"
+                  onClick={() => setResetSuccess(false)}>
+                  OK
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {showModal && (
             <AddAddressModal
@@ -595,12 +617,11 @@ export default function ChefProfilePage() {
               }}
               onSave={editingAddress ? handleSaveEditedAddress : handleAddAddress}
               initialAddress={editingAddress}
-              existingAddresses={user.addresses} 
+              existingAddresses={user.addresses}
             />
           )}
         </div>
+      </div>
     </div>
-  </div>
   );
 }
-
