@@ -10,12 +10,26 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import DishCard from "@/components/diner/DishCard";
 import jwt from "jsonwebtoken";
+import { useParams } from "next/navigation";
 interface OrderItem {
   itemName: string;
   chefName: string;
   quantity: number;
   imageUrl: string;
   orderId: string;
+}
+interface Subscription {
+  _id: string;
+  userId: string;
+  mealPlanId: {
+    planName: string;
+    planImage?: string;
+    chefName?: string; // if you store that
+  };
+  weeks: number;
+  totalPrice: number;
+  deliveryTime: string;
+  status: "pending" | "active" | "cancelled" | "paused";
 }
 
 export default function DashboardPage() {
@@ -25,9 +39,11 @@ export default function DashboardPage() {
     role: string;
     name: string;
   } | null>(null);
+  const { id } = useParams();
 
   const [favoriteDishes, setFavoriteDishes] = useState<any[]>([]);
   const [orderHistory, setOrderHistory] = useState<OrderItem[]>([]);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -41,6 +57,29 @@ export default function DashboardPage() {
         router.push("/auth/login");
       }
     };
+    // const fetchSubscription = async () => {
+    //   try {
+    //     const res = await axios.get(`/api/subscriptions/${id}`); // or your endpoint
+    //     setSubscription(res.data);
+    //   } catch (err) {
+    //     console.error("Failed to load subscription:", err);
+    //   }
+    // };
+    const fetchSubscription = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const decodedToken: any = jwt.decode(token);
+        const userId = decodedToken.id;
+
+        const res = await axios.get(`/api/subscriptions/user/${userId}`);
+        setSubscription(res.data);
+      } catch (err) {
+        console.error("Failed to load subscription:", err);
+      }
+    };
+
     const fetchFavorites = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -85,6 +124,7 @@ export default function DashboardPage() {
       }
     };
     fetchUser();
+    fetchSubscription();
     fetchFavorites();
     fetchOrderHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -102,57 +142,63 @@ export default function DashboardPage() {
         {/* Subscription Plan */}
         <div>
           <h2 className="text-xl font-bold mb-4">Subscription Plan</h2>
-          <Card className="overflow-hidden">
-            <div className="flex flex-col lg:flex-row">
-              {/* Image Container - Makes it Responsive */}
-              <div className="w-full lg:w-2/5 relative">
-                <div className="w-full h-full">
-                  <Image
-                    src="/images/sub-plan.jpg"
-                    alt="Indian Food"
-                    width={200}
-                    height={200}
-                    className=" w-full h-[200px] md:h-full object-cover border rounded-xl"
-                  />
+          {subscription ? (
+            <Card className="overflow-hidden">
+              <div className="flex flex-col lg:flex-row">
+                {/* Image Container - Makes it Responsive */}
+                <div className="w-full lg:w-2/5 relative">
+                  <div className="w-full h-full">
+                    <Image
+                      src={
+                        subscription.mealPlanId.planImage ||
+                        "/images/sub-plan.jpg"
+                      }
+                      alt={subscription.mealPlanId.planName}
+                      width={200}
+                      height={200}
+                      className=" w-full h-[200px] md:h-full object-cover border rounded-xl"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Subscription Details */}
-              <div className="p-4 flex-1">
-                <div className="space-y-2">
-                  <div>
-                    <span className="font-semibold">Chef Name:</span> Prasanth
-                    Food Services
-                  </div>
-                  <div>
-                    <span className="font-semibold">Subscription type:</span>{" "}
-                    Weekly
-                  </div>
-                  <div>
-                    <span className="font-semibold">Subscription details:</span>{" "}
-                    (Mon - Fri) included
-                  </div>
-                  <div>15 Rotis & Paneer or Dal of your choice.</div>
-                  <div>
-                    <span className="font-semibold">Price:</span> 38$ (weekly)
-                  </div>
-                  <div className="pt-2 space-y-2">
-                    <Button className="w-full text-xs sm:text-sm bg-[#F39C12] hover:bg-[#E67E22] text-white">
-                      View Subscription
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full text-xs sm:text-sm border-[#F39C12] text-[#F39C12] hover:bg-[#FFF8EF] hover:text-[#E67E22]"
-                    >
-                      Cancel Subscription
-                    </Button>
+                {/* Subscription Details */}
+                <div className="p-4 flex-1">
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-semibold">Meal Plan:</span>
+                      {subscription.mealPlanId.planName}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Weeks:</span>
+                      {subscription.weeks}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Delivery Time:</span>
+                      {subscription.deliveryTime}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Price:</span>{" "}
+                      {subscription.totalPrice}
+                    </div>
+                    <div className="pt-2 space-y-2">
+                      <Button className="w-full text-xs sm:text-sm bg-[#F39C12] hover:bg-[#E67E22] text-white">
+                        View Subscription
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full text-xs sm:text-sm border-[#F39C12] text-[#F39C12] hover:bg-[#FFF8EF] hover:text-[#E67E22]"
+                      >
+                        Cancel Subscription
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          ) : (
+            <div className="text-gray-500">No active subscription</div>
+          )}
         </div>
-
         {/* Chef Recommendations */}
         <ChefRecommendations />
       </div>
