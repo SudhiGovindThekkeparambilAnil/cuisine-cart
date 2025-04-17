@@ -9,6 +9,35 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-03-31.basil",
 });
 
+// --- LIST ALL SUBSCRIPTIONS FOR THE LOGGED-IN USER ---
+export async function GET(req: NextRequest) {
+  const token = req.cookies.get("token")?.value;
+  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const payload = verifyJwtToken(token);
+  if (!payload) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+
+  await connectToDatabase();
+  const subs = await Subscription.find({ userId: payload.id })
+    .populate("mealPlanId", "planName planImage")
+    .lean();
+
+  // shape output for your UI
+  const data = subs.map((s) => ({
+    _id: s._id,
+    status: s.status,
+    weeks: s.weeks,
+    totalPrice: s.totalPrice,
+    nextDelivery: s.deliveryTime?.toISOString() || new Date().toISOString(),
+    mealPlanId: {
+      _id: (s.mealPlanId as any)._id.toString(),
+      planName: (s.mealPlanId as any).planName,
+      planImage: (s.mealPlanId as any).planImage,
+    },
+  }));
+
+  return NextResponse.json(data);
+}
+
 export async function POST(req: NextRequest) {
   try {
     // 1) Auth
