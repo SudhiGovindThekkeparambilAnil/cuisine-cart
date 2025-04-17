@@ -58,11 +58,6 @@ export default function DashboardPage() {
 
     const fetchSubscription = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const decodedToken: any = jwt.decode(token);
-
         const res = await axios.get<SubscriptionSummary[]>(
           "/api/subscriptions"
         );
