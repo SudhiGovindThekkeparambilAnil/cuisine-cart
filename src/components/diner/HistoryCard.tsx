@@ -49,7 +49,7 @@ export default function HistoryCard({
         {/* Buttons - Inline & Responsive */}
         <div className="flex justify-center sm:justify-start gap-2 mt-3 flex-wrap">
           <Button
-            className="bg-[#F39C12] hover:bg-[#E67E22] text-white text-sm"
+            className="text-sm"
             onClick={() => router.push(`/diner/order/${orderId}`)}
           >
             View more

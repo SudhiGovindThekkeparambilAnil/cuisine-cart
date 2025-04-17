@@ -18,8 +18,8 @@ interface DishCardProps {
 
 export default function DishCard({ dish }: DishCardProps) {
   return (
-    <div className="flex border-b mb-4 pb-4">
-      <div className="w-20 h-20 flex-shrink-0">
+    <div className="flex flex-col sm:flex-row border-b mb-4 pb-4 items-center sm:items-start gap-4 w-full">
+      <div className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
         <Image
           src={dish.photoUrl || "/placeholder.jpg"}
           alt={dish.name}
@@ -28,8 +28,8 @@ export default function DishCard({ dish }: DishCardProps) {
           className="w-full h-full object-cover rounded-md"
         />
       </div>
-      <div className="ml-4 flex-1">
-        <div className="space-y-1">
+      <div className="flex-1 w-full">
+        <div className="space-y-1 text-center sm:text-left">
           <div>
             <span className="font-semibold">Dish Name:</span> {dish.name}
           </div>
@@ -41,7 +41,7 @@ export default function DishCard({ dish }: DishCardProps) {
             {dish.price.toFixed(2)}
           </div>
         </div>
-        <div className="mt-2">
+        <div className="flex justify-center sm:justify-start gap-2 mt-3 flex-wrap">
           <Link href={`/diner/dishes/${dish._id}`}>
             <Button className="text-sm">View Details</Button>
           </Link>
