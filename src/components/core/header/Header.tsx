@@ -75,6 +75,7 @@ export default function Header() {
 
   const chefNavigation = [
     { name: "Dashboard", href: "/chef/dashboard" },
+    { name: "Subscriptions", href: "/chef/subscriptions" },
     { name: "Meal Plans", href: "/chef/meal-plans" },
     { name: "Dishes", href: "/chef/dishes" },
     { name: "Orders", href: "/chef/order" },

@@ -1,15 +1,15 @@
-
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IAddress {
   type: string; // e.g., "Home", "Work", "Other"
-  buildingNumber?: string; 
+  buildingNumber?: string;
   street: string;
   city: string;
   state: string;
   postalCode: string;
   country: string;
-  phoneNumber?: string; 
+  phoneNumber?: string;
+  _id?: string;
 }
 
 export interface IUser extends Document {
@@ -17,7 +17,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   profileImage?: string;
-  imageGallery?: { url: string }[]; 
+  imageGallery?: { url: string }[];
   role: "driver" | "diner" | "chef";
   addresses?: IAddress[];
   cuisineType?: string;
@@ -41,7 +41,7 @@ const UserSchema = new Schema<IUser>({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   profileImage: { type: String, default: "" },
-  imageGallery: [{ url: { type: String, required: true } }],  // Ensure default empty string to prevent errors
+  imageGallery: [{ url: { type: String, required: true } }], // Ensure default empty string to prevent errors
   role: { type: String, enum: ["driver", "diner", "chef"], required: true },
   addresses: { type: [AddressSchema], default: [] },
   cuisineType: { type: String },
